@@ -5,40 +5,48 @@ import { Trophy, Wallet, ChevronRight, ChevronLeft, Target, Search, ArrowUp, Arr
 // THEME A: Purple/Navy (original, WCAG-fixed)
 const themeA_light = {
   gradientStart: '#1E1B4B', gradientMid: '#2D2686', gradientEnd: '#3730A3',
-  bg: '#F3F4F6', bgLight: '#F9FAFB', card: '#FFFFFF',
+  bg: '#FFFFFF',           // pure white
+  bgLight: '#F5F5F7',      // very subtle off-white
+  card: '#FFFFFF',
   navy: '#1E1B4B',
   accent: '#3730A3',       // indigo-700 — 9.93:1 on white ✅ AAA
+  accentText: '#3730A3',   // same as accent in light mode
   accentLight: '#E0E7FF',
   textDark: '#1F2937', textMid: '#4B5563', textMuted: '#6B7280', textLight: '#5F6B7A',
-  green: '#047857',        // emerald-700 — 5.48:1 on white ✅
+  green: '#047857',
   greenLight: '#D1FAE5',
-  red: '#B91C1C',          // red-700 — 6.47:1 on white ✅
+  red: '#B91C1C',
   redLight: '#FEE2E2',
-  orange: '#C2410C',       // orange-700 — 5.18:1 on white ✅
+  orange: '#C2410C',
   decorativeOrange: '#F97316',
   border: '#E5E7EB',
-  headerBg: 'linear-gradient(135deg, #1E1B4B 0%, #312E81 50%, #4338CA 100%)',
-  navBg:    'linear-gradient(135deg, #1E1B4B 0%, #312E81 50%, #4338CA 100%)',
-  modalBg: '#FFFFFF', inputBg: '#F9FAFB', sectionBg: '#E5E5EA',
+  headerBg: 'linear-gradient(135deg, #1E1B4B 0%, #2D2686 50%, #3730A3 100%)',
+  navBg: 'transparent',
+  navBg2: '#F2F2F7',
+  modalBg: '#FFFFFF', inputBg: '#F5F5F7', sectionBg: '#F2F2F7',
   logoColor: '#FFFFFF', wordmarkColor: '#FFFFFF',
 };
 const themeA_dark = {
-  gradientStart: '#0F0D2E', gradientMid: '#1A1850', gradientEnd: '#2D2A7A',
-  bg: '#0F0D2E', bgLight: '#161440', card: '#1E1B4B',
-  navy: '#E2E8F0',
-  accent: '#818CF8',       // indigo-400 — 6.05:1 on dark card ✅
-  accentLight: '#1E1B4B',
-  textDark: '#F1F5F9', textMid: '#CBD5E1', textMuted: '#94A3B8', textLight: '#94A3B8',
-  green: '#34D399',        // emerald-400 — 8.32:1 on card ✅
+  gradientStart: '#1E1B4B', gradientMid: '#2D2686', gradientEnd: '#3730A3',
+  bg: '#1A1D22',           // dark bg — minimally lighter than card
+  bgLight: '#2B3139',      // elevated sections
+  card: '#222630',
+  navy: '#EAECEF',         // primary text ~18:1 on bg ✅ AAA
+  accent: '#3730A3',       // indigo-700 — same as light mode for buttons ✅
+  accentText: '#818CF8',   // indigo-400 for text/labels on dark bg ✅ AA
+  accentLight: '#1E1B4B',  // dark indigo for active highlights
+  textDark: '#EAECEF', textMid: '#C7C9CC', textMuted: '#848E9C', textLight: '#848E9C',
+  green: '#34D399',        // 7.25:1 on card ✅ AAA
   greenLight: '#064E3B',
-  red: '#F87171',          // red-400 — 5.78:1 on card ✅
-  redLight: '#450A0A',
-  orange: '#FB923C',       // orange-400 — 7.06:1 on card ✅
+  red: '#F87171',          // 5.04:1 on card ✅ AA
+  redLight: '#3B0000',
+  orange: '#FB923C',       // 6.16:1 on card ✅ AA
   decorativeOrange: '#FB923C',
-  border: '#2D2A5E',
-  headerBg: 'linear-gradient(135deg, #0F0D2E 0%, #1A1850 50%, #2D2A7A 100%)',
-  navBg:    'linear-gradient(135deg, #0F0D2E 0%, #1A1850 50%, #2D2A7A 100%)',
-  modalBg: '#1E1B4B', inputBg: '#161440', sectionBg: '#161440',
+  border: '#2B3139',       // subtle dark border
+  headerBg: 'linear-gradient(135deg, #1E1B4B 0%, #2D2686 50%, #3730A3 100%)',
+  navBg: 'none',           // bottom nav matches bg in dark mode
+  navBg2: '#2C2C2E',       // pill container
+  modalBg: '#222630', inputBg: '#1A1D22', sectionBg: '#2B3139',
   logoColor: '#FFFFFF', wordmarkColor: '#FFFFFF',
 };
 
@@ -190,19 +198,45 @@ const generateR128 = () => {
   return m;
 };
 
+// Entry tiers per tournament type
+const ENTRY_TIERS = {
+  atp250:    [
+    { id:'starter', label:'Starter',  entry:10,  poolEntry:9,  color:'#6B7280', entries:842,  prizeMulti:1   },
+    { id:'pro',     label:'Pro',      entry:25,  poolEntry:23, color:'#3730A3', entries:356,  prizeMulti:2.5 },
+    { id:'elite',   label:'Elite',    entry:50,  poolEntry:46, color:'#B45309', entries:124,  prizeMulti:5   },
+  ],
+  atp500:    [
+    { id:'starter', label:'Starter',  entry:15,  poolEntry:13, color:'#6B7280', entries:1205, prizeMulti:1   },
+    { id:'pro',     label:'Pro',      entry:50,  poolEntry:46, color:'#3730A3', entries:489,  prizeMulti:3   },
+    { id:'elite',   label:'Elite',    entry:100, poolEntry:92, color:'#B45309', entries:167,  prizeMulti:6   },
+  ],
+  atp1000:   [
+    { id:'starter', label:'Starter',  entry:20,  poolEntry:18, color:'#6B7280', entries:2156, prizeMulti:1   },
+    { id:'pro',     label:'Pro',      entry:50,  poolEntry:46, color:'#3730A3', entries:891,  prizeMulti:2.5 },
+    { id:'elite',   label:'Elite',    entry:100, poolEntry:92, color:'#B45309', entries:312,  prizeMulti:5   },
+  ],
+  grandslam: [
+    { id:'starter', label:'Starter',  entry:25,  poolEntry:23, color:'#6B7280', entries:3420, prizeMulti:1   },
+    { id:'pro',     label:'Pro',      entry:75,  poolEntry:69, color:'#3730A3', entries:1240, prizeMulti:3   },
+    { id:'elite',   label:'Elite',    entry:150, poolEntry:138,color:'#B45309', entries:425,  prizeMulti:6   },
+  ],
+};
+
+const getTiers = (tournament) => ENTRY_TIERS[tournament?.type] || ENTRY_TIERS.atp1000;
+
 const tournaments = [
-  { id:1, month:'March 2026', dates:'04-15', dateSuffix:'Mar', type:'atp1000', name:'Indian Wells', subtitle:'BNP Paribas Open', status:'live', pool:85000, entries:2156, entry:22, poolEntry:20, surface:'Hard' },
-  { id:2, month:'March 2026', dates:'18-29', dateSuffix:'Mar', type:'atp1000', name:'Miami', subtitle:'Miami Open presented by Itau', status:'open', pool:78000, entries:1892, entry:22, poolEntry:20, surface:'Hard' },
-  { id:3, month:'March 2026', dates:'30 Mar -', dateSuffix:'05 Apr', type:'atp250', name:'Houston', subtitle:"U.S. Men's Clay Court Championship", status:'upcoming', pool:18000, entries:0, entry:10, poolEntry:8, surface:'Clay' },
-  { id:4, month:'March 2026', dates:'30 Mar -', dateSuffix:'05 Apr', type:'atp250', name:'Marrakech', subtitle:'Grand Prix Hassan II', status:'upcoming', pool:15000, entries:0, entry:10, poolEntry:8, surface:'Clay' },
+  { id:1, month:'March 2026', dates:'04-15', dateSuffix:'Mar', type:'atp1000', name:'Indian Wells', subtitle:'BNP Paribas Open', status:'live', pool:85000, entries:2156, entry:20, poolEntry:18, surface:'Hard' },
+  { id:2, month:'March 2026', dates:'18-29', dateSuffix:'Mar', type:'atp1000', name:'Miami', subtitle:'Miami Open presented by Itau', status:'open', pool:78000, entries:1892, entry:20, poolEntry:18, surface:'Hard' },
+  { id:3, month:'March 2026', dates:'30 Mar', dateSuffix:'05 Apr', type:'atp250', name:'Houston', subtitle:"U.S. Men's Clay Court Championship", status:'upcoming', pool:18000, entries:0, entry:10, poolEntry:9, surface:'Clay' },
+  { id:4, month:'March 2026', dates:'30 Mar', dateSuffix:'05 Apr', type:'atp250', name:'Marrakech', subtitle:'Grand Prix Hassan II', status:'upcoming', pool:15000, entries:0, entry:10, poolEntry:9, surface:'Clay' },
   { id:5, month:'April 2026', dates:'05-12', dateSuffix:'Apr', type:'atp1000', name:'Monte-Carlo', subtitle:'Rolex Monte-Carlo Masters', status:'upcoming', pool:65000, entries:0, entry:20, poolEntry:18, surface:'Clay' },
-  { id:6, month:'April 2026', dates:'13-19', dateSuffix:'Apr', type:'atp500', name:'Barcelona', subtitle:'Barcelona Open Banc Sabadell', status:'upcoming', pool:32000, entries:0, entry:15, poolEntry:12, surface:'Clay' },
-  { id:7, month:'April 2026', dates:'13-19', dateSuffix:'Apr', type:'atp500', name:'Munich', subtitle:'BMW Open by Bitpanda', status:'upcoming', pool:28000, entries:0, entry:15, poolEntry:12, surface:'Clay' },
-  { id:8, month:'April 2026', dates:'22 Apr -', dateSuffix:'03 May', type:'atp1000', name:'Madrid', subtitle:'Mutua Madrid Open', status:'upcoming', pool:72000, entries:0, entry:22, poolEntry:20, surface:'Clay' },
-  { id:9, month:'May 2026', dates:'06-17', dateSuffix:'May', type:'atp1000', name:'Rome', subtitle:"Internazionali BNL d'Italia", status:'upcoming', pool:70000, entries:0, entry:22, poolEntry:20, surface:'Clay' },
-  { id:10, month:'May 2026', dates:'17-23', dateSuffix:'May', type:'atp500', name:'Hamburg', subtitle:'Bitpanda Hamburg Open', status:'upcoming', pool:25000, entries:0, entry:15, poolEntry:12, surface:'Clay' },
-  { id:11, month:'May 2026', dates:'17-23', dateSuffix:'May', type:'atp250', name:'Geneva', subtitle:'Gonet Geneva Open', status:'upcoming', pool:14000, entries:0, entry:10, poolEntry:8, surface:'Clay' },
-  { id:12, month:'May 2026', dates:'24 May -', dateSuffix:'07 Jun', type:'grandslam', name:'Paris', subtitle:'Roland Garros', status:'upcoming', pool:150000, entries:0, entry:35, poolEntry:30, surface:'Clay' },
+  { id:6, month:'April 2026', dates:'13-19', dateSuffix:'Apr', type:'atp500', name:'Barcelona', subtitle:'Barcelona Open Banc Sabadell', status:'upcoming', pool:32000, entries:0, entry:15, poolEntry:13, surface:'Clay' },
+  { id:7, month:'April 2026', dates:'13-19', dateSuffix:'Apr', type:'atp500', name:'Munich', subtitle:'BMW Open by Bitpanda', status:'upcoming', pool:28000, entries:0, entry:15, poolEntry:13, surface:'Clay' },
+  { id:8, month:'April 2026', dates:'22 Apr', dateSuffix:'03 May', type:'atp1000', name:'Madrid', subtitle:'Mutua Madrid Open', status:'upcoming', pool:72000, entries:0, entry:20, poolEntry:18, surface:'Clay' },
+  { id:9, month:'May 2026', dates:'06-17', dateSuffix:'May', type:'atp1000', name:'Rome', subtitle:"Internazionali BNL d'Italia", status:'upcoming', pool:70000, entries:0, entry:20, poolEntry:18, surface:'Clay' },
+  { id:10, month:'May 2026', dates:'17-23', dateSuffix:'May', type:'atp500', name:'Hamburg', subtitle:'Bitpanda Hamburg Open', status:'upcoming', pool:25000, entries:0, entry:15, poolEntry:13, surface:'Clay' },
+  { id:11, month:'May 2026', dates:'17-23', dateSuffix:'May', type:'atp250', name:'Geneva', subtitle:'Gonet Geneva Open', status:'upcoming', pool:14000, entries:0, entry:10, poolEntry:9, surface:'Clay' },
+  { id:12, month:'May 2026', dates:'24 May', dateSuffix:'07 Jun', type:'grandslam', name:'Paris', subtitle:'Roland Garros', status:'upcoming', pool:150000, entries:0, entry:25, poolEntry:23, surface:'Clay' },
 ];
 
 const liveMatches = [
@@ -297,7 +331,6 @@ const calcPrizePool = (entries, poolEntry) => entries * poolEntry;
 // ─── AO LOGO SVG ──────────────────────────────────────────────────────────────
 // Recreated from the mobaOne brand image: stylised "A" triangle + "O" circle arc
 
-import { Trophy, Wallet, ChevronRight, ChevronLeft, Target, Search, ArrowUp, ArrowDown, Radio, BarChart2, User, X, Check, TrendingUp, Plus, CheckCircle, Heart, Calendar, ChevronDown, LogIn, Sun, Moon } from 'lucide-react';
 
 // ─── THEME DEFINITIONS ────────────────────────────────────────────────────────
 // THEME A: Purple/Navy (original, WCAG-fixed)
@@ -305,35 +338,24 @@ import { Trophy, Wallet, ChevronRight, ChevronLeft, Target, Search, ArrowUp, Arr
 
 
 // ─── LOGO ─────────────────────────────────────────────────────────────────────
-const MobaLogo = ({ size = 28, color = '#FFFFFF' }) => {
-  const sw = size * 0.135;
-  return (
-    <svg width={size * 1.45} height={size} viewBox="0 0 116 80" fill="none">
-      {/* A — outer arch */}
-      <path
-        d="M 4 74 Q 6 74 14 52 Q 22 30 34 12 Q 38 5 44 4 Q 50 3 54 10 Q 66 30 74 52 Q 82 74 84 74"
-        stroke={color} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" fill="none"
-      />
-      {/* A — inner left leg */}
-      <path
-        d="M 18 52 Q 30 42 44 42"
-        stroke={color} strokeWidth={sw} strokeLinecap="round" fill="none"
-      />
-      {/* A — inner right leg */}
-      <path
-        d="M 44 42 Q 58 42 70 52"
-        stroke={color} strokeWidth={sw} strokeLinecap="round" fill="none"
-      />
-      {/* A — teardrop dot */}
-      <circle cx="44" cy="68" r={sw * 0.55} fill={color} />
-      {/* O — nearly-closed oval, gap at top-left */}
-      <path
-        d="M 84 26 Q 86 14 94 12 Q 108 10 112 24 Q 116 36 114 50 Q 112 64 100 70 Q 88 74 82 64 Q 76 54 78 42 Q 80 32 84 26"
-        stroke={color} strokeWidth={sw} strokeLinecap="round" fill="none"
-      />
-    </svg>
-  );
-};
+const MobaLogo = ({ size = 28, color = '#FFFFFF' }) => (
+  <svg
+    width={size}
+    height={size * (85.4 / 130)}
+    viewBox="0 0 130 85.4"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      fill={color}
+      d="M87.64,83.54c-22.45-6.81-25.43-36.17-38.34-51.65-.96-1.15-1.9-2.04-3.38-2.46l-30.93,50.86c-7.59,7.16-18.77.56-13.72-10.73C10.8,48.24,28.54,26.46,38.6,4.9c3.25-5.73,9.49-6.32,14.53-2.35l34.78,61.72c34.87,18.76,32.05-44.93,8.12-43.97-8.64.35-11.21,15.66-14.75,17.75-.72.43-1.88.25-2.74.09-4.15-11.77-11.38-13.67-2.08-25.38,12.7-15.98,32.96-10.84,44.49,3.47,22.59,28.03,7.3,79.62-33.31,67.31Z"
+    />
+    <path
+      fill={color}
+      d="M61.24,66.58c-5.62,7.21-7.62,21.1-19.09,18.44-15.76-3.64,5.37-27.39,7.83-34.74l2.45-1.04,8.81,17.34Z"
+    />
+  </svg>
+);
 
 const MobaWordmark = ({ color = '#FFFFFF', fontSize = 18 }) => (
   <span style={{ fontSize, fontWeight: 700, color, letterSpacing: '-0.3px', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif' }}>
@@ -374,6 +396,75 @@ export default function App() {
   }]);
   const [selectedBracket, setSelectedBracket] = useState(null);
   const [leaderboardBracket, setLeaderboardBracket] = useState(null);
+
+  // ── NEW FEATURE STATE ──────────────────────────────────────────────────────
+  const MAX_BRACKETS_PER_TOURNAMENT = 3;
+  const [bracketName, setBracketName] = useState('');
+  const [selectedTier, setSelectedTier] = useState(null); // selected entry tier
+  const [liveTickerMsg, setLiveTickerMsg] = useState(null); // {text, pts, bracket}
+  const [showH2H, setShowH2H] = useState(false);
+  const [h2hOpponent, setH2hOpponent] = useState(null);
+  const [miniLeagues, setMiniLeagues] = useState([
+    { id: 1, name: 'Tennis Nerds 🎾', code: 'TN2026', members: 6, myRank: 2, leader: 'ServeAce' },
+    { id: 2, name: 'Office League', code: 'OFF123', members: 4, myRank: 1, leader: 'AceMaster' },
+  ]);
+  const [showCreateLeague, setShowCreateLeague] = useState(false);
+  const [newLeagueName, setNewLeagueName] = useState('');
+  const [joinCode, setJoinCode] = useState('');
+  const [earlyBirdCountdown, setEarlyBirdCountdown] = useState(null);
+  const [leagueTab, setLeagueTab] = useState('my');
+  const [h2hSelected, setH2hSelected] = useState(null);
+  const [prizesShowAll, setPrizesShowAll] = useState(false);
+  const [authMode, setAuthMode] = useState('login');
+
+  // Mock player form data
+  const playerFormData = {
+    'C. Alcaraz': { recentForm: ['W','W','W','L','W'], hardWin: 78, clayWin: 82, grassWin: 71, rank: 1 },
+    'J. Sinner': { recentForm: ['W','W','L','W','W'], hardWin: 81, clayWin: 74, grassWin: 68, rank: 2 },
+    'N. Djokovic': { recentForm: ['W','L','W','W','W'], hardWin: 76, clayWin: 79, grassWin: 85, rank: 3 },
+    'A. Zverev': { recentForm: ['W','W','W','W','L'], hardWin: 72, clayWin: 77, grassWin: 65, rank: 4 },
+    'D. Medvedev': { recentForm: ['L','W','W','L','W'], hardWin: 79, clayWin: 61, grassWin: 58, rank: 11 },
+  };
+
+  // Pick popularity mock data (% of users who picked each player per match)
+  const getPickPopularity = (playerName, matchId) => {
+    const seed = (playerName.charCodeAt(0) + (matchId?.length || 5)) % 40;
+    return 50 + seed; // 50-90%
+  };
+
+  // Accuracy stats mock
+  const accuracyStats = {
+    overall: 67, byRound: { R128: 74, R64: 71, R32: 65, R16: 58, QF: 52, SF: 48, F: 44 },
+    bySurface: { Hard: 69, Clay: 64, Grass: 61 },
+    streak: 3, bestTournament: 'Dubai 2026', totalCorrect: 187, totalPicks: 279,
+  };
+
+  // Trigger live ticker animation
+  const triggerTicker = (bracketId, playerName, pts, round) => {
+    setLiveTickerMsg({ bracketId, playerName, pts, round, ts: Date.now() });
+    setTimeout(() => setLiveTickerMsg(null), 4000);
+  };
+
+  // Check early bird bonus (>24h before start)
+  const getEarlyBirdBonus = (tournament) => {
+    const now = new Date();
+    const start = new Date('2026-04-05'); // mock start
+    const hoursLeft = (start - now) / 36e5;
+    return hoursLeft > 24 ? 10 : 0; // +10 bonus pts
+  };
+
+  // Bracket name helper
+  const getDefaultBracketName = (tournamentId) => {
+    const existing = myBrackets.filter(b => b.tournament.id === tournamentId);
+    return existing.length === 0 ? 'My Bracket' : `Bracket ${existing.length + 1}`;
+  };
+
+  // Count brackets for tournament
+  const getBracketCount = (tournamentId) => myBrackets.filter(b => b.tournament.id === tournamentId).length;
+
+  // Free bracket check (feature 17)
+  const isFreeEntry = (tournament) => false; // mock - paid only for now
+  const hasFreeEntry = (tournament) => getBracketCount(tournament.id) === 0; // first bracket could be free
   const [userTx, setUserTx] = useState([
     {id:1,title:'Tournament Entry',desc:'Miami Open',amt:-15,date:'Today'},
     {id:2,title:'Winnings - 3rd Place',desc:'Indian Wells',amt:1250,date:'Mar 15'},
@@ -419,7 +510,7 @@ export default function App() {
       padding:'12px 20px', borderRadius:8, fontSize:14, fontWeight:600,
       cursor: disabled ? 'not-allowed' : 'pointer',
       width: full ? '100%' : 'auto', opacity: disabled ? 0.5 : 1,
-      background: primary ? C.accent : C.card,
+      background: primary ? C.accent : C.bgLight,
       color: primary ? '#FFFFFF' : C.navy,
       border: primary ? 'none' : `1px solid ${C.border}`,
       ...style
@@ -443,7 +534,7 @@ export default function App() {
   const TabBar = ({tabs, active, onChange, onGradient}) => (
     <div style={{display:'flex',background:onGradient?'transparent':C.card,borderBottom:`1px solid ${onGradient?'rgba(255,255,255,0.2)':C.border}`}}>
       {tabs.map(tab => (
-        <button key={tab.id} onClick={()=>onChange(tab.id)} style={{flex:1,padding:'14px 8px',background:'none',border:'none',cursor:'pointer',borderBottom:active===tab.id?`3px solid ${onGradient?'#fff':C.accent}`:'3px solid transparent',marginBottom:-1}}>
+        <button key={tab.id} onClick={()=>onChange(tab.id)} style={{flex:1,padding:'14px 8px',background:'none',border:'none',cursor:'pointer',borderBottom:active===tab.id?`3px solid ${onGradient?'#fff':C.accentText}`:'3px solid transparent',marginBottom:-1}}>
           <span style={{fontSize:14,fontWeight:active===tab.id?600:400,color:onGradient?(active===tab.id?'#fff':'rgba(255,255,255,0.6)'):(active===tab.id?C.navy:C.textMuted)}}>
             {tab.label}
           </span>
@@ -456,23 +547,19 @@ export default function App() {
   const AppHeader = ({title, showBack}) => (
     <div style={{position:'sticky',top:0,zIndex:100,background:C.headerBg,padding:'12px 16px',boxShadow:'0 2px 12px rgba(0,0,0,0.3)'}}>
       <div style={{display:'flex',alignItems:'center',gap:12}}>
-        <div style={{display:'flex',alignItems:'center',gap:10}}>
+
+        {/* LEFT: back button or logo */}
+        <div style={{display:'flex',alignItems:'center'}}>
           {showBack ? (
             <button onClick={()=>setView('calendar')} style={{background:'none',border:'none',cursor:'pointer',display:'flex',alignItems:'center'}}>
               <ChevronLeft size={24} color="#fff"/>
             </button>
           ) : (
-            <>
-              <button onClick={()=>setModal(isLoggedIn?'profile':'auth')} style={{background:'none',border:'none',cursor:'pointer',padding:4}}>
-                {isLoggedIn
-                  ? <div style={{width:26,height:26,borderRadius:13,background:'rgba(255,255,255,0.2)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:600,color:'#fff'}}>{user.name[0]}</div>
-                  : <User size={22} color="#fff" strokeWidth={1.5}/>
-                }
-              </button>
-              <MobaLogo size={28} color="#fff"/>
-            </>
+            <MobaLogo size={28} color="#fff"/>
           )}
         </div>
+
+        {/* CENTER: search bar or title */}
         <div style={{flex:1}}>
           {title
             ? <span style={{fontSize:18,fontWeight:600,color:'#fff'}}>{title}</span>
@@ -482,6 +569,8 @@ export default function App() {
               </div>
           }
         </div>
+
+        {/* RIGHT: help, chat, account */}
         <div style={{display:'flex',alignItems:'center',gap:10}}>
           <button onClick={()=>setModal('help')} style={{background:'none',border:'none',cursor:'pointer',padding:4}}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.5">
@@ -496,18 +585,25 @@ export default function App() {
             </svg>
             <div style={{position:'absolute',top:2,right:2,width:8,height:8,borderRadius:4,background:'#3B82F6'}}/>
           </button>
+          {!showBack && (
+            <button onClick={()=>setModal(isLoggedIn?'profile':'auth')} style={{background:'none',border:'none',cursor:'pointer',padding:4}}>
+              {isLoggedIn
+                ? <div style={{width:28,height:28,borderRadius:14,background:'rgba(255,255,255,0.2)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:600,color:'#fff'}}>{user.name[0]}</div>
+                : <User size={22} color="#fff" strokeWidth={1.5}/>
+              }
+            </button>
+          )}
         </div>
       </div>
+
+      {/* Balance bar — shown when logged in */}
       {isLoggedIn && !showBack && (
         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginTop:12,paddingTop:12,borderTop:'1px solid rgba(255,255,255,0.1)'}}>
-          <div style={{display:'flex',alignItems:'center',gap:10}}>
-            <div style={{width:28,height:28,borderRadius:14,background:'rgba(255,255,255,0.2)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:600,color:'#fff'}}>{user.name[0]}</div>
-            <span style={{fontSize:13,fontWeight:500,color:'#fff'}}>{user.name}</span>
-          </div>
+          <span style={{fontSize:13,fontWeight:500,color:'#fff'}}>{user.name}</span>
           <div style={{display:'flex',alignItems:'center',gap:12}}>
             <div style={{textAlign:'right'}}>
               <p style={{fontSize:10,color:'rgba(255,255,255,0.7)',margin:0}}>Balance</p>
-              <p style={{fontSize:15,fontWeight:600,color:'#fff',margin:0}}>${balance.toLocaleString()}</p>
+              <p style={{fontSize:15,fontWeight:600,color:'#fff',margin:0}}>${balance.toLocaleString('en-US')}</p>
             </div>
             <button onClick={()=>{setDepStep(1);setDepAmt('');setModal('deposit');}} style={{width:32,height:32,borderRadius:16,background:'rgba(255,255,255,0.2)',border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}}>
               <Plus size={18} color="#fff"/>
@@ -527,20 +623,46 @@ export default function App() {
       {id:'rankings', icon:BarChart2, label:'Rankings'},
       {id:'wallet', icon:Wallet, label:'Wallet'},
     ];
+    const iconActive = isDark ? '#FFFFFF' : C.accent;
+    const iconInactive = isDark ? '#636366' : '#8E8E93';
+    const labelActive = isDark ? '#FFFFFF' : C.accent;
+    const labelInactive = isDark ? '#636366' : '#8E8E93';
     return (
-      <nav style={{position:'fixed',bottom:0,left:0,right:0,background:C.navBg,padding:'10px 0 28px',display:'flex',justifyContent:'space-around',maxWidth:430,margin:'0 auto',boxShadow:'0 -2px 12px rgba(0,0,0,0.3)'}}>
-        {items.map(item => {
-          const active = view === item.id;
-          return (
-            <button key={item.id} onClick={()=>setView(item.id)} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:4,padding:'4px 12px',background:'none',border:'none',cursor:'pointer'}}>
-              {item.isLogo
-                ? <MobaLogo size={24} color={active ? '#fff' : 'rgba(255,255,255,0.55)'}/>
-                : <item.icon size={22} color={active?'#fff':'rgba(255,255,255,0.55)'} strokeWidth={active?2.5:1.5}/>
-              }
-              <span style={{fontSize:10,fontWeight:active?600:500,color:active?'#fff':'rgba(255,255,255,0.55)'}}>{item.label}</span>
-            </button>
-          );
-        })}
+      <nav style={{
+        position:'fixed', bottom:0, left:0, right:0,
+        background: C.bg,
+        maxWidth:430, margin:'0 auto',
+        paddingBottom: 24, paddingTop: 10,
+        borderTop: `1px solid ${isDark ? '#2B3139' : '#E5E7EB'}`,
+      }}>
+        <div style={{display:'flex', justifyContent:'space-around', alignItems:'center'}}>
+          {items.map(item => {
+            const active = view === item.id;
+            return (
+              <button key={item.id} onClick={()=>setView(item.id)}
+                style={{
+                  display:'flex', flexDirection:'column', alignItems:'center', gap:4,
+                  padding: '0 8px',
+                  background: 'none',
+                  border:'none', cursor:'pointer',
+                  minWidth: 56,
+                }}>
+                {item.isLogo
+                  ? <MobaLogo size={24} color={active ? iconActive : iconInactive}/>
+                  : <item.icon size={24} color={active ? iconActive : iconInactive} strokeWidth={active ? 2 : 1.5}/>
+                }
+                <span style={{
+                  fontSize: 10,
+                  fontWeight: active ? 600 : 400,
+                  color: active ? labelActive : labelInactive,
+                  marginTop: 3,
+                }}>
+                  {item.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </nav>
     );
   };
@@ -557,7 +679,7 @@ export default function App() {
         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
           <div style={{display:'flex',alignItems:'center',gap:6}}>
             <div style={{width:7,height:7,borderRadius:4,background:C.red,animation:'pulse 2s infinite'}}/>
-            <span style={{fontSize:11,fontWeight:700,color:C.accent,letterSpacing:0.5}}>LIVE RANKING</span>
+            <span style={{fontSize:11,fontWeight:700,color:C.accentText,letterSpacing:0.5}}>LIVE RANKING</span>
           </div>
           <button onClick={()=>setLeaderboardBracket(bracket)} style={{display:'flex',alignItems:'center',gap:4,padding:'5px 10px',borderRadius:6,background:C.accent,border:'none',cursor:'pointer'}}>
             <BarChart2 size={12} color="#fff"/>
@@ -566,8 +688,8 @@ export default function App() {
         </div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,marginBottom:10}}>
           {[
-            {label:'Position', val: `${pos}`, sub:`/${total.toLocaleString()}`, extra: change!==0 && <span style={{fontSize:10,fontWeight:600,color:change>0?C.green:C.red,display:'flex',alignItems:'center',gap:1}}>{change>0?<ArrowUp size={10}/>:<ArrowDown size={10}/>}{Math.abs(change)}</span>},
-            {label:'Points', val: `${bracket.points}`, sub:'pts', valColor: C.accent},
+            {label:'Position', val: `${pos}`, sub:`/${total.toLocaleString('en-US')}`, extra: change!==0 && <span style={{fontSize:10,fontWeight:600,color:change>0?C.green:C.red,display:'flex',alignItems:'center',gap:1}}>{change>0?<ArrowUp size={10}/>:<ArrowDown size={10}/>}{Math.abs(change)}</span>},
+            {label:'Points', val: `${bracket.points}`, sub:'pts', valColor: C.accentText},
             {label:'Correct', val: `${bracket.correctPicks}`, sub:`/${bracket.totalPicks}`, valColor: C.green},
           ].map(({label,val,sub,extra,valColor}) => (
             <div key={label} style={{background:C.card,borderRadius:8,padding:'10px 8px',textAlign:'center'}}>
@@ -614,7 +736,7 @@ export default function App() {
                 <p style={{fontSize:11,color:'rgba(255,255,255,0.7)',margin:'0 0 4px',textTransform:'uppercase',letterSpacing:0.5}}>Your Position</p>
                 <div style={{display:'flex',alignItems:'baseline',gap:6}}>
                   <span style={{fontSize:32,fontWeight:800,color:'#fff'}}>#{me?.rank||leaderboardBracket.position}</span>
-                  <span style={{fontSize:14,color:'rgba(255,255,255,0.6)'}}>/ {total.toLocaleString()}</span>
+                  <span style={{fontSize:14,color:'rgba(255,255,255,0.6)'}}>/ {total.toLocaleString('en-US')}</span>
                 </div>
               </div>
               <div style={{textAlign:'right'}}>
@@ -648,7 +770,7 @@ export default function App() {
                   <div style={{flex:1,display:'flex',alignItems:'center',gap:8}}>
                     <span style={{fontSize:15}}>{p.flag}</span>
                     <div>
-                      <p style={{fontSize:14,fontWeight:p.isYou?700:500,color:p.isYou?C.accent:C.navy,margin:0}}>{p.name}{p.isYou&&<span style={{fontSize:10}}> (You)</span>}</p>
+                      <p style={{fontSize:14,fontWeight:p.isYou?700:500,color:p.isYou?C.accentText:C.navy,margin:0}}>{p.name}{p.isYou&&<span style={{fontSize:10}}> (You)</span>}</p>
                       <p style={{fontSize:10,color:C.textMuted,margin:'1px 0 0'}}>R128:{p.r128} R64:{p.r64} R32:{p.r32} R16:{p.r16} QF:{p.qf}</p>
                     </div>
                   </div>
@@ -666,18 +788,18 @@ export default function App() {
               const ch = p.prevRank-p.rank;
               return (
                 <div key={p.rank} style={{display:'flex',alignItems:'center',padding:'12px 16px',borderBottom:`1px solid ${C.border}`,background:p.isYou?`${C.accent}14`:C.card,borderLeft:p.isYou?`3px solid ${C.accent}`:'3px solid transparent'}}>
-                  <span style={{width:44,fontSize:14,fontWeight:600,color:p.isYou?C.accent:C.navy}}>{p.rank}</span>
+                  <span style={{width:44,fontSize:14,fontWeight:600,color:p.isYou?C.accentText:C.navy}}>{p.rank}</span>
                   <div style={{flex:1,display:'flex',alignItems:'center',gap:8}}>
                     <span style={{fontSize:15}}>{p.flag}</span>
                     <div>
-                      <p style={{fontSize:14,fontWeight:p.isYou?700:500,color:p.isYou?C.accent:C.navy,margin:0}}>{p.name}{p.isYou&&<span style={{fontSize:10}}> 👈 You</span>}</p>
+                      <p style={{fontSize:14,fontWeight:p.isYou?700:500,color:p.isYou?C.accentText:C.navy,margin:0}}>{p.name}{p.isYou&&<span style={{fontSize:10}}> 👈 You</span>}</p>
                       <p style={{fontSize:10,color:C.textMuted,margin:'1px 0 0'}}>R128:{p.r128} R64:{p.r64} R32:{p.r32} R16:{p.r16} QF:{p.qf}</p>
                     </div>
                   </div>
                   <div style={{width:36,display:'flex',justifyContent:'center'}}>
                     {ch>0?<span style={{fontSize:11,fontWeight:600,color:C.green,display:'flex',alignItems:'center',gap:1}}><ArrowUp size={11}/>{ch}</span>:ch<0?<span style={{fontSize:11,fontWeight:600,color:C.red,display:'flex',alignItems:'center',gap:1}}><ArrowDown size={11}/>{Math.abs(ch)}</span>:<span style={{fontSize:11,color:C.textMuted}}>—</span>}
                   </div>
-                  <span style={{width:48,fontSize:14,fontWeight:700,color:p.isYou?C.accent:C.navy,textAlign:'right'}}>{p.pts}</span>
+                  <span style={{width:48,fontSize:14,fontWeight:700,color:p.isYou?C.accentText:C.navy,textAlign:'right'}}>{p.pts}</span>
                 </div>
               );
             })}
@@ -700,7 +822,7 @@ export default function App() {
             <div style={{display:'flex',alignItems:'center',padding:'12px 14px',borderBottom:`1px solid ${C.border}`}}>
               <div style={{flex:1}}>
                 <div style={{display:'flex',alignItems:'center',gap:8}}>
-                  <span style={{fontSize:10,fontWeight:600,color:C.accent,background:`${C.accent}18`,padding:'2px 6px',borderRadius:4}}>{activeTournament.type.toUpperCase().replace('ATP','ATP ')}</span>
+                  <span style={{fontSize:10,fontWeight:600,color:C.accentText,background:`${C.accent}18`,padding:'2px 6px',borderRadius:4}}>{activeTournament.type.toUpperCase().replace('ATP','ATP ')}</span>
                   <span style={{fontSize:10,fontWeight:600,color:activeTournament.status==='live'?C.red:C.green,background:activeTournament.status==='live'?C.redLight:C.greenLight,padding:'2px 6px',borderRadius:4}}>{activeTournament.status.toUpperCase()}</span>
                 </div>
                 <h3 style={{fontSize:17,fontWeight:700,color:C.navy,margin:'6px 0 2px'}}>{activeTournament.name}</h3>
@@ -708,7 +830,7 @@ export default function App() {
               </div>
             </div>
             <div style={{display:'flex',padding:'10px 14px',background:C.bgLight}}>
-              {[['Prize Pool',`$${prizePool.toLocaleString()}`,C.green],['Entry',`$${activeTournament.entry}`,C.navy],['Entries',activeTournament.entries.toLocaleString(),C.navy]].map(([lbl,val,col],i)=>(
+              {[['Prize Pool',`$${prizePool.toLocaleString('en-US')}`,C.green],['Entry',`$${activeTournament.entry}`,C.navy],['Entries',activeTournament.entries.toLocaleString('en-US'),C.navy]].map(([lbl,val,col],i)=>(
                 <div key={lbl} style={{flex:1,textAlign:'center',borderRight:i<2?`1px solid ${C.border}`:'none'}}>
                   <p style={{fontSize:10,color:C.textMuted,margin:0}}>{lbl}</p>
                   <p style={{fontSize:15,fontWeight:700,color:col,margin:'2px 0 0'}}>{val}</p>
@@ -717,7 +839,7 @@ export default function App() {
             </div>
             <button onClick={()=>setModal('prizes')} style={{width:'100%',padding:'10px 14px',background:C.card,border:'none',borderTop:`1px solid ${C.border}`,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:6}}>
               <Trophy size={14} color={C.orange}/>
-              <span style={{fontSize:12,fontWeight:600,color:C.accent}}>View Prize Payouts</span>
+              <span style={{fontSize:12,fontWeight:600,color:C.accentText}}>View Prize Payouts</span>
               <ChevronRight size={14} color={C.textMuted}/>
             </button>
           </div>
@@ -726,7 +848,7 @@ export default function App() {
         <div style={{background:C.card,padding:'12px 16px',borderBottom:`1px solid ${C.border}`}}>
           <div style={{display:'flex',justifyContent:'space-between',marginBottom:6}}>
             <span style={{fontSize:12,fontWeight:500,color:C.navy}}>Bracket Progress</span>
-            <span style={{fontSize:12,fontWeight:600,color:C.accent}}>{progress}%</span>
+            <span style={{fontSize:12,fontWeight:600,color:C.accentText}}>{progress}%</span>
           </div>
           <div style={{height:5,background:C.bgLight,borderRadius:3}}>
             <div style={{height:'100%',width:`${progress}%`,background:C.accent,borderRadius:3,transition:'width 0.3s'}}/>
@@ -751,7 +873,7 @@ export default function App() {
 
         <div style={{display:'flex',background:C.card,borderBottom:`1px solid ${C.border}`}}>
           {['picks','draws'].map(tab=>(
-            <button key={tab} onClick={()=>setBracketTab(tab)} style={{flex:1,padding:'14px',background:'none',border:'none',cursor:'pointer',borderBottom:bracketTab===tab?`3px solid ${C.accent}`:'3px solid transparent',marginBottom:-1}}>
+            <button key={tab} onClick={()=>setBracketTab(tab)} style={{flex:1,padding:'14px',background:'none',border:'none',cursor:'pointer',borderBottom:bracketTab===tab?`3px solid ${C.accentText}`:'3px solid transparent',marginBottom:-1}}>
               <span style={{fontSize:14,fontWeight:bracketTab===tab?600:400,color:bracketTab===tab?C.navy:C.textMuted}}>{tab==='picks'?'My Picks':'Live Draw'}</span>
             </button>
           ))}
@@ -781,9 +903,17 @@ export default function App() {
                         <><span style={{fontSize:16,marginRight:8}}>{player.flag}</span>
                           <div style={{flex:1,textAlign:'left',minWidth:0}}>
                             <span style={{fontSize:14,fontWeight:500,color:C.navy,display:'block',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{player.name}</span>
+                            <span style={{fontSize:10,color:C.textMuted}}>{getPickPopularity(player.name, match.id)}% picked</span>
+                            {playerFormData[player.name] && (
+                              <span style={{display:'inline-flex',gap:2,marginLeft:6}}>
+                                {playerFormData[player.name].recentForm.map((r,i) => (
+                                  <span key={i} style={{width:6,height:6,borderRadius:3,background:r==='W'?C.green:C.red,display:'inline-block'}}/>
+                                ))}
+                              </span>
+                            )}
                           </div>
                           {player.seed&&<span style={{fontSize:11,color:C.textMuted,marginLeft:6,flexShrink:0}}>[{player.seed}]</span>}
-                          {predictions[match.id]?.id===player?.id&&<Check size={18} color={C.accent} style={{marginLeft:8,flexShrink:0}}/>}
+                          {predictions[match.id]?.id===player?.id&&<Check size={18} color={C.accentText} style={{marginLeft:8,flexShrink:0}}/>}
                         </>
                       ):<span style={{fontSize:13,color:C.textMuted,fontStyle:'italic'}}>Winner of previous round</span>}
                     </button>
@@ -791,7 +921,7 @@ export default function App() {
                 </div>
               ))}
             </div>
-            <div style={{position:'fixed',bottom:90,left:0,right:0,maxWidth:430,margin:'0 auto',padding:'12px 16px',background:C.card,borderTop:`1px solid ${C.border}`,boxShadow:'0 -4px 12px rgba(0,0,0,0.08)'}}>
+            <div style={{position:'fixed',bottom:88,left:0,right:0,maxWidth:430,margin:'0 auto',padding:'12px 16px',background:C.card,borderTop:`1px solid ${C.border}`,boxShadow:'0 -4px 12px rgba(0,0,0,0.08)'}}>
               <div style={{display:'flex',gap:12}}>
                 {bracketRound>0&&<Btn onClick={()=>setBracketRound(bracketRound-1)} style={{flex:1}}><ChevronLeft size={18}/> Previous</Btn>}
                 {bracketRound<totalRounds-1
@@ -871,7 +1001,7 @@ export default function App() {
         ))}
         {liveTab==='upcoming'&&upcomingMatches.map(m=>(
           <div key={m.id} style={{background:C.card,borderRadius:12,marginBottom:12,border:`1px solid ${C.border}`,padding:16}}>
-            <div style={{display:'flex',justifyContent:'space-between',marginBottom:12}}><span style={{fontSize:13,color:C.textMuted}}>{m.tournament} • {m.round}</span><span style={{fontSize:14,fontWeight:600,color:C.accent}}>{m.time}</span></div>
+            <div style={{display:'flex',justifyContent:'space-between',marginBottom:12}}><span style={{fontSize:13,color:C.textMuted}}>{m.tournament} • {m.round}</span><span style={{fontSize:14,fontWeight:600,color:C.accentText}}>{m.time}</span></div>
             {[m.p1,m.p2].map((p,pi)=>(
               <div key={pi} style={{display:'flex',alignItems:'center',marginBottom:pi===0?10:0}}>
                 <span style={{fontSize:18,marginRight:10}}>{p.flag}</span><span style={{flex:1,fontSize:15,fontWeight:500,color:C.navy}}>{p.name}</span><span style={{fontSize:12,color:C.textMuted}}>[{p.seed}]</span>
@@ -896,6 +1026,21 @@ export default function App() {
 
         {calendarTab==='my'&&(
           <div style={{padding:16,paddingBottom:100}}>
+            {/* H2H Active Challenge Banner */}
+            {h2hOpponent && (
+              <div style={{background:C.headerBg,borderRadius:12,padding:16,marginBottom:16}}>
+                <div style={{display:'flex',alignItems:'center',gap:10}}>
+                  <span style={{fontSize:24}}>⚔️</span>
+                  <div style={{flex:1}}>
+                    <p style={{fontSize:14,fontWeight:700,color:'#fff',margin:0}}>H2H Challenge Active!</p>
+                    <p style={{fontSize:12,color:'rgba(255,255,255,0.7)',margin:'2px 0 0'}}>vs {h2hOpponent.name} • Indian Wells</p>
+                  </div>
+                  <button onClick={()=>setH2hOpponent(null)} style={{background:'rgba(255,255,255,0.15)',border:'none',borderRadius:8,padding:'6px 10px',cursor:'pointer'}}>
+                    <span style={{fontSize:12,color:'#fff'}}>Cancel</span>
+                  </button>
+                </div>
+              </div>
+            )}
             {myBrackets.length===0?(
               <div style={{background:C.card,borderRadius:12,padding:32,textAlign:'center',border:`1px solid ${C.border}`}}>
                 <div style={{width:64,height:64,borderRadius:32,background:C.accentLight,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px'}}><Target size={28} color={C.accent}/></div>
@@ -910,9 +1055,17 @@ export default function App() {
                     <div>
                       <span style={{fontSize:11,fontWeight:600,color:C.textMuted}}>{bracket.tournament.type.toUpperCase()}</span>
                       <h3 style={{fontSize:17,fontWeight:600,color:C.navy,margin:'2px 0'}}>{bracket.tournament.name}</h3>
+                    {bracket.name && bracket.name !== 'My Bracket' && (
+                      <p style={{fontSize:12,color:C.accentText,margin:'2px 0 0',fontStyle:'italic'}}>"{bracket.name}"</p>
+                    )}
                       <p style={{fontSize:12,color:C.textMuted,margin:0}}>{bracket.tournament.dates} {bracket.tournament.dateSuffix}</p>
                     </div>
                     <span style={{fontSize:10,fontWeight:600,padding:'4px 10px',borderRadius:4,background:bracket.status==='active'?C.greenLight:C.bgLight,color:bracket.status==='active'?C.green:C.textMuted}}>{bracket.status==='active'?'ACTIVE':bracket.status.toUpperCase()}</span>
+                        {bracket.tier && (
+                          <span style={{fontSize:10,fontWeight:700,padding:'3px 8px',borderRadius:4,color:'#fff',background:bracket.tier.color,marginTop:4,display:'block',textAlign:'center'}}>
+                            {bracket.tier.label} ${bracket.tier.entry}
+                          </span>
+                        )}
                   </div>
                 </div>
                 <div style={{padding:16,background:C.bgLight}}>
@@ -939,11 +1092,11 @@ export default function App() {
                   <div style={{padding:'0 16px 16px'}}><LiveRankingCard bracket={bracket}/></div>
                 )}
                 <div style={{padding:'12px 16px',display:'flex',gap:16,borderTop:`1px solid ${C.border}`}}>
-                  {[['Entry',`$${bracket.tournament.entry}`,C.navy],['Pool',`$${bracket.tournament.pool?.toLocaleString()}`,C.accent],['Points',bracket.points,C.green]].map(([l,v,col])=>(
+                  {[['Entry',`$${bracket.tournament.entry}`,C.navy],['Pool',`$${bracket.tournament.pool?.toLocaleString('en-US')}`,C.accent],['Points',bracket.points,C.green]].map(([l,v,col])=>(
                     <div key={l}><p style={{fontSize:11,color:C.textMuted,margin:0}}>{l}</p><p style={{fontSize:14,fontWeight:600,color:col,margin:'2px 0 0'}}>{v}</p></div>
                   ))}
                   <button onClick={()=>setSelectedBracket(bracket)} style={{marginLeft:'auto',padding:'8px 14px',borderRadius:6,background:C.accentLight,border:'none',cursor:'pointer'}}>
-                    <span style={{fontSize:12,fontWeight:600,color:C.accent}}>View</span>
+                    <span style={{fontSize:12,fontWeight:600,color:C.accentText}}>View</span>
                   </button>
                 </div>
               </div>
@@ -966,9 +1119,9 @@ export default function App() {
                     const entered = myBrackets.some(b=>b.tournament.id===t.id);
                     return (
                       <div key={t.id} style={{display:'flex',padding:16,borderBottom:`1px solid ${C.border}`}}>
-                        <div style={{width:65,paddingRight:12,borderRight:`2px solid ${C.accent}`,marginRight:14}}>
-                          <p style={{fontSize:13,fontWeight:500,color:C.textMid,margin:0}}>{t.dates}</p>
-                          <p style={{fontSize:13,color:C.textMuted,margin:'2px 0 0'}}>{t.dateSuffix}</p>
+                        <div style={{width:52,flexShrink:0,paddingRight:10,borderRight:`2px solid ${C.accent}`,marginRight:14}}>
+                          <p style={{fontSize:12,fontWeight:600,color:C.textMid,margin:0,whiteSpace:'nowrap'}}>{t.dates}</p>
+                          <p style={{fontSize:12,color:C.textMuted,margin:'2px 0 0',whiteSpace:'nowrap'}}>{t.dateSuffix}</p>
                         </div>
                         <div style={{flex:1}}>
                           <div style={{marginBottom:6}}>
@@ -978,21 +1131,27 @@ export default function App() {
                           <p style={{fontSize:13,color:C.textMuted,margin:0}}>{t.subtitle}</p>
                           {t.pool>0&&(
                             <div style={{display:'flex',alignItems:'center',gap:8,marginTop:8}}>
-                              <span style={{fontSize:11,fontWeight:600,color:C.accent,background:`${C.accent}18`,padding:'4px 8px',borderRadius:4}}>${t.pool.toLocaleString()}</span>
+                              <span style={{fontSize:11,fontWeight:600,color:C.accentText,background:`${C.accent}18`,padding:'4px 8px',borderRadius:4}}>${t.pool.toLocaleString('en-US')}</span>
+                              {(t.status==='live'||t.status==='open') && !myBrackets.some(b=>b.tournament.id===t.id) && (
+                                <span style={{fontSize:10,fontWeight:600,color:C.textMuted,background:C.bgLight,padding:'4px 8px',borderRadius:4}}>
+                                  ${getTiers(t)[0].entry}–${getTiers(t)[2].entry}
+                                </span>
+                              )}
                               {t.status==='live'&&<span style={{fontSize:10,fontWeight:600,color:C.red,background:C.redLight,padding:'4px 8px',borderRadius:4}}>LIVE</span>}
+                              {t.status==='live'&&<span style={{fontSize:10,fontWeight:600,color:'#92400E',background:'#FEF3C7',padding:'4px 8px',borderRadius:4}}>LOCKED</span>}
                               {t.status==='open'&&<span style={{fontSize:10,fontWeight:600,color:C.green,background:C.greenLight,padding:'4px 8px',borderRadius:4}}>OPEN</span>}
-                              {entered&&<span style={{fontSize:10,fontWeight:600,color:C.accent,background:`${C.accent}18`,padding:'4px 8px',borderRadius:4}}>ENTERED</span>}
+                              {entered&&<span style={{fontSize:10,fontWeight:600,color:C.accentText,background:`${C.accent}18`,padding:'4px 8px',borderRadius:4}}>ENTERED</span>}
                             </div>
                           )}
                         </div>
                         <div style={{display:'flex',alignItems:'center',gap:10}}>
                           {(t.status==='live'||t.status==='open')&&!entered&&(
-                            <button onClick={()=>{setActiveTournament(t);setView('bracket');}} style={{padding:'8px 14px',borderRadius:6,background:C.accent,border:'none',cursor:'pointer'}}>
+                            <button onClick={()=>{ setSelectedTier(null); setActiveTournament(t); setModal('tiers'); }} style={{padding:'8px 14px',borderRadius:6,background:C.accent,border:'none',cursor:'pointer'}}>
                               <span style={{fontSize:12,fontWeight:600,color:'#fff'}}>Enter</span>
                             </button>
                           )}
                           {entered&&<button onClick={()=>setCalendarTab('my')} style={{padding:'8px 14px',borderRadius:6,background:C.greenLight,border:'none',cursor:'pointer'}}><span style={{fontSize:12,fontWeight:600,color:C.green}}>View</span></button>}
-                          <Heart size={22} color={C.accent} strokeWidth={1.5} style={{cursor:'pointer'}}/>
+                          <Heart size={22} color={C.accentText} strokeWidth={1.5} style={{cursor:'pointer'}}/>
                         </div>
                       </div>
                     );
@@ -1012,7 +1171,7 @@ export default function App() {
     <div style={{background:C.bg,minHeight:'100vh'}}>
       <AppHeader/>
       <div style={{background:C.card,padding:16,borderBottom:`1px solid ${C.border}`,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-        <div style={{display:'flex',alignItems:'center',gap:8}}><MobaLogo size={22} color={C.accent}/><MobaWordmark color={C.navy} fontSize={18}/></div>
+        <div style={{display:'flex',alignItems:'center',gap:8}}><MobaLogo size={22} color={C.accentText}/><MobaWordmark color={C.navy} fontSize={18}/></div>
         <span style={{fontSize:13,fontWeight:600,color:C.textMuted}}>TOP 30 RANKINGS</span>
       </div>
       <div style={{background:C.bgLight,padding:'10px 16px',display:'flex',borderBottom:`1px solid ${C.border}`}}>
@@ -1030,7 +1189,7 @@ export default function App() {
               <span style={{fontSize:15}}>{p.flag}</span>
               <div><p style={{fontSize:14,fontWeight:500,color:C.navy,margin:0}}>{p.name}</p><p style={{fontSize:11,color:C.textMuted,margin:'2px 0 0'}}>Played {p.played}</p></div>
             </div>
-            <span style={{width:55,fontSize:14,fontWeight:600,color:C.navy,textAlign:'right'}}>{p.pts.toLocaleString()}</span>
+            <span style={{width:55,fontSize:14,fontWeight:600,color:C.navy,textAlign:'right'}}>{p.pts.toLocaleString('en-US')}</span>
             <span style={{width:45,fontSize:13,fontWeight:500,color:C.green,textAlign:'right'}}>{p.winRate}%</span>
           </div>
         ))}
@@ -1047,7 +1206,7 @@ export default function App() {
           <MobaWordmark color="#fff" fontSize={20}/>
         </div>
         <p style={{fontSize:13,color:'rgba(255,255,255,0.7)',margin:'0 0 4px'}}>Available Balance</p>
-        <p style={{fontSize:36,fontWeight:700,color:'#fff',margin:0}}>${balance.toLocaleString()}.00</p>
+        <p style={{fontSize:36,fontWeight:700,color:'#fff',margin:0}}>${balance.toLocaleString('en-US')}.00</p>
         <div style={{display:'flex',gap:12,marginTop:20}}>
           <Btn primary onClick={()=>{setDepStep(1);setDepAmt('');setModal('deposit');}} style={{flex:1,background:'rgba(255,255,255,0.15)',border:'1px solid rgba(255,255,255,0.3)',color:'#fff'}}><Plus size={18}/> Add Funds</Btn>
           <Btn onClick={()=>{setWithdrawStep(1);setWithdrawAmt('');setModal('withdraw');}} style={{flex:1,background:'rgba(255,255,255,0.1)',border:'1px solid rgba(255,255,255,0.2)',color:'#fff'}}><ArrowUp size={18}/> Withdraw</Btn>
@@ -1055,7 +1214,7 @@ export default function App() {
       </div>
       <div style={{padding:16,paddingBottom:100}}>
         <div style={{display:'flex',gap:12,marginBottom:20}}>
-          {[['Total Earnings',`+$${user.earn.toLocaleString()}`,C.green,<TrendingUp size={18} color={C.green}/>],['Win Rate',`${user.win}%`,C.accent,<Trophy size={18} color={C.accent}/>]].map(([lbl,val,col,icon])=>(
+          {[['Total Earnings',`+$${user.earn.toLocaleString('en-US')}`,C.green,<TrendingUp size={18} color={C.green}/>],['Win Rate',`${user.win}%`,C.accent,<Trophy size={18} color={C.accentText}/>]].map(([lbl,val,col,icon])=>(
             <div key={lbl} style={{flex:1,background:C.card,borderRadius:12,padding:16,border:`1px solid ${C.border}`}}>
               {icon}<p style={{fontSize:11,color:C.textMuted,margin:'8px 0 4px'}}>{lbl}</p>
               <p style={{fontSize:22,fontWeight:700,color:col,margin:0}}>{val}</p>
@@ -1067,10 +1226,10 @@ export default function App() {
           {userTx.map((t,i)=>(
             <div key={t.id} style={{display:'flex',alignItems:'center',padding:16,borderBottom:i<userTx.length-1?`1px solid ${C.border}`:'none'}}>
               <div style={{width:40,height:40,borderRadius:20,background:t.amt>0?C.greenLight:C.accentLight,display:'flex',alignItems:'center',justifyContent:'center',marginRight:12}}>
-                {t.amt>0?<ArrowDown size={18} color={C.green}/>:<ArrowUp size={18} color={C.accent}/>}
+                {t.amt>0?<ArrowDown size={18} color={C.green}/>:<ArrowUp size={18} color={C.accentText}/>}
               </div>
               <div style={{flex:1}}><p style={{fontSize:14,fontWeight:500,color:C.navy,margin:0}}>{t.title}</p><p style={{fontSize:12,color:C.textMuted,margin:'2px 0 0'}}>{t.desc}</p></div>
-              <div style={{textAlign:'right'}}><p style={{fontSize:15,fontWeight:600,color:t.amt>0?C.green:C.navy,margin:0}}>{t.amt>0?'+':'-'}${Math.abs(t.amt).toLocaleString()}</p><p style={{fontSize:11,color:C.textMuted,margin:'2px 0 0'}}>{t.date}</p></div>
+              <div style={{textAlign:'right'}}><p style={{fontSize:15,fontWeight:600,color:t.amt>0?C.green:C.navy,margin:0}}>{t.amt>0?'+':'-'}${Math.abs(t.amt).toLocaleString('en-US')}</p><p style={{fontSize:11,color:C.textMuted,margin:'2px 0 0'}}>{t.date}</p></div>
             </div>
           ))}
         </div>
@@ -1115,7 +1274,7 @@ export default function App() {
                   <div key={k}>{i===2&&<div style={{height:1,background:C.border,margin:'12px 0'}}/>}
                     <div style={{display:'flex',justifyContent:'space-between',marginBottom:i<2?12:0}}>
                       <span style={{color:C.textMuted}}>{k}</span>
-                      <span style={{fontWeight:i===2?700:600,fontSize:i===2?20:14,color:i===1?C.green:i===2?C.accent:C.navy}}>{v}</span>
+                      <span style={{fontWeight:i===2?700:600,fontSize:i===2?20:14,color:i===1?C.green:i===2?C.accentText:C.navy}}>{v}</span>
                     </div>
                   </div>
                 ))}
@@ -1147,31 +1306,31 @@ export default function App() {
             <>
               <div style={{background:C.bgLight,borderRadius:12,padding:16,marginBottom:20,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
                 <span style={{fontSize:14,color:C.textMuted}}>Available Balance</span>
-                <span style={{fontSize:20,fontWeight:700,color:C.navy}}>${balance.toLocaleString()}</span>
+                <span style={{fontSize:20,fontWeight:700,color:C.navy}}>${balance.toLocaleString('en-US')}</span>
               </div>
               <div style={{position:'relative',marginBottom:12}}>
                 <span style={{position:'absolute',left:18,top:'50%',transform:'translateY(-50%)',fontSize:24,fontWeight:600,color:C.textMuted}}>$</span>
                 <input type="number" value={withdrawAmt} onChange={e=>setWithdrawAmt(e.target.value)} placeholder="0"
                   style={{width:'100%',padding:'18px 18px 18px 45px',fontSize:28,fontWeight:700,background:C.inputBg,border:`2px solid ${withdrawAmt?C.accent:C.border}`,borderRadius:12,color:C.navy,outline:'none'}}/>
               </div>
-              <button onClick={()=>setWithdrawAmt(balance.toString())} style={{marginBottom:20,padding:'8px 14px',background:C.accentLight,border:`1px solid ${C.accent}`,borderRadius:8,color:C.accent,fontSize:12,fontWeight:600,cursor:'pointer'}}>
-                Withdraw All (${balance.toLocaleString()})
+              <button onClick={()=>setWithdrawAmt(balance.toString())} style={{marginBottom:20,padding:'8px 14px',background:C.accentLight,border:`1px solid ${C.accent}`,borderRadius:8,color:C.accentText,fontSize:12,fontWeight:600,cursor:'pointer'}}>
+                Withdraw All (${balance.toLocaleString('en-US')})
               </button>
               <div style={{background:C.accentLight,border:`2px solid ${C.accent}`,borderRadius:10,padding:14,marginBottom:16,display:'flex',alignItems:'center',gap:12}}>
                 <div style={{width:40,height:40,borderRadius:8,background:C.accent,display:'flex',alignItems:'center',justifyContent:'center'}}><span style={{fontSize:18}}>🏦</span></div>
                 <div><p style={{fontSize:14,fontWeight:600,color:C.navy,margin:0}}>Bank Account</p><p style={{fontSize:12,color:C.textMuted,margin:'2px 0 0'}}>····7891</p></div>
-                <Check size={20} color={C.accent} style={{marginLeft:'auto'}}/>
+                <Check size={20} color={C.accentText} style={{marginLeft:'auto'}}/>
               </div>
               <Btn primary full disabled={!ok} onClick={()=>setWithdrawStep(2)}>Continue</Btn>
             </>
           ):(
             <>
               <div style={{background:C.bgLight,borderRadius:12,padding:16,marginBottom:20}}>
-                {[['Amount',`$${parseFloat(withdrawAmt).toLocaleString()}`],['Fee','$0.00'],['To','Bank ····7891']].map(([k,v])=>(
+                {[['Amount',`$${parseFloat(withdrawAmt).toLocaleString('en-US')}`],['Fee','$0.00'],['To','Bank ····7891']].map(([k,v])=>(
                   <div key={k} style={{display:'flex',justifyContent:'space-between',marginBottom:12}}><span style={{color:C.textMuted}}>{k}</span><span style={{fontWeight:600,color:C.navy}}>{v}</span></div>
                 ))}
                 <div style={{height:1,background:C.border,margin:'0 0 12px'}}/>
-                <div style={{display:'flex',justifyContent:'space-between'}}><span style={{fontWeight:500,color:C.navy}}>You'll receive</span><span style={{fontWeight:700,fontSize:20,color:C.green}}>${parseFloat(withdrawAmt).toLocaleString()}</span></div>
+                <div style={{display:'flex',justifyContent:'space-between'}}><span style={{fontWeight:500,color:C.navy}}>You'll receive</span><span style={{fontWeight:700,fontSize:20,color:C.green}}>${parseFloat(withdrawAmt).toLocaleString('en-US')}</span></div>
               </div>
               <div style={{display:'flex',gap:12}}><Btn onClick={()=>setWithdrawStep(1)} style={{flex:1}}>Back</Btn><Btn primary onClick={()=>{setBalance(balance-parseFloat(withdrawAmt));setUserTx([{id:Date.now(),title:'Withdrawal',desc:'Bank ····7891',amt:-parseFloat(withdrawAmt),date:'Just now'},...userTx]);setWithdrawStep(3);}} style={{flex:2}}>Confirm</Btn></div>
             </>
@@ -1182,50 +1341,292 @@ export default function App() {
   };
 
   const SubmitModal = () => {
-    const fee = activeTournament.entry;
-    const can = balance>=fee;
+    const fee = selectedTier?.entry || activeTournament.entry;
+    const can = balance >= fee;
     const champion = predictions[`r${totalRounds-1}-m0`];
-    if (submitStep===3) return (
-      <ModalWrap title="Success" onClose={()=>{setModal(null);setPredictions({});}}>
-        <div style={{padding:32,textAlign:'center'}}>
-          <div style={{width:80,height:80,borderRadius:40,background:C.greenLight,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 20px'}}><CheckCircle size={40} color={C.green}/></div>
+    const existingCount = getBracketCount(activeTournament.id);
+    const maxReached = existingCount >= MAX_BRACKETS_PER_TOURNAMENT;
+    const earlyBonus = getEarlyBirdBonus(activeTournament);
+    const defaultName = getDefaultBracketName(activeTournament.id);
+
+    // Step 3: Success
+    if (submitStep === 3) return (
+      <ModalWrap title="Success" onClose={() => { setModal(null); setPredictions({}); setBracketName(''); }}>
+        <div style={{padding:32, textAlign:'center'}}>
+          <div style={{width:80,height:80,borderRadius:40,background:C.greenLight,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 20px'}}>
+            <CheckCircle size={40} color={C.green}/>
+          </div>
           <h3 style={{fontSize:24,fontWeight:700,color:C.navy,margin:'0 0 8px'}}>Bracket Submitted!</h3>
           <p style={{fontSize:15,color:C.textMuted}}>Good luck in {activeTournament.name}!</p>
-          {champion&&<div style={{background:C.accentLight,borderRadius:12,padding:16,marginTop:20}}><p style={{fontSize:12,color:C.accent,margin:'0 0 8px'}}>YOUR CHAMPION</p><div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:10}}><span style={{fontSize:28}}>{champion.flag}</span><span style={{fontSize:18,fontWeight:700,color:C.navy}}>{champion.name}</span></div></div>}
-          <Btn primary full onClick={()=>{setModal(null);setPredictions({});setView('calendar');}} style={{marginTop:24}}>Done</Btn>
+          {earlyBonus > 0 && (
+            <div style={{background:`${C.green}18`,border:`1px solid ${C.green}`,borderRadius:10,padding:12,marginTop:16,display:'flex',alignItems:'center',gap:8,justifyContent:'center'}}>
+              <span style={{fontSize:18}}>⚡</span>
+              <span style={{fontSize:13,fontWeight:600,color:C.green}}>Early Bird Bonus: +{earlyBonus} pts added!</span>
+            </div>
+          )}
+          {champion && (
+            <div style={{background:C.accentLight,borderRadius:12,padding:16,marginTop:16}}>
+              <p style={{fontSize:12,color:C.accentText,margin:'0 0 8px'}}>YOUR CHAMPION</p>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:10}}>
+                <span style={{fontSize:28}}>{champion.flag}</span>
+                <span style={{fontSize:18,fontWeight:700,color:C.navy}}>{champion.name}</span>
+              </div>
+            </div>
+          )}
+          {existingCount < MAX_BRACKETS_PER_TOURNAMENT - 1 && (
+            <div style={{background:C.bgLight,borderRadius:10,padding:12,marginTop:16}}>
+              <p style={{fontSize:12,color:C.textMuted,margin:0}}>
+                💡 You can submit up to {MAX_BRACKETS_PER_TOURNAMENT} brackets per tournament
+              </p>
+            </div>
+          )}
+          <Btn primary full onClick={() => { setModal(null); setPredictions({}); setBracketName(''); setView('calendar'); setCalendarTab('my'); }} style={{marginTop:24}}>
+            View My Brackets
+          </Btn>
         </div>
       </ModalWrap>
     );
-    if (submitStep===2) return (
-      <ModalWrap title="Confirm Entry" onClose={()=>setModal(null)}>
+
+    // Step 2: Payment confirmation
+    if (submitStep === 2) return (
+      <ModalWrap title="Confirm Entry" onClose={() => setModal(null)}>
         <div style={{padding:16}}>
-          <div style={{background:C.bgLight,borderRadius:12,padding:16,marginBottom:20}}><p style={{fontSize:16,fontWeight:600,color:C.navy,margin:'0 0 4px'}}>{activeTournament.name}</p></div>
-          <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:16,marginBottom:20}}>
-            {[['Entry Fee',`$${fee}`,C.navy],['Your Balance',`$${balance.toLocaleString()}`,can?C.green:C.red],['After Payment',`$${(balance-fee).toLocaleString()}`,C.navy]].map(([k,v,col],i)=>(
-              <div key={k}>{i===2&&<div style={{height:1,background:C.border,margin:'12px 0'}}/>}
-                <div style={{display:'flex',justifyContent:'space-between',marginBottom:i<2?12:0}}><span style={{color:C.textMuted}}>{k}</span><span style={{fontWeight:600,color:col}}>{v}</span></div>
+          <div style={{background:C.bgLight,borderRadius:12,padding:16,marginBottom:16}}>
+            <p style={{fontSize:16,fontWeight:700,color:C.navy,margin:'0 0 2px'}}>{activeTournament.name}</p>
+            <p style={{fontSize:13,color:C.textMuted,margin:0}}>"{bracketName || defaultName}"</p>
+          </div>
+          <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:16,marginBottom:16}}>
+            {[
+              ['Entry Fee', `$${fee}`, C.navy],
+              ['Your Balance', `$${balance.toLocaleString('en-US')}`, can ? C.green : C.red],
+              ['After Payment', `$${(balance - fee).toLocaleString('en-US')}`, C.navy],
+            ].map(([k, v, col], i) => (
+              <div key={k}>
+                {i === 2 && <div style={{height:1,background:C.border,margin:'12px 0'}}/>}
+                <div style={{display:'flex',justifyContent:'space-between',marginBottom:i<2?12:0}}>
+                  <span style={{color:C.textMuted}}>{k}</span>
+                  <span style={{fontWeight:600,color:col}}>{v}</span>
+                </div>
               </div>
             ))}
+            {earlyBonus > 0 && (
+              <div style={{marginTop:12,paddingTop:12,borderTop:`1px solid ${C.border}`,display:'flex',justifyContent:'space-between'}}>
+                <span style={{color:C.green,fontSize:13}}>⚡ Early Bird Bonus</span>
+                <span style={{fontWeight:600,color:C.green}}>+{earlyBonus} pts</span>
+              </div>
+            )}
           </div>
-          <div style={{display:'flex',gap:12}}><Btn onClick={()=>setSubmitStep(1)} style={{flex:1}}>Back</Btn>
-            {can?<Btn primary onClick={()=>{setBalance(balance-fee);setUserTx([{id:Date.now(),title:'Tournament Entry',desc:activeTournament.name,amt:-fee,date:'Just now'},...userTx]);setMyBrackets([...myBrackets,{id:Date.now(),tournament:activeTournament,champion,blackHorse,predictions:{...predictions},submittedAt:new Date().toISOString(),status:'active',position:null,prevPosition:null,points:0,correctPicks:0,totalPicks:rounds.reduce((s,r)=>s+r.matches,0),blackHorseAlive:true,prize:0}]);setBlackHorse(null);setSubmitStep(3);}} style={{flex:2}}>Pay ${fee}</Btn>
-            :<Btn primary onClick={()=>{setModal('deposit');setDepStep(1);setDepAmt('');}} style={{flex:2}}><Plus size={18}/> Add Funds</Btn>}
+          {/* Bracket # indicator */}
+          {existingCount > 0 && (
+            <div style={{background:C.accentLight,borderRadius:8,padding:10,marginBottom:16,display:'flex',alignItems:'center',gap:8}}>
+              <span style={{fontSize:13,color:C.accentText}}>📋 This will be your bracket #{existingCount + 1} for {activeTournament.name}</span>
+            </div>
+          )}
+          <div style={{display:'flex',gap:12}}>
+            <Btn onClick={() => setSubmitStep(1)} style={{flex:1}}>Back</Btn>
+            {can
+              ? <Btn primary onClick={() => {
+                  const newBracket = {
+                    id: Date.now(),
+                    name: bracketName || defaultName,
+                    bracketNum: existingCount + 1,
+                    tier: selectedTier,
+                    tournament: activeTournament,
+                    champion,
+                    blackHorse,
+                    predictions: { ...predictions },
+                    submittedAt: new Date().toISOString(),
+                    status: 'active',
+                    position: null, prevPosition: null,
+                    points: earlyBonus, correctPicks: 0,
+                    totalPicks: rounds.reduce((s, r) => s + r.matches, 0),
+                    blackHorseAlive: true, prize: 0,
+                  };
+                  setBalance(balance - fee);
+                  setUserTx([{id:Date.now(),title:'Tournament Entry',desc:`${activeTournament.name} — ${newBracket.name}`,amt:-fee,date:'Just now'},...userTx]);
+                  setMyBrackets([...myBrackets, newBracket]);
+                  setBlackHorse(null);
+                  setSubmitStep(3);
+                  // Simulate live ticker after 2s
+                  setTimeout(() => triggerTicker(newBracket.id, champion?.name, 8, 'QF'), 2000);
+                }} style={{flex:2}}>
+                Pay ${fee}
+              </Btn>
+              : <Btn primary onClick={() => { setModal('deposit'); setDepStep(1); setDepAmt(''); }} style={{flex:2}}>
+                  <Plus size={18}/> Add Funds
+                </Btn>
+            }
           </div>
         </div>
       </ModalWrap>
     );
+
+    // Step 1: Review + name bracket
     return (
-      <ModalWrap title="Review Bracket" onClose={()=>setModal(null)}>
+      <ModalWrap title="Review Bracket" onClose={() => setModal(null)}>
         <div style={{padding:16}}>
-          {champion&&<div style={{background:C.headerBg,borderRadius:12,padding:20,marginBottom:20,textAlign:'center'}}><p style={{fontSize:12,color:'rgba(255,255,255,0.7)',margin:'0 0 10px'}}>YOUR CHAMPION</p><div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:12}}><span style={{fontSize:36}}>{champion.flag}</span><p style={{fontSize:20,fontWeight:700,color:'#fff',margin:0}}>{champion.name}</p></div><Trophy size={28} color="#FCD34D" style={{marginTop:12}}/></div>}
+          {/* Max brackets warning */}
+          {maxReached && (
+            <div style={{background:C.redLight,border:`1px solid ${C.red}`,borderRadius:10,padding:14,marginBottom:16}}>
+              <p style={{fontSize:14,fontWeight:600,color:C.red,margin:'0 0 4px'}}>Max Brackets Reached</p>
+              <p style={{fontSize:12,color:C.red,margin:0}}>You can submit max {MAX_BRACKETS_PER_TOURNAMENT} brackets per tournament.</p>
+            </div>
+          )}
+
+          {/* Bracket name input */}
+          <div style={{marginBottom:16}}>
+            <label style={{fontSize:12,fontWeight:600,color:C.textMuted,display:'block',marginBottom:6,textTransform:'uppercase',letterSpacing:0.5}}>Bracket Name</label>
+            <input
+              type="text"
+              value={bracketName}
+              onChange={e => setBracketName(e.target.value)}
+              placeholder={defaultName}
+              maxLength={30}
+              style={{width:'100%',padding:12,fontSize:15,border:`1.5px solid ${C.border}`,borderRadius:10,outline:'none',color:C.navy,background:C.inputBg,boxSizing:'border-box'}}
+            />
+            {existingCount > 0 && (
+              <p style={{fontSize:11,color:C.textMuted,margin:'4px 0 0'}}>
+                Bracket {existingCount + 1} of {MAX_BRACKETS_PER_TOURNAMENT} for this tournament
+              </p>
+            )}
+          </div>
+
+          {/* Champion */}
+          {champion && (
+            <div style={{background:C.headerBg,borderRadius:12,padding:20,marginBottom:16,textAlign:'center'}}>
+              <p style={{fontSize:12,color:'rgba(255,255,255,0.7)',margin:'0 0 10px'}}>YOUR CHAMPION</p>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:12}}>
+                <span style={{fontSize:36}}>{champion.flag}</span>
+                <p style={{fontSize:20,fontWeight:700,color:'#fff',margin:0}}>{champion.name}</p>
+              </div>
+              <Trophy size={28} color="#FCD34D" style={{marginTop:12}}/>
+            </div>
+          )}
+
+          {/* Black Horse */}
           <div style={{background:blackHorse?`${C.orange}10`:C.bgLight,border:`1px solid ${blackHorse?C.orange:C.border}`,borderRadius:12,padding:16,marginBottom:16}}>
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-              <div style={{display:'flex',alignItems:'center',gap:8}}><span style={{fontSize:18}}>🐴</span><span style={{fontSize:14,fontWeight:600,color:C.navy}}>Black Horse</span><span style={{fontSize:10,fontWeight:600,color:C.orange,background:`${C.orange}15`,padding:'2px 6px',borderRadius:4}}>1.5x</span></div>
-              {blackHorse?<div style={{display:'flex',alignItems:'center',gap:8}}><span style={{fontSize:18}}>{blackHorse.flag}</span><span style={{fontSize:14,fontWeight:600,color:C.navy}}>{blackHorse.name}</span></div>:<span style={{fontSize:13,color:C.textMuted}}>Not selected</span>}
+              <div style={{display:'flex',alignItems:'center',gap:8}}>
+                <span style={{fontSize:18}}>🐴</span>
+                <span style={{fontSize:14,fontWeight:600,color:C.navy}}>Black Horse</span>
+                <span style={{fontSize:10,fontWeight:600,color:C.orange,background:`${C.orange}15`,padding:'2px 6px',borderRadius:4}}>1.5x</span>
+              </div>
+              {blackHorse
+                ? <div style={{display:'flex',alignItems:'center',gap:8}}><span style={{fontSize:18}}>{blackHorse.flag}</span><span style={{fontSize:14,fontWeight:600,color:C.navy}}>{blackHorse.name}</span></div>
+                : <span style={{fontSize:13,color:C.textMuted}}>Not selected</span>
+              }
             </div>
           </div>
-          <div style={{background:C.bgLight,borderRadius:12,padding:16,marginBottom:20,display:'flex',justifyContent:'space-between',alignItems:'center'}}><span style={{fontSize:14,color:C.textMuted}}>Entry Fee</span><span style={{fontSize:20,fontWeight:700,color:C.accent}}>${fee}</span></div>
-          <Btn primary full onClick={()=>setSubmitStep(2)}>Continue to Payment</Btn>
+
+          {/* Early Bird bonus */}
+          {earlyBonus > 0 && (
+            <div style={{background:`${C.green}12`,border:`1px solid ${C.green}`,borderRadius:10,padding:12,marginBottom:16,display:'flex',alignItems:'center',gap:8}}>
+              <span style={{fontSize:18}}>⚡</span>
+              <div>
+                <p style={{fontSize:13,fontWeight:600,color:C.green,margin:0}}>Early Bird Bonus Active!</p>
+                <p style={{fontSize:11,color:C.green,margin:'2px 0 0',opacity:0.8}}>Submit 24h+ early → +{earlyBonus} bonus points</p>
+              </div>
+            </div>
+          )}
+
+          {/* Entry fee */}
+          <div style={{background:C.bgLight,borderRadius:12,padding:16,marginBottom:20,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            <span style={{fontSize:14,color:C.textMuted}}>Entry Fee</span>
+            <span style={{fontSize:20,fontWeight:700,color:C.accentText}}>${fee}</span>
+          </div>
+
+          <Btn primary full disabled={maxReached} onClick={() => setSubmitStep(2)}>
+            Continue to Payment
+          </Btn>
+        </div>
+      </ModalWrap>
+    );
+  };
+
+  // ─── TIER SELECTOR MODAL ──────────────────────────────────────────────────
+  const TierSelectorModal = ({ tournament, onSelect }) => {
+    const tiers = getTiers(tournament);
+    return (
+      <ModalWrap title={`${tournament.name} — Choose Entry`} onClose={() => setModal(null)}>
+        <div style={{padding:16}}>
+          {/* Header */}
+          <div style={{background:C.headerBg, borderRadius:12, padding:16, marginBottom:20, textAlign:'center'}}>
+            <p style={{fontSize:13,color:'rgba(255,255,255,0.7)',margin:'0 0 4px'}}>Select your entry level</p>
+            <p style={{fontSize:12,color:'rgba(255,255,255,0.55)',margin:0}}>Higher entry = larger prize pool & fewer competitors</p>
+          </div>
+
+          {tiers.map((tier, i) => {
+            const tierPool = Math.round(tier.entries * tier.poolEntry);
+            const paidPlaces = Math.floor(tier.entries * 0.15);
+            const topPrize = Math.round(tierPool * 0.20);
+            const isSelected = selectedTier?.id === tier.id;
+            const tierColors = {
+              starter: { bg: C.bgLight, border: C.border,   badge: '#6B7280', badgeBg: '#F3F4F6' },
+              pro:     { bg: `${C.accent}08`, border: C.accent, badge: '#fff',    badgeBg: C.accent  },
+              elite:   { bg: '#FEF3C7', border: '#B45309',   badge: '#fff',    badgeBg: '#B45309'  },
+            }[tier.id];
+
+            return (
+              <button key={tier.id} onClick={() => { setSelectedTier(tier); }}
+                style={{
+                  width:'100%', textAlign:'left', padding:0, border:`2px solid ${isSelected ? tier.color : tierColors.border}`,
+                  borderRadius:14, marginBottom:12, cursor:'pointer', overflow:'hidden',
+                  background: isSelected ? `${tier.color}10` : tierColors.bg,
+                  transition:'all 0.15s',
+                }}>
+                {/* Tier header */}
+                <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 16px',borderBottom:`1px solid ${C.border}`}}>
+                  <div style={{display:'flex',alignItems:'center',gap:10}}>
+                    <div style={{padding:'3px 10px',borderRadius:20,background:tierColors.badgeBg}}>
+                      <span style={{fontSize:12,fontWeight:700,color:tierColors.badge}}>
+                        {tier.id === 'starter' ? '🎾' : tier.id === 'pro' ? '⭐' : '👑'} {tier.label.toUpperCase()}
+                      </span>
+                    </div>
+                    {tier.id === 'pro' && (
+                      <span style={{fontSize:10,fontWeight:600,color:C.accentText,background:C.accentLight,padding:'2px 6px',borderRadius:4}}>POPULAR</span>
+                    )}
+                  </div>
+                  <div style={{display:'flex',alignItems:'center',gap:8}}>
+                    <span style={{fontSize:22,fontWeight:800,color:tier.color}}>${tier.entry}</span>
+                    {isSelected && <Check size={20} color={tier.color}/>}
+                  </div>
+                </div>
+
+                {/* Tier stats */}
+                <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',padding:'12px 16px',gap:8}}>
+                  {[
+                    ['Prize Pool', `$${tierPool.toLocaleString('en-US')}`, C.green],
+                    ['Top Prize',  `$${topPrize.toLocaleString('en-US')}`,  tier.color],
+                    ['Entries',    tier.entries.toLocaleString('en-US'),    C.textMid],
+                  ].map(([label, val, color]) => (
+                    <div key={label} style={{textAlign:'center'}}>
+                      <p style={{fontSize:9,color:C.textMuted,margin:'0 0 2px',textTransform:'uppercase',letterSpacing:0.3}}>{label}</p>
+                      <p style={{fontSize:13,fontWeight:700,color,margin:0}}>{val}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Paid places info */}
+                <div style={{padding:'8px 16px',borderTop:`1px solid ${C.border}`,background:C.bgLight}}>
+                  <p style={{fontSize:11,color:C.textMuted,margin:0}}>
+                    Top {paidPlaces.toLocaleString('en-US')} places paid • Max {MAX_BRACKETS_PER_TOURNAMENT} brackets per tier
+                  </p>
+                </div>
+              </button>
+            );
+          })}
+
+          <Btn primary full
+            disabled={!selectedTier}
+            onClick={() => {
+              setActiveTournament(tournament);
+              setModal(null);
+              setView('bracket');
+            }}
+            style={{marginTop:4}}
+          >
+            Enter with {selectedTier ? `$${selectedTier.entry} ${selectedTier.label}` : '...'}
+          </Btn>
         </div>
       </ModalWrap>
     );
@@ -1257,7 +1658,8 @@ export default function App() {
   };
 
   const PrizesModal = () => {
-    const [showAll, setShowAll] = useState(false);
+    const showAll = prizesShowAll;
+    const setShowAll = setPrizesShowAll;
     const pool = calcPrizePool(activeTournament.entries||1, activeTournament.poolEntry||activeTournament.entry);
     const rows = [
       {place:'1st',pct:'20%',amt:Math.round(pool*0.20),medal:'🥇'},
@@ -1272,8 +1674,8 @@ export default function App() {
     return (
       <ModalWrap title="Prize Payouts" onClose={()=>setModal(null)}>
         <div style={{padding:16}}>
-          <div style={{background:C.headerBg,borderRadius:12,padding:16,marginBottom:16}}><h3 style={{fontSize:18,fontWeight:700,color:'#fff',margin:'0 0 4px'}}>{activeTournament.name}</h3><p style={{fontSize:12,color:'rgba(255,255,255,0.7)',margin:0}}>{activeTournament.entries.toLocaleString()} entries</p></div>
-          <div style={{background:C.bgLight,borderRadius:12,padding:16,marginBottom:16,display:'flex',justifyContent:'space-between',alignItems:'center'}}><p style={{fontSize:12,color:C.textMuted,margin:0}}>Total Prize Pool</p><p style={{fontSize:24,fontWeight:700,color:C.green,margin:0}}>${pool.toLocaleString()}</p></div>
+          <div style={{background:C.headerBg,borderRadius:12,padding:16,marginBottom:16}}><h3 style={{fontSize:18,fontWeight:700,color:'#fff',margin:'0 0 4px'}}>{activeTournament.name}</h3><p style={{fontSize:12,color:'rgba(255,255,255,0.7)',margin:0}}>{activeTournament.entries.toLocaleString('en-US')} entries</p></div>
+          <div style={{background:C.bgLight,borderRadius:12,padding:16,marginBottom:16,display:'flex',justifyContent:'space-between',alignItems:'center'}}><p style={{fontSize:12,color:C.textMuted,margin:0}}>Total Prize Pool</p><p style={{fontSize:24,fontWeight:700,color:C.green,margin:0}}>${pool.toLocaleString('en-US')}</p></div>
           <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:12,overflow:'hidden'}}>
             <div style={{display:'flex',padding:'10px 14px',background:C.bgLight,borderBottom:`1px solid ${C.border}`}}>
               <span style={{flex:1,fontSize:11,fontWeight:600,color:C.textMuted}}>PLACE</span>
@@ -1284,13 +1686,13 @@ export default function App() {
               <div key={i} style={{display:'flex',alignItems:'center',padding:'11px 14px',borderBottom:i<(showAll?rows.length:5)-1?`1px solid ${C.border}`:'none'}}>
                 <div style={{flex:1,display:'flex',alignItems:'center',gap:8}}>{row.medal&&<span style={{fontSize:16}}>{row.medal}</span>}<span style={{fontSize:13,fontWeight:row.medal?600:500,color:C.navy}}>{row.place}</span></div>
                 <span style={{width:60,fontSize:12,color:C.textMuted,textAlign:'right'}}>{row.pct}</span>
-                <span style={{width:90,fontSize:13,fontWeight:600,color:row.medal?C.green:C.navy,textAlign:'right'}}>${row.amt.toLocaleString()}</span>
+                <span style={{width:90,fontSize:13,fontWeight:600,color:row.medal?C.green:C.navy,textAlign:'right'}}>${row.amt.toLocaleString('en-US')}</span>
               </div>
             ))}
           </div>
           <button onClick={()=>setShowAll(!showAll)} style={{width:'100%',padding:12,marginTop:12,background:'none',border:`1px solid ${C.border}`,borderRadius:8,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:6}}>
-            <span style={{fontSize:13,fontWeight:500,color:C.accent}}>{showAll?'Show Less':'Show All Places'}</span>
-            <ChevronDown size={16} color={C.accent} style={{transform:showAll?'rotate(180deg)':'none'}}/>
+            <span style={{fontSize:13,fontWeight:500,color:C.accentText}}>{showAll?'Show Less':'Show All Places'}</span>
+            <ChevronDown size={16} color={C.accentText} style={{transform:showAll?'rotate(180deg)':'none'}}/>
           </button>
         </div>
       </ModalWrap>
@@ -1298,13 +1700,15 @@ export default function App() {
   };
 
   const AuthModal = () => {
-    const [mode, setMode] = useState('login');
+    const mode = authMode;
+    const setMode = setAuthMode;
+    const handleClose = () => { setAuthMode('login'); setModal(null); };
     return (
-      <ModalWrap title={mode==='login'?'Sign In':'Create Account'} onClose={()=>setModal(null)}>
+      <ModalWrap title={mode==='login'?'Sign In':'Create Account'} onClose={handleClose}>
         <div style={{padding:20}}>
           <div style={{textAlign:'center',marginBottom:24}}>
             <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,marginBottom:8}}>
-              <MobaLogo size={32} color={C.accent}/>
+              <MobaLogo size={32} color={C.accentText}/>
               <MobaWordmark color={C.navy} fontSize={22}/>
             </div>
             <p style={{fontSize:13,color:C.textMuted,margin:0}}>Bracket Battle</p>
@@ -1318,24 +1722,267 @@ export default function App() {
             {mode==='login'?'Sign In':'Create Account'}
           </Btn>
           <div style={{marginTop:20,paddingTop:20,borderTop:`1px solid ${C.border}`,textAlign:'center'}}>
-            {mode==='login'?<p style={{fontSize:14,color:C.textMid,margin:0}}>Don't have an account? <span onClick={()=>setMode('register')} style={{color:C.accent,fontWeight:600,cursor:'pointer'}}>Sign Up</span></p>:<p style={{fontSize:14,color:C.textMid,margin:0}}>Already have an account? <span onClick={()=>setMode('login')} style={{color:C.accent,fontWeight:600,cursor:'pointer'}}>Sign In</span></p>}
+            {mode==='login'?<p style={{fontSize:14,color:C.textMid,margin:0}}>Don't have an account? <span onClick={()=>setMode('register')} style={{color:C.accentText,fontWeight:600,cursor:'pointer'}}>Sign Up</span></p>:<p style={{fontSize:14,color:C.textMid,margin:0}}>Already have an account? <span onClick={()=>setMode('login')} style={{color:C.accentText,fontWeight:600,cursor:'pointer'}}>Sign In</span></p>}
           </div>
         </div>
       </ModalWrap>
     );
   };
 
+  // ─── LIVE TICKER OVERLAY (Feature 10) ────────────────────────────────────────
+  const LiveTicker = () => {
+    if (!liveTickerMsg) return null;
+    return (
+      <div style={{
+        position:'fixed', bottom:100, left:'50%', transform:'translateX(-50%)',
+        background: C.accent, borderRadius:24, padding:'12px 20px',
+        display:'flex', alignItems:'center', gap:10,
+        boxShadow:'0 4px 20px rgba(0,0,0,0.3)', zIndex:999,
+        animation:'slideUp 0.3s ease',
+        maxWidth:360, width:'calc(100% - 40px)',
+      }}>
+        <span style={{fontSize:20}}>🎾</span>
+        <div style={{flex:1}}>
+          <p style={{fontSize:13,fontWeight:700,color:'#fff',margin:0}}>{liveTickerMsg.playerName} won!</p>
+          <p style={{fontSize:11,color:'rgba(255,255,255,0.8)',margin:'2px 0 0'}}>{liveTickerMsg.round} correct pick</p>
+        </div>
+        <div style={{background:'rgba(255,255,255,0.2)',borderRadius:12,padding:'4px 10px'}}>
+          <span style={{fontSize:16,fontWeight:800,color:'#fff'}}>+{liveTickerMsg.pts}</span>
+          <span style={{fontSize:10,color:'rgba(255,255,255,0.8)'}}> pts</span>
+        </div>
+      </div>
+    );
+  };
+
+  // ─── STATS MODAL (Features 13, 14, 15) ────────────────────────────────────────
+  const StatsModal = () => (
+    <ModalWrap title="My Stats" onClose={() => setModal(null)}>
+      <div style={{padding:16}}>
+        {/* Overall accuracy */}
+        <div style={{background:C.headerBg,borderRadius:12,padding:20,marginBottom:16,textAlign:'center'}}>
+          <p style={{fontSize:12,color:'rgba(255,255,255,0.7)',margin:'0 0 8px',textTransform:'uppercase',letterSpacing:0.5}}>Overall Accuracy</p>
+          <p style={{fontSize:48,fontWeight:800,color:'#fff',margin:0}}>{accuracyStats.overall}%</p>
+          <p style={{fontSize:13,color:'rgba(255,255,255,0.7)',margin:'4px 0 0'}}>{accuracyStats.totalCorrect} / {accuracyStats.totalPicks} correct picks</p>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:6,marginTop:8}}>
+            <span style={{fontSize:13,color:'#FCD34D'}}>🔥 {accuracyStats.streak} tournament streak</span>
+          </div>
+        </div>
+
+        {/* By surface */}
+        <p style={{fontSize:13,fontWeight:600,color:C.navy,margin:'0 0 10px',textTransform:'uppercase',letterSpacing:0.5}}>By Surface</p>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10,marginBottom:16}}>
+          {Object.entries(accuracyStats.bySurface).map(([surface, pct]) => (
+            <div key={surface} style={{background:C.bgLight,borderRadius:10,padding:14,textAlign:'center',border:`1px solid ${C.border}`}}>
+              <p style={{fontSize:10,color:C.textMuted,margin:'0 0 4px'}}>{surface}</p>
+              <p style={{fontSize:22,fontWeight:700,color:pct>=70?C.green:pct>=60?C.accentText:C.textMid,margin:0}}>{pct}%</p>
+            </div>
+          ))}
+        </div>
+
+        {/* By round */}
+        <p style={{fontSize:13,fontWeight:600,color:C.navy,margin:'0 0 10px',textTransform:'uppercase',letterSpacing:0.5}}>By Round</p>
+        <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:12,overflow:'hidden',marginBottom:16}}>
+          {Object.entries(accuracyStats.byRound).map(([round, pct], i, arr) => (
+            <div key={round} style={{display:'flex',alignItems:'center',padding:'10px 14px',borderBottom:i<arr.length-1?`1px solid ${C.border}`:'none'}}>
+              <span style={{width:50,fontSize:13,fontWeight:600,color:C.textMuted}}>{round}</span>
+              <div style={{flex:1,height:6,background:C.bgLight,borderRadius:3,marginRight:12}}>
+                <div style={{height:'100%',width:`${pct}%`,background:pct>=70?C.green:pct>=60?C.accentText:C.orange,borderRadius:3}}/>
+              </div>
+              <span style={{fontSize:13,fontWeight:600,color:C.navy,width:40,textAlign:'right'}}>{pct}%</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Weekly digest preview */}
+        <div style={{background:C.bgLight,borderRadius:12,padding:14,display:'flex',alignItems:'center',gap:12}}>
+          <span style={{fontSize:24}}>📧</span>
+          <div>
+            <p style={{fontSize:13,fontWeight:600,color:C.navy,margin:0}}>Weekly Digest</p>
+            <p style={{fontSize:11,color:C.textMuted,margin:'2px 0 0'}}>Get your weekly stats summary via email</p>
+          </div>
+          <div style={{marginLeft:'auto',width:36,height:20,borderRadius:10,background:C.accentText,display:'flex',alignItems:'center',justifyContent:'flex-end',padding:'0 3px'}}>
+            <div style={{width:14,height:14,borderRadius:7,background:'#fff'}}/>
+          </div>
+        </div>
+      </div>
+    </ModalWrap>
+  );
+
+  // ─── MINI LEAGUES MODAL (Feature 8) ─────────────────────────────────────────
+  const MiniLeaguesModal = () => {
+    const leagueCode = 'MO' + Math.floor(Math.random()*9000+1000);
+    return (
+      <ModalWrap title="Mini Leagues" onClose={() => { setLeagueTab('my'); setModal(null); }}>
+        <div style={{padding:0}}>
+          <TabBar tabs={[{id:'my',label:'My Leagues'},{id:'create',label:'Create'},{id:'join',label:'Join'}]} active={leagueTab} onChange={setLeagueTab} light/>
+          <div style={{padding:16}}>
+            {leagueTab === 'my' && (
+              <>
+                {miniLeagues.length === 0 ? (
+                  <div style={{textAlign:'center',padding:32}}>
+                    <p style={{fontSize:15,color:C.textMuted}}>No leagues yet</p>
+                    <Btn primary onClick={() => setLeagueTab('create')} style={{marginTop:12}}>Create League</Btn>
+                  </div>
+                ) : miniLeagues.map(league => (
+                  <div key={league.id} style={{background:C.bgLight,borderRadius:12,padding:16,marginBottom:12,border:`1px solid ${C.border}`}}>
+                    <div style={{display:'flex',justifyContent:'space-between',alignItems:'start',marginBottom:10}}>
+                      <div>
+                        <p style={{fontSize:16,fontWeight:700,color:C.navy,margin:0}}>{league.name}</p>
+                        <p style={{fontSize:12,color:C.textMuted,margin:'2px 0 0'}}>{league.members} members</p>
+                      </div>
+                      <span style={{background:C.accentLight,color:C.accentText,fontSize:10,fontWeight:700,padding:'3px 8px',borderRadius:6}}>
+                        #{league.myRank}
+                      </span>
+                    </div>
+                    <div style={{display:'flex',gap:12}}>
+                      <div style={{flex:1,background:C.card,borderRadius:8,padding:10,textAlign:'center'}}>
+                        <p style={{fontSize:10,color:C.textMuted,margin:0}}>Leader</p>
+                        <p style={{fontSize:13,fontWeight:600,color:C.navy,margin:'2px 0 0'}}>{league.leader}</p>
+                      </div>
+                      <div style={{flex:1,background:C.card,borderRadius:8,padding:10,textAlign:'center'}}>
+                        <p style={{fontSize:10,color:C.textMuted,margin:0}}>Invite Code</p>
+                        <p style={{fontSize:13,fontWeight:700,color:C.accentText,margin:'2px 0 0',letterSpacing:1}}>{league.code}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </>
+            )}
+            {leagueTab === 'create' && (
+              <div>
+                <p style={{fontSize:13,color:C.textMuted,marginBottom:16}}>Create a private league and invite friends with a code.</p>
+                <label style={{fontSize:12,fontWeight:600,color:C.textMuted,display:'block',marginBottom:6}}>League Name</label>
+                <input type="text" value={newLeagueName} onChange={e=>setNewLeagueName(e.target.value)} placeholder="e.g. Office Tennis League"
+                  style={{width:'100%',padding:12,fontSize:15,border:`1.5px solid ${C.border}`,borderRadius:10,outline:'none',color:C.navy,background:C.inputBg,boxSizing:'border-box',marginBottom:20}}/>
+                <Btn primary full disabled={!newLeagueName} onClick={() => {
+                  const newLeague = {id:Date.now(),name:newLeagueName,code:leagueCode,members:1,myRank:1,leader:user.name};
+                  setMiniLeagues([...miniLeagues,newLeague]);
+                  setNewLeagueName('');
+                  setLeagueTab('my');
+                }}>Create League</Btn>
+              </div>
+            )}
+            {leagueTab === 'join' && (
+              <div>
+                <p style={{fontSize:13,color:C.textMuted,marginBottom:16}}>Enter an invite code to join a friend's league.</p>
+                <label style={{fontSize:12,fontWeight:600,color:C.textMuted,display:'block',marginBottom:6}}>Invite Code</label>
+                <input type="text" value={joinCode} onChange={e=>setJoinCode(e.target.value.toUpperCase())} placeholder="e.g. TN2026"
+                  style={{width:'100%',padding:12,fontSize:18,fontWeight:700,letterSpacing:4,textAlign:'center',border:`1.5px solid ${C.border}`,borderRadius:10,outline:'none',color:C.navy,background:C.inputBg,boxSizing:'border-box',marginBottom:20}}/>
+                <Btn primary full disabled={joinCode.length < 4} onClick={() => {
+                  setJoinCode('');
+                  setLeagueTab('my'); // joined mock
+                }}>Join League</Btn>
+              </div>
+            )}
+          </div>
+        </div>
+      </ModalWrap>
+    );
+  };
+
+  // ─── HEAD TO HEAD MODAL (Feature 7) ─────────────────────────────────────────
+  const H2HModal = () => {
+    const opponents = rankings.slice(0, 10);
+    const selected = h2hSelected;
+    const setSelected = setH2hSelected;
+    return (
+      <ModalWrap title="Head-to-Head" onClose={() => { setH2hSelected(null); setModal(null); }}>
+        <div style={{padding:16}}>
+          <div style={{background:C.bgLight,borderRadius:12,padding:14,marginBottom:16}}>
+            <p style={{fontSize:13,color:C.textMid,margin:0,lineHeight:1.5}}>
+              Challenge another player to a private bracket battle. Winner takes bragging rights (and bonus points!).
+            </p>
+          </div>
+          <p style={{fontSize:13,fontWeight:600,color:C.navy,margin:'0 0 12px',textTransform:'uppercase',letterSpacing:0.5}}>Pick Opponent</p>
+          {opponents.map(opp => (
+            <button key={opp.rank} onClick={() => setSelected(opp)}
+              style={{width:'100%',display:'flex',alignItems:'center',padding:'12px 14px',marginBottom:8,borderRadius:10,border:`1.5px solid ${selected?.rank===opp.rank?C.accent:C.border}`,background:selected?.rank===opp.rank?C.accentLight:C.card,cursor:'pointer'}}>
+              <span style={{fontSize:14,marginRight:8}}>{opp.flag}</span>
+              <div style={{flex:1,textAlign:'left'}}>
+                <p style={{fontSize:14,fontWeight:500,color:C.navy,margin:0}}>{opp.name}</p>
+                <p style={{fontSize:11,color:C.textMuted,margin:'2px 0 0'}}>Rank #{opp.rank} • {opp.winRate}% win rate</p>
+              </div>
+              {selected?.rank === opp.rank && <Check size={18} color={C.accentText}/>}
+            </button>
+          ))}
+          <Btn primary full disabled={!selected} onClick={() => { setH2hOpponent(selected); setModal(null); }} style={{marginTop:8}}>
+            Challenge {selected?.name || '...'}
+          </Btn>
+        </div>
+      </ModalWrap>
+    );
+  };
+
+  // ─── REFERRAL / FREE vs PAID info (Features 17, 18, 19) ─────────────────────
+  const RewardsModal = () => (
+    <ModalWrap title="Rewards &amp; Referral" onClose={() => setModal(null)}>
+      <div style={{padding:16}}>
+        {/* Streak bonus */}
+        <div style={{background:C.headerBg,borderRadius:12,padding:16,marginBottom:16}}>
+          <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:8}}>
+            <span style={{fontSize:24}}>🔥</span>
+            <div>
+              <p style={{fontSize:15,fontWeight:700,color:'#fff',margin:0}}>Tournament Streak</p>
+              <p style={{fontSize:12,color:'rgba(255,255,255,0.7)',margin:'2px 0 0'}}>Play consecutive tournaments for discounts</p>
+            </div>
+          </div>
+          <div style={{display:'flex',gap:8}}>
+            {[1,2,3,4,5].map(n => (
+              <div key={n} style={{flex:1,height:8,borderRadius:4,background:n<=3?'#FCD34D':'rgba(255,255,255,0.2)'}}/>
+            ))}
+          </div>
+          <p style={{fontSize:12,color:'rgba(255,255,255,0.8)',margin:'8px 0 0'}}>3/5 — 2 more for 20% entry discount!</p>
+        </div>
+
+        {/* Referral */}
+        <div style={{background:C.bgLight,borderRadius:12,padding:16,marginBottom:16,border:`1px solid ${C.border}`}}>
+          <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12}}>
+            <span style={{fontSize:20}}>🎁</span>
+            <div>
+              <p style={{fontSize:14,fontWeight:700,color:C.navy,margin:0}}>Refer a Friend</p>
+              <p style={{fontSize:11,color:C.textMuted,margin:'2px 0 0'}}>Both get $5 bonus when they enter first tournament</p>
+            </div>
+          </div>
+          <div style={{background:C.card,borderRadius:8,padding:12,display:'flex',alignItems:'center',justifyContent:'space-between',border:`1px solid ${C.border}`}}>
+            <span style={{fontSize:15,fontWeight:700,color:C.accentText,letterSpacing:2}}>ACEMASTER2026</span>
+            <button style={{padding:'6px 12px',borderRadius:6,background:C.accent,border:'none',cursor:'pointer'}}>
+              <span style={{fontSize:12,fontWeight:600,color:'#fff'}}>Copy</span>
+            </button>
+          </div>
+          <p style={{fontSize:11,color:C.textMuted,margin:'8px 0 0'}}>3 friends referred • $15 earned</p>
+        </div>
+
+        {/* Free vs Paid */}
+        <div style={{background:C.bgLight,borderRadius:12,padding:16,border:`1px solid ${C.border}`}}>
+          <p style={{fontSize:14,fontWeight:700,color:C.navy,margin:'0 0 12px'}}>Free vs Paid Brackets</p>
+          <div style={{display:'flex',gap:10}}>
+            {[
+              {label:'Free', lines:['Points only','No prize pool','Unlimited entries'], color:C.green, icon:'🆓'},
+              {label:'Paid', lines:['Entry fee','Real prize pool',`Max ${MAX_BRACKETS_PER_TOURNAMENT} per event`], color:C.accentText, icon:'💰'},
+            ].map(t => (
+              <div key={t.label} style={{flex:1,background:C.card,borderRadius:10,padding:14,border:`1px solid ${C.border}`,textAlign:'center'}}>
+                <span style={{fontSize:24}}>{t.icon}</span>
+                <p style={{fontSize:14,fontWeight:700,color:t.color,margin:'6px 0 4px'}}>{t.label}</p>
+                {t.lines.map((l,idx) => <p key={idx} style={{fontSize:11,color:C.textMuted,margin:'2px 0'}}>{l}</p>)}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </ModalWrap>
+  );
+
   // ─── PROFILE MODAL — theme controls here ─────────────────────────────────
   const ProfileModal = () => (
     <ModalWrap title="My Profile" onClose={()=>setModal(null)}>
       <div style={{padding:20}}>
         <div style={{textAlign:'center',marginBottom:24}}>
-          <div style={{width:80,height:80,borderRadius:40,background:C.accentLight,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 12px',fontSize:32,fontWeight:600,color:C.accent}}>{user.name[0]}</div>
+          <div style={{width:80,height:80,borderRadius:40,background:C.accentLight,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 12px',fontSize:32,fontWeight:600,color:C.accentText}}>{user.name[0]}</div>
           <h3 style={{fontSize:22,fontWeight:700,color:C.navy,margin:0}}>{user.name}</h3>
-          <p style={{fontSize:14,color:C.accent,margin:'4px 0'}}>Rank #{user.rank}</p>
+          <p style={{fontSize:14,color:C.accentText,margin:'4px 0'}}>Rank #{user.rank}</p>
         </div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:12,marginBottom:24}}>
-          {[['Win Rate',`${user.win}%`,C.green],['Earnings',`$${user.earn.toLocaleString()}`,C.accent],['Brackets',user.brackets,C.navy],['Balance',`$${balance.toLocaleString()}`,C.navy]].map(([l,v,col])=>(
+          {[['Win Rate',`${user.win}%`,C.green],['Earnings',`$${user.earn.toLocaleString('en-US')}`,C.accent],['Brackets',user.brackets,C.navy],['Balance',`$${balance.toLocaleString('en-US')}`,C.navy]].map(([l,v,col])=>(
             <div key={l} style={{background:C.bgLight,borderRadius:10,padding:16,textAlign:'center'}}><p style={{fontSize:11,color:C.textMuted,margin:'0 0 4px'}}>{l}</p><p style={{fontSize:22,fontWeight:700,color:col,margin:0}}>{v}</p></div>
           ))}
         </div>
@@ -1343,12 +1990,12 @@ export default function App() {
         {/* ── APPEARANCE ── */}
         <div style={{background:C.bgLight,borderRadius:12,padding:16,marginBottom:16,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
           <div style={{display:'flex',alignItems:'center',gap:10}}>
-            {isDark?<Moon size={18} color={C.accent}/>:<Sun size={18} color={C.orange}/>}
+            {isDark?<Moon size={18} color={C.accentText}/>:<Sun size={18} color={C.orange}/>}
             <div><p style={{fontSize:14,fontWeight:600,color:C.navy,margin:0}}>{isDark?'Dark Mode':'Light Mode'}</p><p style={{fontSize:11,color:C.textMuted,margin:'2px 0 0'}}>Toggle appearance</p></div>
           </div>
           <button onClick={()=>setIsDark(!isDark)} style={{width:52,height:28,borderRadius:14,border:'none',cursor:'pointer',position:'relative',background:isDark?C.accent:C.border,transition:'background 0.25s'}}>
             <div style={{position:'absolute',top:3,left:isDark?27:3,width:22,height:22,borderRadius:11,background:'#fff',transition:'left 0.25s',display:'flex',alignItems:'center',justifyContent:'center'}}>
-              {isDark?<Moon size={12} color={C.accent}/>:<Sun size={12} color={C.orange}/>}
+              {isDark?<Moon size={12} color={C.accentText}/>:<Sun size={12} color={C.orange}/>}
             </div>
           </button>
         </div>
@@ -1356,6 +2003,10 @@ export default function App() {
         <div style={{display:'flex',flexDirection:'column',gap:10}}>
           <Btn full onClick={()=>{setModal(null);setView('wallet');}}><Wallet size={18}/> Wallet</Btn>
           <Btn full onClick={()=>{setModal(null);setCalendarTab('my');setView('calendar');}}><Target size={18}/> My Brackets</Btn>
+          <Btn full onClick={()=>setModal('stats')}><BarChart2 size={18}/> My Stats &amp; Accuracy</Btn>
+          <Btn full onClick={()=>setModal('leagues')}><Trophy size={18}/> Mini Leagues</Btn>
+          <Btn full onClick={()=>setModal('h2h')}><ArrowUp size={18}/> Head-to-Head Challenge</Btn>
+          <Btn full onClick={()=>setModal('rewards')}><span style={{fontSize:16}}>🎁</span> Rewards &amp; Referral</Btn>
           <button onClick={()=>{setIsLoggedIn(false);setModal(null);}} style={{width:'100%',padding:14,borderRadius:10,border:`1px solid ${C.red}`,background:'transparent',color:C.red,fontSize:15,fontWeight:600,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
             <LogIn size={18}/> Sign Out
           </button>
@@ -1392,13 +2043,13 @@ export default function App() {
     <ModalWrap title="Player Stats" onClose={()=>setSelPlayer(null)}>
       <div style={{padding:16}}>
         <div style={{textAlign:'center',marginBottom:24}}>
-          <div style={{width:80,height:80,borderRadius:40,background:C.accentLight,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px',fontSize:28,fontWeight:600,color:C.accent}}>{selPlayer.name[0]}</div>
+          <div style={{width:80,height:80,borderRadius:40,background:C.accentLight,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px',fontSize:28,fontWeight:600,color:C.accentText}}>{selPlayer.name[0]}</div>
           <h3 style={{fontSize:22,fontWeight:700,color:C.navy,margin:0}}>{selPlayer.name}</h3>
-          <p style={{fontSize:14,color:C.accent,margin:'4px 0'}}>Rank #{selPlayer.rank}</p>
+          <p style={{fontSize:14,color:C.accentText,margin:'4px 0'}}>Rank #{selPlayer.rank}</p>
           <p style={{fontSize:14,color:C.textMuted}}>{selPlayer.flag} Played {selPlayer.played}</p>
         </div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:12}}>
-          {[['Points',selPlayer.pts.toLocaleString(),C.navy],['Win Rate',`${selPlayer.winRate}%`,C.green],['Earnings',`$${selPlayer.earnings?.toLocaleString()}`,C.accent],['Brackets',selPlayer.played,C.navy]].map(([l,v,col])=>(
+          {[['Points',selPlayer.pts.toLocaleString('en-US'),C.navy],['Win Rate',`${selPlayer.winRate}%`,C.green],['Earnings',`$${selPlayer.earnings?.toLocaleString('en-US')}`,C.accent],['Brackets',selPlayer.played,C.navy]].map(([l,v,col])=>(
             <div key={l} style={{background:C.bgLight,borderRadius:8,padding:16,textAlign:'center'}}><p style={{fontSize:11,color:C.textMuted,margin:'0 0 4px'}}>{l}</p><p style={{fontSize:20,fontWeight:700,color:col,margin:0}}>{v}</p></div>
           ))}
         </div>
@@ -1414,6 +2065,8 @@ export default function App() {
         ::-webkit-scrollbar{width:0;height:0;}
         input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;}
         @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+        @keyframes slideUp{from{transform:translateX(-50%) translateY(20px);opacity:0;}to{transform:translateX(-50%) translateY(0);opacity:1;}}
+        @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
       `}</style>
       <div style={{maxWidth:430,margin:'0 auto',minHeight:'100vh',paddingBottom:80}}>
         {view==='bracket'&&<BracketView/>}
@@ -1428,10 +2081,16 @@ export default function App() {
         {modal==='blackhorse'&&<BlackHorseModal/>}
         {modal==='auth'&&<AuthModal/>}
         {modal==='profile'&&<ProfileModal/>}
+        {modal==='tiers'&&<TierSelectorModal tournament={activeTournament} onSelect={setSelectedTier}/>}
         {modal==='prizes'&&<PrizesModal/>}
+        {modal==='stats'&&<StatsModal/>}
+        {modal==='leagues'&&<MiniLeaguesModal/>}
+        {modal==='h2h'&&<H2HModal/>}
+        {modal==='rewards'&&<RewardsModal/>}
         {selectedBracket&&<BracketDetailsModal/>}
         {selPlayer&&<PlayerModal/>}
         {leaderboardBracket&&<LeaderboardModal/>}
+        <LiveTicker/>
       </div>
     </div>
   );

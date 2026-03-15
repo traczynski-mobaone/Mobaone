@@ -1,0 +1,1438 @@
+import React, { useState } from 'react';
+import { Trophy, Wallet, ChevronRight, ChevronLeft, Target, Search, ArrowUp, ArrowDown, Radio, BarChart2, User, X, Check, TrendingUp, Plus, CheckCircle, Heart, Calendar, ChevronDown, LogIn, Sun, Moon } from 'lucide-react';
+
+// ─── THEME DEFINITIONS ────────────────────────────────────────────────────────
+// THEME A: Purple/Navy (original, WCAG-fixed)
+const themeA_light = {
+  gradientStart: '#1E1B4B', gradientMid: '#2D2686', gradientEnd: '#3730A3',
+  bg: '#F3F4F6', bgLight: '#F9FAFB', card: '#FFFFFF',
+  navy: '#1E1B4B',
+  accent: '#3730A3',       // indigo-700 — 9.93:1 on white ✅ AAA
+  accentLight: '#E0E7FF',
+  textDark: '#1F2937', textMid: '#4B5563', textMuted: '#6B7280', textLight: '#5F6B7A',
+  green: '#047857',        // emerald-700 — 5.48:1 on white ✅
+  greenLight: '#D1FAE5',
+  red: '#B91C1C',          // red-700 — 6.47:1 on white ✅
+  redLight: '#FEE2E2',
+  orange: '#C2410C',       // orange-700 — 5.18:1 on white ✅
+  decorativeOrange: '#F97316',
+  border: '#E5E7EB',
+  headerBg: 'linear-gradient(135deg, #1E1B4B 0%, #312E81 50%, #4338CA 100%)',
+  navBg:    'linear-gradient(135deg, #1E1B4B 0%, #312E81 50%, #4338CA 100%)',
+  modalBg: '#FFFFFF', inputBg: '#F9FAFB', sectionBg: '#E5E5EA',
+  logoColor: '#FFFFFF', wordmarkColor: '#FFFFFF',
+};
+const themeA_dark = {
+  gradientStart: '#0F0D2E', gradientMid: '#1A1850', gradientEnd: '#2D2A7A',
+  bg: '#0F0D2E', bgLight: '#161440', card: '#1E1B4B',
+  navy: '#E2E8F0',
+  accent: '#818CF8',       // indigo-400 — 6.05:1 on dark card ✅
+  accentLight: '#1E1B4B',
+  textDark: '#F1F5F9', textMid: '#CBD5E1', textMuted: '#94A3B8', textLight: '#94A3B8',
+  green: '#34D399',        // emerald-400 — 8.32:1 on card ✅
+  greenLight: '#064E3B',
+  red: '#F87171',          // red-400 — 5.78:1 on card ✅
+  redLight: '#450A0A',
+  orange: '#FB923C',       // orange-400 — 7.06:1 on card ✅
+  decorativeOrange: '#FB923C',
+  border: '#2D2A5E',
+  headerBg: 'linear-gradient(135deg, #0F0D2E 0%, #1A1850 50%, #2D2A7A 100%)',
+  navBg:    'linear-gradient(135deg, #0F0D2E 0%, #1A1850 50%, #2D2A7A 100%)',
+  modalBg: '#1E1B4B', inputBg: '#161440', sectionBg: '#161440',
+  logoColor: '#FFFFFF', wordmarkColor: '#FFFFFF',
+};
+
+
+// ─── DATA ─────────────────────────────────────────────────────────────────────
+const indianWellsDraw = [
+  { pos: 1, seed: 1, name: 'C. Alcaraz', flag: '🇪🇸' },
+  { pos: 2, seed: null, name: 'T. Atmane', flag: '🇫🇷' },
+  { pos: 3, seed: null, name: 'G. Dimitrov', flag: '🇧🇬' },
+  { pos: 4, seed: null, name: 'J.M. Cerundolo', flag: '🇦🇷' },
+  { pos: 5, seed: null, name: 'B. van de Zandschulp', flag: '🇳🇱' },
+  { pos: 6, seed: 26, name: 'A. Rinderknech', flag: '🇫🇷' },
+  { pos: 7, seed: 24, name: 'V. Vacherot', flag: '🇲🇨' },
+  { pos: 8, seed: null, name: 'N. Borges', flag: '🇵🇹' },
+  { pos: 9, seed: null, name: 'E. Nava', flag: '🇺🇸' },
+  { pos: 10, seed: null, name: 'A. Shevchenko', flag: '🇰🇿' },
+  { pos: 11, seed: null, name: 'S. Shimabukuro', flag: '🇯🇵' },
+  { pos: 12, seed: 13, name: 'C. Ruud', flag: '🇳🇴' },
+  { pos: 13, seed: 10, name: 'A. Bublik', flag: '🇰🇿' },
+  { pos: 14, seed: null, name: 'M. Zheng', flag: '🇨🇳' },
+  { pos: 15, seed: null, name: 'V. Kopriva', flag: '🇨🇿' },
+  { pos: 16, seed: null, name: 'F. Maestrelli', flag: '🇮🇹' },
+  { pos: 17, seed: null, name: 'R. Hijikata', flag: '🇦🇺' },
+  { pos: 18, seed: 20, name: 'L. Darderi', flag: '🇮🇹' },
+  { pos: 19, seed: 27, name: 'C. Norrie', flag: '🇬🇧' },
+  { pos: 20, seed: null, name: 'M. Arnaldi', flag: '🇮🇹' },
+  { pos: 21, seed: null, name: 'M. McDonald', flag: '🇺🇸' },
+  { pos: 22, seed: null, name: 'S. Korda', flag: '🇺🇸' },
+  { pos: 23, seed: null, name: 'F. Comesana', flag: '🇦🇷' },
+  { pos: 24, seed: 6, name: 'A. de Minaur', flag: '🇦🇺' },
+  { pos: 25, seed: 3, name: 'N. Djokovic', flag: '🇷🇸' },
+  { pos: 26, seed: null, name: 'K. Majchrzak', flag: '🇵🇱' },
+  { pos: 27, seed: null, name: 'G. Mpetshi Perricard', flag: '🇫🇷' },
+  { pos: 28, seed: null, name: 'H. Hurkacz', flag: '🇵🇱' },
+  { pos: 29, seed: null, name: 'A. Kovacevic', flag: '🇺🇸' },
+  { pos: 30, seed: 31, name: 'C. Moutet', flag: '🇫🇷' },
+  { pos: 31, seed: 19, name: 'F. Cerundolo', flag: '🇦🇷' },
+  { pos: 32, seed: null, name: 'V. Royer', flag: '🇫🇷' },
+  { pos: 33, seed: null, name: 'B. Bonzi', flag: '🇫🇷' },
+  { pos: 34, seed: null, name: 'F. Marozsan', flag: '🇭🇺' },
+  { pos: 35, seed: null, name: 'R. Bautista Agut', flag: '🇪🇸' },
+  { pos: 36, seed: 14, name: 'J. Draper', flag: '🇬🇧' },
+  { pos: 37, seed: 11, name: 'D. Medvedev', flag: '🇷🇺' },
+  { pos: 38, seed: null, name: 'A. Tabilo', flag: '🇨🇱' },
+  { pos: 39, seed: null, name: 'R. Jodar', flag: '🇪🇸' },
+  { pos: 40, seed: null, name: 'C. Tseng', flag: '🇹🇼' },
+  { pos: 41, seed: null, name: 'S. Baez', flag: '🇦🇷' },
+  { pos: 42, seed: 22, name: 'J. Lehecka', flag: '🇨🇿' },
+  { pos: 43, seed: 32, name: 'U. Humbert', flag: '🇫🇷' },
+  { pos: 44, seed: null, name: 'D. Merida', flag: '🇪🇸' },
+  { pos: 45, seed: null, name: 'A. Michelsen', flag: '🇺🇸' },
+  { pos: 46, seed: null, name: 'J. Fearnley', flag: '🇬🇧' },
+  { pos: 47, seed: null, name: 'D. Dzumhur', flag: '🇧🇦' },
+  { pos: 48, seed: 7, name: 'T. Fritz', flag: '🇺🇸' },
+  { pos: 49, seed: 5, name: 'L. Musetti', flag: '🇮🇹' },
+  { pos: 50, seed: null, name: 'M. Fucsovics', flag: '🇭🇺' },
+  { pos: 51, seed: null, name: "C. O'Connell", flag: '🇦🇺' },
+  { pos: 52, seed: null, name: 'D. Prizmic', flag: '🇭🇷' },
+  { pos: 53, seed: null, name: 'T. Schoolkate', flag: '🇦🇺' },
+  { pos: 54, seed: 30, name: 'A. Fils', flag: '🇫🇷' },
+  { pos: 55, seed: 17, name: 'A. Rublev', flag: '🇷🇺' },
+  { pos: 56, seed: null, name: 'M. Bellucci', flag: '🇮🇹' },
+  { pos: 57, seed: null, name: 'G. Diallo', flag: '🇨🇦' },
+  { pos: 58, seed: null, name: 'G. Monfils', flag: '🇫🇷' },
+  { pos: 59, seed: null, name: 'A. Galarneau', flag: '🇨🇦' },
+  { pos: 60, seed: 9, name: 'F. Auger-Aliassime', flag: '🇨🇦' },
+  { pos: 61, seed: 15, name: 'F. Cobolli', flag: '🇮🇹' },
+  { pos: 62, seed: null, name: 'D. Altmaier', flag: '🇩🇪' },
+  { pos: 63, seed: null, name: 'M. Kecmanovic', flag: '🇷🇸' },
+  { pos: 64, seed: null, name: 'J. Brooksby', flag: '🇺🇸' },
+  { pos: 65, seed: null, name: 'A. Popyrin', flag: '🇦🇺' },
+  { pos: 66, seed: 21, name: 'F. Tiafoe', flag: '🇺🇸' },
+  { pos: 67, seed: 28, name: 'B. Nakashima', flag: '🇺🇸' },
+  { pos: 68, seed: null, name: 'C. Ugo Carabelli', flag: '🇦🇷' },
+  { pos: 69, seed: null, name: 'M. Damm', flag: '🇺🇸' },
+  { pos: 70, seed: null, name: 'M. Berrettini', flag: '🇮🇹' },
+  { pos: 71, seed: null, name: 'A. Mannarino', flag: '🇫🇷' },
+  { pos: 72, seed: 4, name: 'A. Zverev', flag: '🇩🇪' },
+  { pos: 73, seed: 8, name: 'B. Shelton', flag: '🇺🇸' },
+  { pos: 74, seed: null, name: 'R. Opelka', flag: '🇺🇸' },
+  { pos: 75, seed: null, name: 'E. Quinn', flag: '🇺🇸' },
+  { pos: 76, seed: null, name: 'Q. Halys', flag: '🇫🇷' },
+  { pos: 77, seed: null, name: 'A. Walton', flag: '🇦🇺' },
+  { pos: 78, seed: 25, name: 'L. Tien', flag: '🇺🇸' },
+  { pos: 79, seed: 18, name: 'A. Davidovich Fokina', flag: '🇪🇸' },
+  { pos: 80, seed: null, name: 'Z. Svajda', flag: '🇺🇸' },
+  { pos: 81, seed: null, name: 'M. Cilic', flag: '🇭🇷' },
+  { pos: 82, seed: null, name: 'M. Navone', flag: '🇦🇷' },
+  { pos: 83, seed: null, name: 'M. Giron', flag: '🇺🇸' },
+  { pos: 84, seed: 12, name: 'J. Mensik', flag: '🇨🇿' },
+  { pos: 85, seed: 16, name: 'K. Khachanov', flag: '🇷🇺' },
+  { pos: 86, seed: null, name: 'J. Fonseca', flag: '🇧🇷' },
+  { pos: 87, seed: null, name: 'R. Collignon', flag: '🇧🇪' },
+  { pos: 88, seed: null, name: 'Z. Bergs', flag: '🇧🇪' },
+  { pos: 89, seed: null, name: 'J. Struff', flag: '🇩🇪' },
+  { pos: 90, seed: 23, name: 'T. Paul', flag: '🇺🇸' },
+  { pos: 91, seed: 29, name: 'T. Etcheverry', flag: '🇦🇷' },
+  { pos: 92, seed: null, name: 'S. Tsitsipas', flag: '🇬🇷' },
+  { pos: 93, seed: null, name: 'D. Shapovalov', flag: '🇨🇦' },
+  { pos: 94, seed: null, name: 'D. Svrcina', flag: '🇨🇿' },
+  { pos: 95, seed: null, name: 'J. Duckworth', flag: '🇦🇺' },
+  { pos: 96, seed: 2, name: 'J. Sinner', flag: '🇮🇹' },
+  { pos: 97, seed: null, name: 'Y. Hanfmann', flag: '🇩🇪' },
+  { pos: 98, seed: null, name: 'L. Sonego', flag: '🇮🇹' },
+  { pos: 99, seed: null, name: 'D. Lajovic', flag: '🇷🇸' },
+  { pos: 100, seed: null, name: 'T. Griekspoor', flag: '🇳🇱' },
+  { pos: 101, seed: null, name: 'A. Muller', flag: '🇫🇷' },
+  { pos: 102, seed: null, name: 'P. Martinez', flag: '🇪🇸' },
+  { pos: 103, seed: null, name: 'L. Van Assche', flag: '🇫🇷' },
+  { pos: 104, seed: null, name: 'J. Shang', flag: '🇨🇳' },
+  { pos: 105, seed: null, name: 'F. Diaz Acosta', flag: '🇦🇷' },
+  { pos: 106, seed: null, name: 'M. Purcell', flag: '🇦🇺' },
+  { pos: 107, seed: null, name: 'T. Daniel', flag: '🇯🇵' },
+  { pos: 108, seed: null, name: 'A. Cazaux', flag: '🇫🇷' },
+  { pos: 109, seed: null, name: 'H. Gaston', flag: '🇫🇷' },
+  { pos: 110, seed: null, name: 'L. Djere', flag: '🇷🇸' },
+  { pos: 111, seed: null, name: 'R. Carballes Baena', flag: '🇪🇸' },
+  { pos: 112, seed: null, name: 'M. Cressy', flag: '🇺🇸' },
+  { pos: 113, seed: null, name: 'J. Munar', flag: '🇪🇸' },
+  { pos: 114, seed: null, name: 'F. Coria', flag: '🇦🇷' },
+  { pos: 115, seed: null, name: 'N. Jarry', flag: '🇨🇱' },
+  { pos: 116, seed: null, name: 'A. Vukic', flag: '🇦🇺' },
+  { pos: 117, seed: null, name: 'D. Galan', flag: '🇨🇴' },
+  { pos: 118, seed: null, name: 'T. Monteiro', flag: '🇧🇷' },
+  { pos: 119, seed: null, name: 'B. Zapata Miralles', flag: '🇪🇸' },
+  { pos: 120, seed: null, name: 'M. Kukushkin', flag: '🇰🇿' },
+  { pos: 121, seed: null, name: 'A. Ramos-Vinolas', flag: '🇪🇸' },
+  { pos: 122, seed: null, name: 'J. Vesely', flag: '🇨🇿' },
+  { pos: 123, seed: null, name: 'H. Rune', flag: '🇩🇰' },
+  { pos: 124, seed: null, name: 'C. Eubanks', flag: '🇺🇸' },
+  { pos: 125, seed: null, name: 'M. Mmoh', flag: '🇺🇸' },
+  { pos: 126, seed: null, name: 'E. Ruusuvuori', flag: '🇫🇮' },
+  { pos: 127, seed: null, name: 'A. Karatsev', flag: '🇷🇺' },
+  { pos: 128, seed: null, name: 'Y. Nishioka', flag: '🇯🇵' },
+];
+
+const atpPlayers = Array.from({length: 32}, (_, i) => ({
+  id: i+1, name: ['C. Alcaraz','J. Sinner','N. Djokovic','A. Zverev','L. Musetti','A. de Minaur','T. Fritz','B. Shelton','F. Auger-Aliassime','A. Bublik','D. Medvedev','J. Mensik','C. Ruud','J. Draper','F. Cobolli','K. Khachanov','A. Rublev','A. Davidovich Fokina','F. Cerundolo','L. Darderi','F. Tiafoe','J. Lehecka','T. Paul','V. Vacherot','L. Tien','A. Rinderknech','C. Norrie','B. Nakashima','T. Etcheverry','A. Fils','C. Moutet','U. Humbert'][i],
+  seed: i+1,
+  flag: ['🇪🇸','🇮🇹','🇷🇸','🇩🇪','🇮🇹','🇦🇺','🇺🇸','🇺🇸','🇨🇦','🇰🇿','🇷🇺','🇨🇿','🇳🇴','🇬🇧','🇮🇹','🇷🇺','🇷🇺','🇪🇸','🇦🇷','🇮🇹','🇺🇸','🇨🇿','🇺🇸','🇲🇨','🇺🇸','🇫🇷','🇬🇧','🇺🇸','🇦🇷','🇫🇷','🇫🇷','🇫🇷'][i],
+}));
+
+const generateR128 = () => {
+  const m = [];
+  for (let i = 0; i < 128; i += 2) {
+    const p1 = indianWellsDraw[i], p2 = indianWellsDraw[i+1];
+    m.push({ id: `r128-m${m.length}`, p1: {id:p1.pos,name:p1.name,seed:p1.seed,flag:p1.flag}, p2: {id:p2.pos,name:p2.name,seed:p2.seed,flag:p2.flag} });
+  }
+  return m;
+};
+
+const tournaments = [
+  { id:1, month:'March 2026', dates:'04-15', dateSuffix:'Mar', type:'atp1000', name:'Indian Wells', subtitle:'BNP Paribas Open', status:'live', pool:85000, entries:2156, entry:22, poolEntry:20, surface:'Hard' },
+  { id:2, month:'March 2026', dates:'18-29', dateSuffix:'Mar', type:'atp1000', name:'Miami', subtitle:'Miami Open presented by Itau', status:'open', pool:78000, entries:1892, entry:22, poolEntry:20, surface:'Hard' },
+  { id:3, month:'March 2026', dates:'30 Mar -', dateSuffix:'05 Apr', type:'atp250', name:'Houston', subtitle:"U.S. Men's Clay Court Championship", status:'upcoming', pool:18000, entries:0, entry:10, poolEntry:8, surface:'Clay' },
+  { id:4, month:'March 2026', dates:'30 Mar -', dateSuffix:'05 Apr', type:'atp250', name:'Marrakech', subtitle:'Grand Prix Hassan II', status:'upcoming', pool:15000, entries:0, entry:10, poolEntry:8, surface:'Clay' },
+  { id:5, month:'April 2026', dates:'05-12', dateSuffix:'Apr', type:'atp1000', name:'Monte-Carlo', subtitle:'Rolex Monte-Carlo Masters', status:'upcoming', pool:65000, entries:0, entry:20, poolEntry:18, surface:'Clay' },
+  { id:6, month:'April 2026', dates:'13-19', dateSuffix:'Apr', type:'atp500', name:'Barcelona', subtitle:'Barcelona Open Banc Sabadell', status:'upcoming', pool:32000, entries:0, entry:15, poolEntry:12, surface:'Clay' },
+  { id:7, month:'April 2026', dates:'13-19', dateSuffix:'Apr', type:'atp500', name:'Munich', subtitle:'BMW Open by Bitpanda', status:'upcoming', pool:28000, entries:0, entry:15, poolEntry:12, surface:'Clay' },
+  { id:8, month:'April 2026', dates:'22 Apr -', dateSuffix:'03 May', type:'atp1000', name:'Madrid', subtitle:'Mutua Madrid Open', status:'upcoming', pool:72000, entries:0, entry:22, poolEntry:20, surface:'Clay' },
+  { id:9, month:'May 2026', dates:'06-17', dateSuffix:'May', type:'atp1000', name:'Rome', subtitle:"Internazionali BNL d'Italia", status:'upcoming', pool:70000, entries:0, entry:22, poolEntry:20, surface:'Clay' },
+  { id:10, month:'May 2026', dates:'17-23', dateSuffix:'May', type:'atp500', name:'Hamburg', subtitle:'Bitpanda Hamburg Open', status:'upcoming', pool:25000, entries:0, entry:15, poolEntry:12, surface:'Clay' },
+  { id:11, month:'May 2026', dates:'17-23', dateSuffix:'May', type:'atp250', name:'Geneva', subtitle:'Gonet Geneva Open', status:'upcoming', pool:14000, entries:0, entry:10, poolEntry:8, surface:'Clay' },
+  { id:12, month:'May 2026', dates:'24 May -', dateSuffix:'07 Jun', type:'grandslam', name:'Paris', subtitle:'Roland Garros', status:'upcoming', pool:150000, entries:0, entry:35, poolEntry:30, surface:'Clay' },
+];
+
+const liveMatches = [
+  { id:1, tournament:'Indian Wells', round:'Quarter-Final', court:'Stadium 1', time:'2:34:22',
+    p1:{name:'C. Alcaraz',seed:2,flag:'🇪🇸',sets:[6,4,5],serving:true},
+    p2:{name:'S. Tsitsipas',seed:10,flag:'🇬🇷',sets:[3,6,4]},
+    stats:{aces:[12,8],winners:[34,28],errors:[18,24]} },
+  { id:2, tournament:'Indian Wells', round:'Quarter-Final', court:'Stadium 2', time:'1:52:18',
+    p1:{name:'J. Sinner',seed:3,flag:'🇮🇹',sets:[6,6]},
+    p2:{name:'G. Dimitrov',seed:9,flag:'🇧🇬',sets:[2,3],serving:true},
+    stats:{aces:[8,4],winners:[26,19],errors:[12,22]} },
+  { id:3, tournament:'Indian Wells', round:'Quarter-Final', court:'Court 1', time:'0:45:33',
+    p1:{name:'A. Zverev',seed:5,flag:'🇩🇪',sets:[4],serving:true},
+    p2:{name:'T. Fritz',seed:11,flag:'🇺🇸',sets:[5]},
+    stats:{aces:[5,3],winners:[12,10],errors:[8,11]} },
+];
+const upcomingMatches = [
+  { id:4, tournament:'Roland Garros', round:'Quarter-Final', court:'Philippe-Chatrier', time:'14:00', p1:{name:'N. Djokovic',seed:1,flag:'🇷🇸'}, p2:{name:'C. Ruud',seed:8,flag:'🇳🇴'} },
+  { id:5, tournament:'Roland Garros', round:'Quarter-Final', court:'Suzanne-Lenglen', time:'16:30', p1:{name:'D. Medvedev',seed:4,flag:'🇷🇺'}, p2:{name:'A. Rublev',seed:6,flag:'🇷🇺'} },
+];
+const completedMatches = [
+  { id:6, tournament:'Roland Garros', round:'R16', duration:'2:15', p1:{name:'C. Alcaraz',seed:2,flag:'🇪🇸',sets:[6,6,6],winner:true}, p2:{name:'F. Tiafoe',seed:16,flag:'🇺🇸',sets:[3,4,2]} },
+  { id:7, tournament:'Roland Garros', round:'R16', duration:'3:42', p1:{name:'J. Sinner',seed:3,flag:'🇮🇹',sets:[7,4,6,6],winner:true}, p2:{name:'B. Shelton',seed:13,flag:'🇺🇸',sets:[6,6,4,3]} },
+];
+
+const mockLeaderboard = [
+  { rank:1, prevRank:2, name:'TennisKing99', flag:'🇺🇸', pts:47, r128:8, r64:12, r32:10, r16:9, qf:8, isYou:false },
+  { rank:2, prevRank:1, name:'AcePredictor', flag:'🇬🇧', pts:44, r128:7, r64:11, r32:9, r16:9, qf:8, isYou:false },
+  { rank:3, prevRank:4, name:'SlamMaster', flag:'🇪🇸', pts:43, r128:8, r64:10, r32:9, r16:8, qf:8, isYou:false },
+  { rank:4, prevRank:3, name:'ClayKing', flag:'🇫🇷', pts:41, r128:7, r64:10, r32:8, r16:8, qf:8, isYou:false },
+  { rank:5, prevRank:6, name:'NetRusher', flag:'🇦🇺', pts:39, r128:6, r64:9, r32:8, r16:8, qf:8, isYou:false },
+  { rank:6, prevRank:5, name:'ServeAce', flag:'🇩🇪', pts:38, r128:6, r64:9, r32:8, r16:7, qf:8, isYou:false },
+  { rank:7, prevRank:9, name:'MatchPoint', flag:'🇮🇹', pts:36, r128:6, r64:8, r32:7, r16:7, qf:8, isYou:false },
+  { rank:8, prevRank:7, name:'CourtKing', flag:'🇨🇦', pts:35, r128:5, r64:8, r32:7, r16:7, qf:8, isYou:false },
+  { rank:9, prevRank:10, name:'GrandSlamPro', flag:'🇯🇵', pts:34, r128:5, r64:8, r32:7, r16:6, qf:8, isYou:false },
+  { rank:10, prevRank:8, name:'TopSpinWiz', flag:'🇧🇷', pts:33, r128:5, r64:7, r32:7, r16:6, qf:8, isYou:false },
+  { rank:120, prevRank:135, name:'RallyHero', flag:'🇵🇱', pts:18, r128:3, r64:4, r32:3, r16:3, qf:5, isYou:false },
+  { rank:125, prevRank:140, name:'BreakPoint', flag:'🇳🇱', pts:17, r128:3, r64:4, r32:3, r16:3, qf:4, isYou:false },
+  { rank:127, prevRank:142, name:'AceMaster', flag:'🇺🇸', pts:47, r128:8, r64:12, r32:10, r16:9, qf:8, isYou:true },
+  { rank:128, prevRank:130, name:'SetWinner', flag:'🇵🇱', pts:16, r128:3, r64:3, r32:3, r16:3, qf:4, isYou:false },
+  { rank:129, prevRank:145, name:'VolleyKing', flag:'🇨🇭', pts:15, r128:2, r64:3, r32:3, r16:3, qf:4, isYou:false },
+];
+
+const rankings = [
+  {rank:1,name:'TennisKing99',flag:'🇺🇸',pts:24850,played:32,winRate:78,earnings:45200},
+  {rank:2,name:'AcePredictor',flag:'🇬🇧',pts:22340,played:29,winRate:75,earnings:38500},
+  {rank:3,name:'SlamMaster',flag:'🇪🇸',pts:21100,played:31,winRate:74,earnings:32100},
+  {rank:4,name:'ClayKing',flag:'🇫🇷',pts:19750,played:28,winRate:72,earnings:28400},
+  {rank:5,name:'NetRusher',flag:'🇦🇺',pts:18200,played:30,winRate:71,earnings:25600},
+  {rank:6,name:'ServeAce',flag:'🇩🇪',pts:17450,played:27,winRate:70,earnings:22800},
+  {rank:7,name:'MatchPoint',flag:'🇮🇹',pts:16800,played:26,winRate:69,earnings:19500},
+  {rank:8,name:'CourtKing',flag:'🇨🇦',pts:15920,played:25,winRate:68,earnings:17200},
+  {rank:9,name:'GrandSlamPro',flag:'🇯🇵',pts:15100,played:28,winRate:67,earnings:15800},
+  {rank:10,name:'TopSpinWiz',flag:'🇧🇷',pts:14350,played:24,winRate:66,earnings:14200},
+  {rank:11,name:'RallyMaster',flag:'🇦🇷',pts:13600,played:26,winRate:65,earnings:12900},
+  {rank:12,name:'BreakPoint',flag:'🇳🇱',pts:12850,played:23,winRate:64,earnings:11500},
+  {rank:13,name:'SetWinner',flag:'🇵🇱',pts:12100,played:25,winRate:63,earnings:10200},
+  {rank:14,name:'VolleyKing',flag:'🇨🇭',pts:11400,played:22,winRate:62,earnings:9400},
+  {rank:15,name:'BaselineHero',flag:'🇧🇪',pts:10750,played:24,winRate:61,earnings:8600},
+  {rank:16,name:'DropShotPro',flag:'🇸🇪',pts:10100,played:21,winRate:60,earnings:7800},
+  {rank:17,name:'PassingShot',flag:'🇦🇹',pts:9500,played:23,winRate:59,earnings:7100},
+  {rank:18,name:'LobMaster',flag:'🇳🇴',pts:8900,played:20,winRate:58,earnings:6400},
+  {rank:19,name:'SliceKing',flag:'🇩🇰',pts:8350,played:22,winRate:57,earnings:5800},
+  {rank:20,name:'SmashHero',flag:'🇵🇹',pts:7800,played:19,winRate:56,earnings:5200},
+  {rank:21,name:'TieBreakerPro',flag:'🇬🇷',pts:7300,played:21,winRate:55,earnings:4700},
+  {rank:22,name:'MatchTieBreak',flag:'🇨🇿',pts:6850,played:18,winRate:54,earnings:4200},
+  {rank:23,name:'GrassKing',flag:'🇮🇪',pts:6400,played:20,winRate:53,earnings:3800},
+  {rank:24,name:'HardCourtPro',flag:'🇿🇦',pts:5950,played:17,winRate:52,earnings:3400},
+  {rank:25,name:'IndoorMaster',flag:'🇷🇴',pts:5550,played:19,winRate:51,earnings:3000},
+  {rank:26,name:'OutdoorAce',flag:'🇭🇷',pts:5150,played:16,winRate:50,earnings:2700},
+  {rank:27,name:'NightSession',flag:'🇺🇦',pts:4800,played:18,winRate:49,earnings:2400},
+  {rank:28,name:'DayMatch',flag:'🇨🇱',pts:4450,played:15,winRate:48,earnings:2100},
+  {rank:29,name:'ChampionMind',flag:'🇰🇷',pts:4100,played:17,winRate:47,earnings:1900},
+  {rank:30,name:'WinnerTakes',flag:'🇲🇽',pts:3800,played:14,winRate:46,earnings:1700},
+];
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
+const getBracketSize = t => !t ? 32 : (t.type==='grandslam'||t.type==='atp1000') ? 128 : t.type==='atp500' ? 64 : 32;
+const getRounds = t => {
+  const s = getBracketSize(t);
+  if (s===128) return [{name:'R128',matches:64,pts:1},{name:'R64',matches:32,pts:2},{name:'R32',matches:16,pts:3},{name:'R16',matches:8,pts:5},{name:'QF',matches:4,pts:8},{name:'SF',matches:2,pts:13},{name:'F',matches:1,pts:21}];
+  if (s===64)  return [{name:'R32',matches:16,pts:1},{name:'R16',matches:8,pts:2},{name:'QF',matches:4,pts:3},{name:'SF',matches:2,pts:5},{name:'F',matches:1,pts:8}];
+  return [{name:'R16',matches:8,pts:1},{name:'QF',matches:4,pts:2},{name:'SF',matches:2,pts:3},{name:'F',matches:1,pts:5}];
+};
+const getBlackHorse = (bracketSize) => {
+  if (bracketSize===128) return indianWellsDraw.filter(p=>p.seed===null||(typeof p.seed==='number'&&p.seed>32)).map(p=>({id:p.pos,name:p.name,seed:p.seed,flag:p.flag}));
+  if (bracketSize===64)  return atpPlayers.filter(p=>p.seed>=17);
+  return atpPlayers.filter(p=>p.seed>=9);
+};
+const calcPrizePool = (entries, poolEntry) => entries * poolEntry;
+
+// ─── AO LOGO SVG ──────────────────────────────────────────────────────────────
+// Recreated from the mobaOne brand image: stylised "A" triangle + "O" circle arc
+
+import { Trophy, Wallet, ChevronRight, ChevronLeft, Target, Search, ArrowUp, ArrowDown, Radio, BarChart2, User, X, Check, TrendingUp, Plus, CheckCircle, Heart, Calendar, ChevronDown, LogIn, Sun, Moon } from 'lucide-react';
+
+// ─── THEME DEFINITIONS ────────────────────────────────────────────────────────
+// THEME A: Purple/Navy (original, WCAG-fixed)
+
+
+
+// ─── LOGO ─────────────────────────────────────────────────────────────────────
+const MobaLogo = ({ size = 28, color = '#FFFFFF' }) => {
+  const sw = size * 0.135;
+  return (
+    <svg width={size * 1.45} height={size} viewBox="0 0 116 80" fill="none">
+      {/* A — outer arch */}
+      <path
+        d="M 4 74 Q 6 74 14 52 Q 22 30 34 12 Q 38 5 44 4 Q 50 3 54 10 Q 66 30 74 52 Q 82 74 84 74"
+        stroke={color} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" fill="none"
+      />
+      {/* A — inner left leg */}
+      <path
+        d="M 18 52 Q 30 42 44 42"
+        stroke={color} strokeWidth={sw} strokeLinecap="round" fill="none"
+      />
+      {/* A — inner right leg */}
+      <path
+        d="M 44 42 Q 58 42 70 52"
+        stroke={color} strokeWidth={sw} strokeLinecap="round" fill="none"
+      />
+      {/* A — teardrop dot */}
+      <circle cx="44" cy="68" r={sw * 0.55} fill={color} />
+      {/* O — nearly-closed oval, gap at top-left */}
+      <path
+        d="M 84 26 Q 86 14 94 12 Q 108 10 112 24 Q 116 36 114 50 Q 112 64 100 70 Q 88 74 82 64 Q 76 54 78 42 Q 80 32 84 26"
+        stroke={color} strokeWidth={sw} strokeLinecap="round" fill="none"
+      />
+    </svg>
+  );
+};
+
+const MobaWordmark = ({ color = '#FFFFFF', fontSize = 18 }) => (
+  <span style={{ fontSize, fontWeight: 700, color, letterSpacing: '-0.3px', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif' }}>
+    moba<span style={{ fontWeight: 300 }}>One</span>
+  </span>
+);
+
+// ─── MAIN APP ─────────────────────────────────────────────────────────────────
+export default function App() {
+  const [isDark, setIsDark] = useState(false);
+
+  const C = isDark ? themeA_dark : themeA_light;
+
+  const [view, setView] = useState('bracket');
+  const [balance, setBalance] = useState(3485);
+  const [modal, setModal] = useState(null);
+  const [selPlayer, setSelPlayer] = useState(null);
+  const [liveTab, setLiveTab] = useState('live');
+  const [calendarTab, setCalendarTab] = useState('all');
+  const [bracketRound, setBracketRound] = useState(0);
+  const [bracketTab, setBracketTab] = useState('picks');
+  const [drawRound, setDrawRound] = useState(0);
+  const [predictions, setPredictions] = useState({});
+  const [blackHorse, setBlackHorse] = useState(null);
+  const [activeTournament, setActiveTournament] = useState(tournaments[0]);
+  const [depAmt, setDepAmt] = useState('');
+  const [depStep, setDepStep] = useState(1);
+  const [withdrawAmt, setWithdrawAmt] = useState('');
+  const [withdrawStep, setWithdrawStep] = useState(1);
+  const [submitStep, setSubmitStep] = useState(1);
+  const [myBrackets, setMyBrackets] = useState([{
+    id:1, tournament:tournaments[0],
+    champion:{id:1,name:'C. Alcaraz',seed:1,flag:'🇪🇸'},
+    blackHorse:{id:37,name:'D. Medvedev',seed:11,flag:'🇷🇺'},
+    predictions:{}, submittedAt:new Date().toISOString(),
+    status:'active', position:127, prevPosition:142,
+    points:47, correctPicks:12, totalPicks:31, blackHorseAlive:true, prize:0,
+  }]);
+  const [selectedBracket, setSelectedBracket] = useState(null);
+  const [leaderboardBracket, setLeaderboardBracket] = useState(null);
+  const [userTx, setUserTx] = useState([
+    {id:1,title:'Tournament Entry',desc:'Miami Open',amt:-15,date:'Today'},
+    {id:2,title:'Winnings - 3rd Place',desc:'Indian Wells',amt:1250,date:'Mar 15'},
+    {id:3,title:'Deposit',desc:'Visa ····4532',amt:200,date:'Mar 12'},
+    {id:4,title:'Winnings - 1st Place',desc:'Dubai Championship',amt:4200,date:'Mar 8'},
+  ]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [authEmail, setAuthEmail] = useState('');
+  const [authPassword, setAuthPassword] = useState('');
+  const [authName, setAuthName] = useState('');
+  const [showPass, setShowPass] = useState(false);
+
+  const user = {name:'AceMaster',rank:132,win:67,earn:6875,brackets:27};
+  const r128Matches = generateR128();
+  const rounds = getRounds(activeTournament);
+  const totalRounds = rounds.length;
+
+  const getMatchesForRound = (ri) => {
+    const bracketSize = getBracketSize(activeTournament);
+    if (bracketSize === 128) {
+      if (ri === 0) return r128Matches.map((m,i) => ({id:`r0-m${i}`,p1:m.p1,p2:m.p2}));
+      return Array.from({length: rounds[ri].matches}, (_,i) => ({
+        id:`r${ri}-m${i}`,
+        p1: predictions[`r${ri-1}-m${i*2}`]||null,
+        p2: predictions[`r${ri-1}-m${i*2+1}`]||null,
+      }));
+    }
+    return Array.from({length: rounds[ri].matches}, (_,i) => ({
+      id:`r${ri}-m${i}`,
+      p1: ri===0 ? atpPlayers[i*2] : predictions[`r${ri-1}-m${i*2}`]||null,
+      p2: ri===0 ? atpPlayers[i*2+1] : predictions[`r${ri-1}-m${i*2+1}`]||null,
+    }));
+  };
+
+  const completedPicks = Object.keys(predictions).length;
+  const totalPicks = rounds.reduce((s,r) => s+r.matches, 0);
+  const progress = Math.round((completedPicks/totalPicks)*100);
+
+  // ─── SHARED UI ──────────────────────────────────────────────────────────────
+  const Btn = ({children, primary, full, disabled, onClick, style={}}) => (
+    <button onClick={onClick} disabled={disabled} style={{
+      display:'flex', alignItems:'center', justifyContent:'center', gap:8,
+      padding:'12px 20px', borderRadius:8, fontSize:14, fontWeight:600,
+      cursor: disabled ? 'not-allowed' : 'pointer',
+      width: full ? '100%' : 'auto', opacity: disabled ? 0.5 : 1,
+      background: primary ? C.accent : C.card,
+      color: primary ? '#FFFFFF' : C.navy,
+      border: primary ? 'none' : `1px solid ${C.border}`,
+      ...style
+    }}>{children}</button>
+  );
+
+  const ModalWrap = ({title, children, onClose, full}) => (
+    <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.6)',zIndex:1000,display:'flex',alignItems:full?'stretch':'flex-end',justifyContent:'center'}}>
+      <div style={{width:'100%',maxWidth:430,background:C.modalBg,borderRadius:full?0:'16px 16px 0 0',height:full?'100%':'auto',maxHeight:full?'100%':'92vh',display:'flex',flexDirection:'column'}}>
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:16,borderBottom:`1px solid ${C.border}`,flexShrink:0}}>
+          <h2 style={{fontSize:18,fontWeight:600,color:C.navy,margin:0}}>{title}</h2>
+          <button onClick={onClose} style={{width:32,height:32,borderRadius:16,background:C.bgLight,border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}}>
+            <X size={18} color={C.textMuted}/>
+          </button>
+        </div>
+        <div style={{flex:1,overflow:'auto'}}>{children}</div>
+      </div>
+    </div>
+  );
+
+  const TabBar = ({tabs, active, onChange, onGradient}) => (
+    <div style={{display:'flex',background:onGradient?'transparent':C.card,borderBottom:`1px solid ${onGradient?'rgba(255,255,255,0.2)':C.border}`}}>
+      {tabs.map(tab => (
+        <button key={tab.id} onClick={()=>onChange(tab.id)} style={{flex:1,padding:'14px 8px',background:'none',border:'none',cursor:'pointer',borderBottom:active===tab.id?`3px solid ${onGradient?'#fff':C.accent}`:'3px solid transparent',marginBottom:-1}}>
+          <span style={{fontSize:14,fontWeight:active===tab.id?600:400,color:onGradient?(active===tab.id?'#fff':'rgba(255,255,255,0.6)'):(active===tab.id?C.navy:C.textMuted)}}>
+            {tab.label}
+          </span>
+        </button>
+      ))}
+    </div>
+  );
+
+  // ─── STICKY HEADER ──────────────────────────────────────────────────────────
+  const AppHeader = ({title, showBack}) => (
+    <div style={{position:'sticky',top:0,zIndex:100,background:C.headerBg,padding:'12px 16px',boxShadow:'0 2px 12px rgba(0,0,0,0.3)'}}>
+      <div style={{display:'flex',alignItems:'center',gap:12}}>
+        <div style={{display:'flex',alignItems:'center',gap:10}}>
+          {showBack ? (
+            <button onClick={()=>setView('calendar')} style={{background:'none',border:'none',cursor:'pointer',display:'flex',alignItems:'center'}}>
+              <ChevronLeft size={24} color="#fff"/>
+            </button>
+          ) : (
+            <>
+              <button onClick={()=>setModal(isLoggedIn?'profile':'auth')} style={{background:'none',border:'none',cursor:'pointer',padding:4}}>
+                {isLoggedIn
+                  ? <div style={{width:26,height:26,borderRadius:13,background:'rgba(255,255,255,0.2)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:600,color:'#fff'}}>{user.name[0]}</div>
+                  : <User size={22} color="#fff" strokeWidth={1.5}/>
+                }
+              </button>
+              <MobaLogo size={28} color="#fff"/>
+            </>
+          )}
+        </div>
+        <div style={{flex:1}}>
+          {title
+            ? <span style={{fontSize:18,fontWeight:600,color:'#fff'}}>{title}</span>
+            : <div style={{background:'rgba(255,255,255,0.15)',borderRadius:20,padding:'8px 14px',display:'flex',alignItems:'center',gap:8}}>
+                <Search size={16} color="rgba(255,255,255,0.6)"/>
+                <span style={{fontSize:13,color:'rgba(255,255,255,0.6)'}}>Search</span>
+              </div>
+          }
+        </div>
+        <div style={{display:'flex',alignItems:'center',gap:10}}>
+          <button onClick={()=>setModal('help')} style={{background:'none',border:'none',cursor:'pointer',padding:4}}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.5">
+              <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
+              <path d="M9 9a3 3 0 1 1 4 2.829 1.5 1.5 0 0 0-1 1.415V14"/>
+              <circle cx="12" cy="17" r="1" fill="#fff"/>
+            </svg>
+          </button>
+          <button onClick={()=>setModal('chat')} style={{background:'none',border:'none',cursor:'pointer',padding:4,position:'relative'}}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.5">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            <div style={{position:'absolute',top:2,right:2,width:8,height:8,borderRadius:4,background:'#3B82F6'}}/>
+          </button>
+        </div>
+      </div>
+      {isLoggedIn && !showBack && (
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginTop:12,paddingTop:12,borderTop:'1px solid rgba(255,255,255,0.1)'}}>
+          <div style={{display:'flex',alignItems:'center',gap:10}}>
+            <div style={{width:28,height:28,borderRadius:14,background:'rgba(255,255,255,0.2)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:600,color:'#fff'}}>{user.name[0]}</div>
+            <span style={{fontSize:13,fontWeight:500,color:'#fff'}}>{user.name}</span>
+          </div>
+          <div style={{display:'flex',alignItems:'center',gap:12}}>
+            <div style={{textAlign:'right'}}>
+              <p style={{fontSize:10,color:'rgba(255,255,255,0.7)',margin:0}}>Balance</p>
+              <p style={{fontSize:15,fontWeight:600,color:'#fff',margin:0}}>${balance.toLocaleString()}</p>
+            </div>
+            <button onClick={()=>{setDepStep(1);setDepAmt('');setModal('deposit');}} style={{width:32,height:32,borderRadius:16,background:'rgba(255,255,255,0.2)',border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}}>
+              <Plus size={18} color="#fff"/>
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  // ─── BOTTOM NAV ─────────────────────────────────────────────────────────────
+  const BottomNav = () => {
+    const items = [
+      {id:'bracket', label:'Home', isLogo:true},
+      {id:'calendar', icon:Calendar, label:'Calendar'},
+      {id:'live', icon:Radio, label:'Live'},
+      {id:'rankings', icon:BarChart2, label:'Rankings'},
+      {id:'wallet', icon:Wallet, label:'Wallet'},
+    ];
+    return (
+      <nav style={{position:'fixed',bottom:0,left:0,right:0,background:C.navBg,padding:'10px 0 28px',display:'flex',justifyContent:'space-around',maxWidth:430,margin:'0 auto',boxShadow:'0 -2px 12px rgba(0,0,0,0.3)'}}>
+        {items.map(item => {
+          const active = view === item.id;
+          return (
+            <button key={item.id} onClick={()=>setView(item.id)} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:4,padding:'4px 12px',background:'none',border:'none',cursor:'pointer'}}>
+              {item.isLogo
+                ? <MobaLogo size={24} color={active ? '#fff' : 'rgba(255,255,255,0.55)'}/>
+                : <item.icon size={22} color={active?'#fff':'rgba(255,255,255,0.55)'} strokeWidth={active?2.5:1.5}/>
+              }
+              <span style={{fontSize:10,fontWeight:active?600:500,color:active?'#fff':'rgba(255,255,255,0.55)'}}>{item.label}</span>
+            </button>
+          );
+        })}
+      </nav>
+    );
+  };
+
+  // ─── LIVE RANKING CARD ───────────────────────────────────────────────────────
+  const LiveRankingCard = ({bracket}) => {
+    const total = bracket.tournament.entries || 2156;
+    const pos = bracket.position || 127;
+    const prev = bracket.prevPosition || 142;
+    const change = prev - pos;
+    const inPrize = pos <= Math.floor(total * 0.15);
+    return (
+      <div style={{background:`${C.accent}12`,border:`1px solid ${C.accent}40`,borderRadius:12,padding:14,marginTop:12}}>
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
+          <div style={{display:'flex',alignItems:'center',gap:6}}>
+            <div style={{width:7,height:7,borderRadius:4,background:C.red,animation:'pulse 2s infinite'}}/>
+            <span style={{fontSize:11,fontWeight:700,color:C.accent,letterSpacing:0.5}}>LIVE RANKING</span>
+          </div>
+          <button onClick={()=>setLeaderboardBracket(bracket)} style={{display:'flex',alignItems:'center',gap:4,padding:'5px 10px',borderRadius:6,background:C.accent,border:'none',cursor:'pointer'}}>
+            <BarChart2 size={12} color="#fff"/>
+            <span style={{fontSize:11,fontWeight:600,color:'#fff'}}>Leaderboard</span>
+          </button>
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,marginBottom:10}}>
+          {[
+            {label:'Position', val: `${pos}`, sub:`/${total.toLocaleString()}`, extra: change!==0 && <span style={{fontSize:10,fontWeight:600,color:change>0?C.green:C.red,display:'flex',alignItems:'center',gap:1}}>{change>0?<ArrowUp size={10}/>:<ArrowDown size={10}/>}{Math.abs(change)}</span>},
+            {label:'Points', val: `${bracket.points}`, sub:'pts', valColor: C.accent},
+            {label:'Correct', val: `${bracket.correctPicks}`, sub:`/${bracket.totalPicks}`, valColor: C.green},
+          ].map(({label,val,sub,extra,valColor}) => (
+            <div key={label} style={{background:C.card,borderRadius:8,padding:'10px 8px',textAlign:'center'}}>
+              {extra && <div style={{display:'flex',justifyContent:'center',marginBottom:2}}>{extra}</div>}
+              {!extra && <div style={{height:17,marginBottom:2}}/>}
+              <p style={{fontSize:15,fontWeight:700,color:valColor||C.navy,margin:0,lineHeight:1}}>
+                {val}<span style={{fontSize:10,fontWeight:400,color:C.textMuted}}>{sub}</span>
+              </p>
+              <p style={{fontSize:9,color:C.textMuted,margin:'3px 0 0',textTransform:'uppercase',letterSpacing:0.3}}>{label}</p>
+            </div>
+          ))}
+        </div>
+        <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+          {bracket.blackHorse && (
+            <div style={{display:'flex',alignItems:'center',gap:4,padding:'4px 8px',borderRadius:6,background:bracket.blackHorseAlive?`${C.orange}18`:C.bgLight,border:`1px solid ${bracket.blackHorseAlive?C.orange:C.border}`}}>
+              <span style={{fontSize:10}}>🐴</span>
+              <span style={{fontSize:10,fontWeight:600,color:bracket.blackHorseAlive?C.orange:C.textMuted}}>
+                {bracket.blackHorse.name} {bracket.blackHorseAlive?'• Still in!':'• Eliminated'}
+              </span>
+            </div>
+          )}
+          <div style={{display:'flex',alignItems:'center',gap:4,padding:'4px 8px',borderRadius:6,background:inPrize?C.greenLight:C.bgLight,border:`1px solid ${inPrize?C.green:C.border}`}}>
+            <Trophy size={10} color={inPrize?C.green:C.textMuted}/>
+            <span style={{fontSize:10,fontWeight:600,color:inPrize?C.green:C.textMuted}}>
+              {inPrize?'In Prize Zone 🎉':`Top 15% at #${Math.floor(total*0.15)}`}
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // ─── LEADERBOARD MODAL ───────────────────────────────────────────────────────
+  const LeaderboardModal = () => {
+    if (!leaderboardBracket) return null;
+    const total = leaderboardBracket.tournament.entries || 2156;
+    const me = mockLeaderboard.find(p=>p.isYou);
+    return (
+      <ModalWrap title={`${leaderboardBracket.tournament.name} — Leaderboard`} onClose={()=>setLeaderboardBracket(null)} full>
+        <div>
+          <div style={{background:C.headerBg,padding:'16px 20px'}}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+              <div>
+                <p style={{fontSize:11,color:'rgba(255,255,255,0.7)',margin:'0 0 4px',textTransform:'uppercase',letterSpacing:0.5}}>Your Position</p>
+                <div style={{display:'flex',alignItems:'baseline',gap:6}}>
+                  <span style={{fontSize:32,fontWeight:800,color:'#fff'}}>#{me?.rank||leaderboardBracket.position}</span>
+                  <span style={{fontSize:14,color:'rgba(255,255,255,0.6)'}}>/ {total.toLocaleString()}</span>
+                </div>
+              </div>
+              <div style={{textAlign:'right'}}>
+                <p style={{fontSize:11,color:'rgba(255,255,255,0.7)',margin:'0 0 4px'}}>Points</p>
+                <span style={{fontSize:28,fontWeight:700,color:'#FCD34D'}}>{me?.pts||leaderboardBracket.points}</span>
+              </div>
+            </div>
+            {me && (
+              <div style={{display:'flex',gap:6,marginTop:12}}>
+                {[['R128',me.r128],['R64',me.r64],['R32',me.r32],['R16',me.r16],['QF',me.qf]].map(([rnd,pts])=>(
+                  <div key={rnd} style={{flex:1,background:'rgba(255,255,255,0.12)',borderRadius:6,padding:'6px 4px',textAlign:'center'}}>
+                    <p style={{fontSize:9,color:'rgba(255,255,255,0.6)',margin:'0 0 2px'}}>{rnd}</p>
+                    <p style={{fontSize:13,fontWeight:700,color:'#fff',margin:0}}>{pts}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          <div style={{display:'flex',padding:'10px 16px',background:C.bgLight,borderBottom:`1px solid ${C.border}`}}>
+            <span style={{width:44,fontSize:10,fontWeight:700,color:C.textMuted,textTransform:'uppercase'}}>Rank</span>
+            <span style={{flex:1,fontSize:10,fontWeight:700,color:C.textMuted,textTransform:'uppercase'}}>Player</span>
+            <span style={{width:36,fontSize:10,fontWeight:700,color:C.textMuted,textAlign:'center',textTransform:'uppercase'}}>+/-</span>
+            <span style={{width:48,fontSize:10,fontWeight:700,color:C.textMuted,textAlign:'right',textTransform:'uppercase'}}>Pts</span>
+          </div>
+          <div style={{paddingBottom:20}}>
+            {mockLeaderboard.filter(p=>p.rank<=10).map(p=>{
+              const ch = p.prevRank-p.rank;
+              return (
+                <div key={p.rank} style={{display:'flex',alignItems:'center',padding:'12px 16px',borderBottom:`1px solid ${C.border}`,background:p.isYou?`${C.accent}10`:C.card}}>
+                  <span style={{width:44,fontSize:14,fontWeight:700,color:p.rank<=3?C.orange:C.navy}}>{p.rank===1?'🥇':p.rank===2?'🥈':p.rank===3?'🥉':p.rank}</span>
+                  <div style={{flex:1,display:'flex',alignItems:'center',gap:8}}>
+                    <span style={{fontSize:15}}>{p.flag}</span>
+                    <div>
+                      <p style={{fontSize:14,fontWeight:p.isYou?700:500,color:p.isYou?C.accent:C.navy,margin:0}}>{p.name}{p.isYou&&<span style={{fontSize:10}}> (You)</span>}</p>
+                      <p style={{fontSize:10,color:C.textMuted,margin:'1px 0 0'}}>R128:{p.r128} R64:{p.r64} R32:{p.r32} R16:{p.r16} QF:{p.qf}</p>
+                    </div>
+                  </div>
+                  <div style={{width:36,display:'flex',justifyContent:'center'}}>
+                    {ch>0?<span style={{fontSize:11,fontWeight:600,color:C.green,display:'flex',alignItems:'center',gap:1}}><ArrowUp size={11}/>{ch}</span>:ch<0?<span style={{fontSize:11,fontWeight:600,color:C.red,display:'flex',alignItems:'center',gap:1}}><ArrowDown size={11}/>{Math.abs(ch)}</span>:<span style={{fontSize:11,color:C.textMuted}}>—</span>}
+                  </div>
+                  <span style={{width:48,fontSize:14,fontWeight:700,color:C.navy,textAlign:'right'}}>{p.pts}</span>
+                </div>
+              );
+            })}
+            <div style={{display:'flex',alignItems:'center',padding:'8px 16px',gap:8}}>
+              <div style={{flex:1,height:1,background:C.border}}/><span style={{fontSize:11,color:C.textMuted}}>···</span><div style={{flex:1,height:1,background:C.border}}/>
+            </div>
+            {mockLeaderboard.filter(p=>p.rank>=120&&p.rank<=135).map(p=>{
+              const ch = p.prevRank-p.rank;
+              return (
+                <div key={p.rank} style={{display:'flex',alignItems:'center',padding:'12px 16px',borderBottom:`1px solid ${C.border}`,background:p.isYou?`${C.accent}14`:C.card,borderLeft:p.isYou?`3px solid ${C.accent}`:'3px solid transparent'}}>
+                  <span style={{width:44,fontSize:14,fontWeight:600,color:p.isYou?C.accent:C.navy}}>{p.rank}</span>
+                  <div style={{flex:1,display:'flex',alignItems:'center',gap:8}}>
+                    <span style={{fontSize:15}}>{p.flag}</span>
+                    <div>
+                      <p style={{fontSize:14,fontWeight:p.isYou?700:500,color:p.isYou?C.accent:C.navy,margin:0}}>{p.name}{p.isYou&&<span style={{fontSize:10}}> 👈 You</span>}</p>
+                      <p style={{fontSize:10,color:C.textMuted,margin:'1px 0 0'}}>R128:{p.r128} R64:{p.r64} R32:{p.r32} R16:{p.r16} QF:{p.qf}</p>
+                    </div>
+                  </div>
+                  <div style={{width:36,display:'flex',justifyContent:'center'}}>
+                    {ch>0?<span style={{fontSize:11,fontWeight:600,color:C.green,display:'flex',alignItems:'center',gap:1}}><ArrowUp size={11}/>{ch}</span>:ch<0?<span style={{fontSize:11,fontWeight:600,color:C.red,display:'flex',alignItems:'center',gap:1}}><ArrowDown size={11}/>{Math.abs(ch)}</span>:<span style={{fontSize:11,color:C.textMuted}}>—</span>}
+                  </div>
+                  <span style={{width:48,fontSize:14,fontWeight:700,color:p.isYou?C.accent:C.navy,textAlign:'right'}}>{p.pts}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </ModalWrap>
+    );
+  };
+
+  // ─── BRACKET VIEW ────────────────────────────────────────────────────────────
+  const BracketView = () => {
+    const prizePool = calcPrizePool(activeTournament.entries||1, activeTournament.poolEntry||activeTournament.entry);
+    const currentMatches = getMatchesForRound(bracketRound);
+    const bhPlayers = getBlackHorse(getBracketSize(activeTournament));
+    return (
+      <div style={{background:C.bg,minHeight:'100vh'}}>
+        <AppHeader/>
+        <div style={{padding:'12px 16px'}}>
+          <div style={{background:C.card,borderRadius:12,border:`1px solid ${C.border}`,overflow:'hidden'}}>
+            <div style={{display:'flex',alignItems:'center',padding:'12px 14px',borderBottom:`1px solid ${C.border}`}}>
+              <div style={{flex:1}}>
+                <div style={{display:'flex',alignItems:'center',gap:8}}>
+                  <span style={{fontSize:10,fontWeight:600,color:C.accent,background:`${C.accent}18`,padding:'2px 6px',borderRadius:4}}>{activeTournament.type.toUpperCase().replace('ATP','ATP ')}</span>
+                  <span style={{fontSize:10,fontWeight:600,color:activeTournament.status==='live'?C.red:C.green,background:activeTournament.status==='live'?C.redLight:C.greenLight,padding:'2px 6px',borderRadius:4}}>{activeTournament.status.toUpperCase()}</span>
+                </div>
+                <h3 style={{fontSize:17,fontWeight:700,color:C.navy,margin:'6px 0 2px'}}>{activeTournament.name}</h3>
+                <p style={{fontSize:11,color:C.textMuted,margin:0}}>{activeTournament.dates} {activeTournament.dateSuffix} • {activeTournament.surface}</p>
+              </div>
+            </div>
+            <div style={{display:'flex',padding:'10px 14px',background:C.bgLight}}>
+              {[['Prize Pool',`$${prizePool.toLocaleString()}`,C.green],['Entry',`$${activeTournament.entry}`,C.navy],['Entries',activeTournament.entries.toLocaleString(),C.navy]].map(([lbl,val,col],i)=>(
+                <div key={lbl} style={{flex:1,textAlign:'center',borderRight:i<2?`1px solid ${C.border}`:'none'}}>
+                  <p style={{fontSize:10,color:C.textMuted,margin:0}}>{lbl}</p>
+                  <p style={{fontSize:15,fontWeight:700,color:col,margin:'2px 0 0'}}>{val}</p>
+                </div>
+              ))}
+            </div>
+            <button onClick={()=>setModal('prizes')} style={{width:'100%',padding:'10px 14px',background:C.card,border:'none',borderTop:`1px solid ${C.border}`,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:6}}>
+              <Trophy size={14} color={C.orange}/>
+              <span style={{fontSize:12,fontWeight:600,color:C.accent}}>View Prize Payouts</span>
+              <ChevronRight size={14} color={C.textMuted}/>
+            </button>
+          </div>
+        </div>
+
+        <div style={{background:C.card,padding:'12px 16px',borderBottom:`1px solid ${C.border}`}}>
+          <div style={{display:'flex',justifyContent:'space-between',marginBottom:6}}>
+            <span style={{fontSize:12,fontWeight:500,color:C.navy}}>Bracket Progress</span>
+            <span style={{fontSize:12,fontWeight:600,color:C.accent}}>{progress}%</span>
+          </div>
+          <div style={{height:5,background:C.bgLight,borderRadius:3}}>
+            <div style={{height:'100%',width:`${progress}%`,background:C.accent,borderRadius:3,transition:'width 0.3s'}}/>
+          </div>
+          <p style={{fontSize:10,color:C.textMuted,margin:'6px 0 0'}}>{completedPicks} of {totalPicks} picks made</p>
+        </div>
+
+        <div style={{background:C.card,padding:16,borderBottom:`1px solid ${C.border}`}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            <div>
+              <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:4}}>
+                <span style={{fontSize:14,fontWeight:600,color:C.navy}}>🐴 Black Horse</span>
+                <span style={{fontSize:10,fontWeight:600,color:C.orange,background:`${C.orange}18`,padding:'2px 6px',borderRadius:4}}>1.5x POINTS</span>
+              </div>
+              <p style={{fontSize:12,color:C.textMuted,margin:0}}>Pick a player for bonus points</p>
+            </div>
+            <button onClick={()=>setModal('blackhorse')} style={{padding:'10px 16px',borderRadius:8,border:blackHorse?`2px solid ${C.orange}`:`1px solid ${C.border}`,background:blackHorse?`${C.orange}12`:C.card,cursor:'pointer',display:'flex',alignItems:'center',gap:8}}>
+              {blackHorse?<><span style={{fontSize:18}}>{blackHorse.flag}</span><span style={{fontSize:13,fontWeight:600,color:C.navy}}>{blackHorse.name}</span></>:<span style={{fontSize:13,color:C.textMuted}}>Select</span>}
+            </button>
+          </div>
+        </div>
+
+        <div style={{display:'flex',background:C.card,borderBottom:`1px solid ${C.border}`}}>
+          {['picks','draws'].map(tab=>(
+            <button key={tab} onClick={()=>setBracketTab(tab)} style={{flex:1,padding:'14px',background:'none',border:'none',cursor:'pointer',borderBottom:bracketTab===tab?`3px solid ${C.accent}`:'3px solid transparent',marginBottom:-1}}>
+              <span style={{fontSize:14,fontWeight:bracketTab===tab?600:400,color:bracketTab===tab?C.navy:C.textMuted}}>{tab==='picks'?'My Picks':'Live Draw'}</span>
+            </button>
+          ))}
+        </div>
+
+        {bracketTab==='picks'?(
+          <>
+            <div style={{background:C.card,padding:'8px 16px',borderBottom:`1px solid ${C.border}`,display:'flex',gap:8,overflowX:'auto'}}>
+              {rounds.map((r,i)=>(
+                <button key={r.name} onClick={()=>setBracketRound(i)} style={{padding:'10px 16px',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer',whiteSpace:'nowrap',background:bracketRound===i?C.accent:C.bgLight,color:bracketRound===i?'#fff':C.textMid,border:'none'}}>
+                  {r.name} <span style={{opacity:0.7,marginLeft:4}}>+{r.pts}</span>
+                </button>
+              ))}
+            </div>
+            <div style={{padding:16,paddingBottom:180}}>
+              <p style={{fontSize:12,fontWeight:600,color:C.textMuted,margin:'0 0 12px'}}>SELECT WINNER FOR EACH MATCH</p>
+              {currentMatches.map((match,idx)=>(
+                <div key={match.id} style={{background:C.card,borderRadius:12,marginBottom:12,border:`1px solid ${predictions[match.id]?C.accent:C.border}`,overflow:'hidden'}}>
+                  <div style={{padding:'8px 14px',background:C.bgLight,borderBottom:`1px solid ${C.border}`,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                    <span style={{fontSize:11,fontWeight:500,color:C.textMuted}}>Match {idx+1}</span>
+                    {predictions[match.id]&&<Check size={14} color={C.green}/>}
+                  </div>
+                  {[match.p1,match.p2].map((player,pi)=>(
+                    <button key={pi} onClick={()=>player&&setPredictions(prev=>({...prev,[match.id]:player}))} disabled={!player}
+                      style={{width:'100%',display:'flex',alignItems:'center',padding:'12px 14px',border:'none',cursor:player?'pointer':'default',background:predictions[match.id]?.id===player?.id?`${C.accent}14`:'transparent',borderBottom:pi===0?`1px solid ${C.border}`:'none'}}>
+                      {player?(
+                        <><span style={{fontSize:16,marginRight:8}}>{player.flag}</span>
+                          <div style={{flex:1,textAlign:'left',minWidth:0}}>
+                            <span style={{fontSize:14,fontWeight:500,color:C.navy,display:'block',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{player.name}</span>
+                          </div>
+                          {player.seed&&<span style={{fontSize:11,color:C.textMuted,marginLeft:6,flexShrink:0}}>[{player.seed}]</span>}
+                          {predictions[match.id]?.id===player?.id&&<Check size={18} color={C.accent} style={{marginLeft:8,flexShrink:0}}/>}
+                        </>
+                      ):<span style={{fontSize:13,color:C.textMuted,fontStyle:'italic'}}>Winner of previous round</span>}
+                    </button>
+                  ))}
+                </div>
+              ))}
+            </div>
+            <div style={{position:'fixed',bottom:90,left:0,right:0,maxWidth:430,margin:'0 auto',padding:'12px 16px',background:C.card,borderTop:`1px solid ${C.border}`,boxShadow:'0 -4px 12px rgba(0,0,0,0.08)'}}>
+              <div style={{display:'flex',gap:12}}>
+                {bracketRound>0&&<Btn onClick={()=>setBracketRound(bracketRound-1)} style={{flex:1}}><ChevronLeft size={18}/> Previous</Btn>}
+                {bracketRound<totalRounds-1
+                  ?<Btn primary onClick={()=>setBracketRound(bracketRound+1)} style={{flex:bracketRound>0?2:1}}>Next Round <ChevronRight size={18}/></Btn>
+                  :<Btn primary disabled={progress<100} onClick={()=>{setSubmitStep(1);setModal('submit');}} style={{flex:2}}><Check size={18}/> Submit (${activeTournament.entry})</Btn>
+                }
+              </div>
+            </div>
+          </>
+        ):(
+          <div style={{padding:16,paddingBottom:100}}>
+            <div style={{display:'flex',gap:8,overflowX:'auto',marginBottom:16}}>
+              {rounds.map((r,i)=>(
+                <button key={r.name} onClick={()=>setDrawRound(i)} style={{padding:'8px 14px',borderRadius:6,fontSize:12,fontWeight:600,cursor:'pointer',whiteSpace:'nowrap',background:drawRound===i?C.navy:C.card,color:drawRound===i?'#fff':C.textMid,border:`1px solid ${drawRound===i?C.navy:C.border}`}}>{r.name}</button>
+              ))}
+            </div>
+            {getMatchesForRound(drawRound).map((match,idx)=>(
+              <div key={match.id} style={{background:C.card,borderRadius:10,marginBottom:8,border:`1px solid ${C.border}`,overflow:'hidden'}}>
+                <div style={{padding:'6px 12px',background:C.bgLight,borderBottom:`1px solid ${C.border}`,display:'flex',justifyContent:'space-between'}}>
+                  <span style={{fontSize:10,fontWeight:500,color:C.textMuted}}>Match {idx+1}</span>
+                  {drawRound===0&&idx<3&&<span style={{fontSize:9,fontWeight:600,color:C.green,background:C.greenLight,padding:'2px 6px',borderRadius:4}}>COMPLETED</span>}
+                  {drawRound===0&&idx===3&&<span style={{fontSize:9,fontWeight:600,color:C.red,background:C.redLight,padding:'2px 6px',borderRadius:4}}>LIVE</span>}
+                </div>
+                {[match.p1,match.p2].map((player,pi)=>(
+                  <div key={pi} style={{display:'flex',alignItems:'center',padding:'10px 12px',borderBottom:pi===0?`1px solid ${C.border}`:'none'}}>
+                    {player?<><span style={{fontSize:14,marginRight:8}}>{player.flag}</span><span style={{flex:1,fontSize:13,fontWeight:500,color:C.navy}}>{player.name}</span>{player.seed&&<span style={{fontSize:10,color:C.textMuted,marginRight:8}}>[{player.seed}]</span>}{drawRound===0&&idx<4&&<span style={{fontSize:12,fontWeight:pi===0?600:400,color:pi===0?C.navy:C.textMuted}}>{pi===0?'6 6':'3 4'}</span>}</>:<span style={{fontSize:12,color:C.textMuted,fontStyle:'italic'}}>TBD</span>}
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // ─── LIVE VIEW ───────────────────────────────────────────────────────────────
+  const LiveView = () => (
+    <div style={{background:C.bg,minHeight:'100vh'}}>
+      <AppHeader title="Live Scores" showBack/>
+      <TabBar tabs={[{id:'live',label:'Live'},{id:'completed',label:'Completed'},{id:'upcoming',label:'Upcoming'}]} active={liveTab} onChange={setLiveTab} light/>
+      <div style={{padding:16}}>
+        {liveTab==='live'&&liveMatches.map(m=>(
+          <div key={m.id} style={{background:C.card,borderRadius:12,marginBottom:12,border:`1px solid ${C.border}`,overflow:'hidden'}}>
+            <div style={{padding:'12px 16px',background:C.bgLight,borderBottom:`1px solid ${C.border}`,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+              <div><span style={{fontSize:13,fontWeight:600,color:C.navy}}>{m.tournament}</span><span style={{fontSize:12,color:C.textMuted,marginLeft:8}}>{m.round}</span></div>
+              <div style={{display:'flex',alignItems:'center',gap:8}}><span style={{width:8,height:8,borderRadius:4,background:C.red,display:'block'}}/><span style={{fontSize:13,fontWeight:600,color:C.red}}>{m.time}</span></div>
+            </div>
+            <div style={{padding:16}}>
+              {[m.p1,m.p2].map((p,pi)=>(
+                <div key={pi} style={{display:'flex',alignItems:'center',marginBottom:pi===0?12:0}}>
+                  <span style={{fontSize:20,marginRight:10}}>{p.flag}</span>
+                  <div style={{flex:1}}><span style={{fontSize:15,fontWeight:pi===0?600:400,color:pi===0?C.navy:C.textMid}}>{p.name}</span><span style={{fontSize:12,color:C.textMuted,marginLeft:6}}>[{p.seed}]</span></div>
+                  {p.serving&&<div style={{width:8,height:8,borderRadius:4,background:C.green,marginRight:12}}/>}
+                  <div style={{display:'flex',gap:12}}>{p.sets.map((s,i)=><span key={i} style={{fontSize:18,fontWeight:pi===0?600:400,color:pi===0?C.navy:C.textMid,minWidth:20,textAlign:'center'}}>{s}</span>)}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{padding:'12px 16px',background:C.bgLight,borderTop:`1px solid ${C.border}`,display:'flex',justifyContent:'space-around'}}>
+              {[['Aces',m.stats.aces],['Winners',m.stats.winners],['Errors',m.stats.errors]].map(([lbl,v])=>(
+                <div key={lbl} style={{textAlign:'center'}}><p style={{fontSize:11,color:C.textMuted,margin:0}}>{lbl}</p><p style={{fontSize:13,fontWeight:600,color:C.navy,margin:'2px 0 0'}}>{v[0]} - {v[1]}</p></div>
+              ))}
+            </div>
+          </div>
+        ))}
+        {liveTab==='completed'&&completedMatches.map(m=>(
+          <div key={m.id} style={{background:C.card,borderRadius:12,marginBottom:12,border:`1px solid ${C.border}`,padding:16}}>
+            <div style={{display:'flex',justifyContent:'space-between',marginBottom:12}}><span style={{fontSize:13,color:C.textMuted}}>{m.tournament} • {m.round}</span><span style={{fontSize:12,color:C.textMuted}}>{m.duration}</span></div>
+            {[m.p1,m.p2].map((p,pi)=>(
+              <div key={pi} style={{display:'flex',alignItems:'center',marginBottom:pi===0?10:0}}>
+                <span style={{fontSize:18,marginRight:10}}>{p.flag}</span><span style={{flex:1,fontSize:15,fontWeight:p.winner?600:400,color:p.winner?C.navy:C.textMid}}>{p.name}</span>
+                {p.winner&&<Check size={18} color={C.green} style={{marginRight:12}}/>}
+                <div style={{display:'flex',gap:10}}>{p.sets.map((s,i)=><span key={i} style={{fontSize:16,fontWeight:p.winner?600:400,color:p.winner?C.navy:C.textMid}}>{s}</span>)}</div>
+              </div>
+            ))}
+          </div>
+        ))}
+        {liveTab==='upcoming'&&upcomingMatches.map(m=>(
+          <div key={m.id} style={{background:C.card,borderRadius:12,marginBottom:12,border:`1px solid ${C.border}`,padding:16}}>
+            <div style={{display:'flex',justifyContent:'space-between',marginBottom:12}}><span style={{fontSize:13,color:C.textMuted}}>{m.tournament} • {m.round}</span><span style={{fontSize:14,fontWeight:600,color:C.accent}}>{m.time}</span></div>
+            {[m.p1,m.p2].map((p,pi)=>(
+              <div key={pi} style={{display:'flex',alignItems:'center',marginBottom:pi===0?10:0}}>
+                <span style={{fontSize:18,marginRight:10}}>{p.flag}</span><span style={{flex:1,fontSize:15,fontWeight:500,color:C.navy}}>{p.name}</span><span style={{fontSize:12,color:C.textMuted}}>[{p.seed}]</span>
+              </div>
+            ))}
+            <p style={{fontSize:12,color:C.textMuted,marginTop:12}}>{m.court}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  // ─── CALENDAR VIEW ───────────────────────────────────────────────────────────
+  const CalendarView = () => {
+    const months = [...new Set(tournaments.map(t=>t.month))];
+    return (
+      <div style={{background:C.bg,minHeight:'100vh'}}>
+        <AppHeader/>
+        <div style={{background:C.headerBg,padding:'0 16px 16px'}}>
+          <TabBar tabs={[{id:'all',label:'ATP Tour'},{id:'my',label:`My Brackets${myBrackets.length>0?` (${myBrackets.length})`:''}`}]} active={calendarTab} onChange={setCalendarTab} onGradient/>
+        </div>
+
+        {calendarTab==='my'&&(
+          <div style={{padding:16,paddingBottom:100}}>
+            {myBrackets.length===0?(
+              <div style={{background:C.card,borderRadius:12,padding:32,textAlign:'center',border:`1px solid ${C.border}`}}>
+                <div style={{width:64,height:64,borderRadius:32,background:C.accentLight,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px'}}><Target size={28} color={C.accent}/></div>
+                <h3 style={{fontSize:18,fontWeight:600,color:C.navy,margin:'0 0 8px'}}>No Brackets Yet</h3>
+                <p style={{fontSize:14,color:C.textMuted,margin:'0 0 20px'}}>Enter a tournament to create your first bracket!</p>
+                <Btn primary onClick={()=>setCalendarTab('all')}>Browse Tournaments</Btn>
+              </div>
+            ):myBrackets.map(bracket=>(
+              <div key={bracket.id} style={{background:C.card,borderRadius:12,marginBottom:16,border:`1px solid ${C.border}`,overflow:'hidden'}}>
+                <div style={{padding:16,borderBottom:`1px solid ${C.border}`}}>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'start',marginBottom:8}}>
+                    <div>
+                      <span style={{fontSize:11,fontWeight:600,color:C.textMuted}}>{bracket.tournament.type.toUpperCase()}</span>
+                      <h3 style={{fontSize:17,fontWeight:600,color:C.navy,margin:'2px 0'}}>{bracket.tournament.name}</h3>
+                      <p style={{fontSize:12,color:C.textMuted,margin:0}}>{bracket.tournament.dates} {bracket.tournament.dateSuffix}</p>
+                    </div>
+                    <span style={{fontSize:10,fontWeight:600,padding:'4px 10px',borderRadius:4,background:bracket.status==='active'?C.greenLight:C.bgLight,color:bracket.status==='active'?C.green:C.textMuted}}>{bracket.status==='active'?'ACTIVE':bracket.status.toUpperCase()}</span>
+                  </div>
+                </div>
+                <div style={{padding:16,background:C.bgLight}}>
+                  <div style={{display:'flex',gap:16}}>
+                    <div style={{flex:1}}>
+                      <p style={{fontSize:10,color:C.textMuted,margin:'0 0 6px'}}>CHAMPION</p>
+                      <div style={{display:'flex',alignItems:'center',gap:8}}>
+                        <span style={{fontSize:24}}>{bracket.champion?.flag}</span>
+                        <div><p style={{fontSize:14,fontWeight:600,color:C.navy,margin:0}}>{bracket.champion?.name}</p><p style={{fontSize:11,color:C.textMuted,margin:0}}>[{bracket.champion?.seed}]</p></div>
+                      </div>
+                    </div>
+                    {bracket.blackHorse&&(
+                      <div style={{flex:1}}>
+                        <p style={{fontSize:10,color:C.orange,margin:'0 0 6px'}}>🐴 BLACK HORSE</p>
+                        <div style={{display:'flex',alignItems:'center',gap:8}}>
+                          <span style={{fontSize:24}}>{bracket.blackHorse.flag}</span>
+                          <div><p style={{fontSize:14,fontWeight:600,color:C.navy,margin:0}}>{bracket.blackHorse.name}</p><p style={{fontSize:11,color:C.orange,margin:0}}>1.5x pts</p></div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                {bracket.status==='active'&&bracket.tournament.status==='live'&&(
+                  <div style={{padding:'0 16px 16px'}}><LiveRankingCard bracket={bracket}/></div>
+                )}
+                <div style={{padding:'12px 16px',display:'flex',gap:16,borderTop:`1px solid ${C.border}`}}>
+                  {[['Entry',`$${bracket.tournament.entry}`,C.navy],['Pool',`$${bracket.tournament.pool?.toLocaleString()}`,C.accent],['Points',bracket.points,C.green]].map(([l,v,col])=>(
+                    <div key={l}><p style={{fontSize:11,color:C.textMuted,margin:0}}>{l}</p><p style={{fontSize:14,fontWeight:600,color:col,margin:'2px 0 0'}}>{v}</p></div>
+                  ))}
+                  <button onClick={()=>setSelectedBracket(bracket)} style={{marginLeft:'auto',padding:'8px 14px',borderRadius:6,background:C.accentLight,border:'none',cursor:'pointer'}}>
+                    <span style={{fontSize:12,fontWeight:600,color:C.accent}}>View</span>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {calendarTab==='all'&&(
+          <>
+            <div style={{padding:16,background:C.bg}}>
+              <div style={{display:'flex',alignItems:'center',gap:10,background:C.card,borderRadius:8,padding:'12px 16px',border:`1px solid ${C.border}`}}>
+                <Search size={18} color={C.textMuted}/><span style={{fontSize:14,color:C.textMuted}}>Search tournaments</span>
+              </div>
+            </div>
+            {months.map(month=>(
+              <div key={month}>
+                <div style={{background:C.sectionBg,padding:'10px 16px'}}><span style={{fontSize:15,fontWeight:600,color:C.navy}}>{month}</span></div>
+                <div style={{background:C.card}}>
+                  {tournaments.filter(t=>t.month===month).map(t=>{
+                    const entered = myBrackets.some(b=>b.tournament.id===t.id);
+                    return (
+                      <div key={t.id} style={{display:'flex',padding:16,borderBottom:`1px solid ${C.border}`}}>
+                        <div style={{width:65,paddingRight:12,borderRight:`2px solid ${C.accent}`,marginRight:14}}>
+                          <p style={{fontSize:13,fontWeight:500,color:C.textMid,margin:0}}>{t.dates}</p>
+                          <p style={{fontSize:13,color:C.textMuted,margin:'2px 0 0'}}>{t.dateSuffix}</p>
+                        </div>
+                        <div style={{flex:1}}>
+                          <div style={{marginBottom:6}}>
+                            {t.type==='grandslam'?<span style={{fontStyle:'italic',fontWeight:800,fontSize:16,color:C.navy}}>GRAND SLAM</span>:<div style={{display:'flex',alignItems:'baseline'}}><span style={{fontStyle:'italic',fontWeight:800,fontSize:16,color:C.navy}}>ATP</span><span style={{fontWeight:800,fontSize:16,color:C.navy}}>{t.type.replace('atp','')}</span></div>}
+                          </div>
+                          <h3 style={{fontSize:16,fontWeight:600,color:C.navy,margin:'0 0 2px'}}>{t.name}</h3>
+                          <p style={{fontSize:13,color:C.textMuted,margin:0}}>{t.subtitle}</p>
+                          {t.pool>0&&(
+                            <div style={{display:'flex',alignItems:'center',gap:8,marginTop:8}}>
+                              <span style={{fontSize:11,fontWeight:600,color:C.accent,background:`${C.accent}18`,padding:'4px 8px',borderRadius:4}}>${t.pool.toLocaleString()}</span>
+                              {t.status==='live'&&<span style={{fontSize:10,fontWeight:600,color:C.red,background:C.redLight,padding:'4px 8px',borderRadius:4}}>LIVE</span>}
+                              {t.status==='open'&&<span style={{fontSize:10,fontWeight:600,color:C.green,background:C.greenLight,padding:'4px 8px',borderRadius:4}}>OPEN</span>}
+                              {entered&&<span style={{fontSize:10,fontWeight:600,color:C.accent,background:`${C.accent}18`,padding:'4px 8px',borderRadius:4}}>ENTERED</span>}
+                            </div>
+                          )}
+                        </div>
+                        <div style={{display:'flex',alignItems:'center',gap:10}}>
+                          {(t.status==='live'||t.status==='open')&&!entered&&(
+                            <button onClick={()=>{setActiveTournament(t);setView('bracket');}} style={{padding:'8px 14px',borderRadius:6,background:C.accent,border:'none',cursor:'pointer'}}>
+                              <span style={{fontSize:12,fontWeight:600,color:'#fff'}}>Enter</span>
+                            </button>
+                          )}
+                          {entered&&<button onClick={()=>setCalendarTab('my')} style={{padding:'8px 14px',borderRadius:6,background:C.greenLight,border:'none',cursor:'pointer'}}><span style={{fontSize:12,fontWeight:600,color:C.green}}>View</span></button>}
+                          <Heart size={22} color={C.accent} strokeWidth={1.5} style={{cursor:'pointer'}}/>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+            <div style={{height:100}}/>
+          </>
+        )}
+      </div>
+    );
+  };
+
+  // ─── RANKINGS VIEW ───────────────────────────────────────────────────────────
+  const RankingsView = () => (
+    <div style={{background:C.bg,minHeight:'100vh'}}>
+      <AppHeader/>
+      <div style={{background:C.card,padding:16,borderBottom:`1px solid ${C.border}`,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+        <div style={{display:'flex',alignItems:'center',gap:8}}><MobaLogo size={22} color={C.accent}/><MobaWordmark color={C.navy} fontSize={18}/></div>
+        <span style={{fontSize:13,fontWeight:600,color:C.textMuted}}>TOP 30 RANKINGS</span>
+      </div>
+      <div style={{background:C.bgLight,padding:'10px 16px',display:'flex',borderBottom:`1px solid ${C.border}`}}>
+        <span style={{width:45,fontSize:11,fontWeight:600,color:C.textMuted}}>RANK</span>
+        <span style={{flex:1,fontSize:11,fontWeight:600,color:C.textMuted}}>PLAYER</span>
+        <span style={{width:55,fontSize:11,fontWeight:600,color:C.textMuted,textAlign:'right'}}>PTS</span>
+        <span style={{width:45,fontSize:11,fontWeight:600,color:C.textMuted,textAlign:'right'}}>WIN%</span>
+      </div>
+      <div style={{background:C.card,paddingBottom:100}}>
+        {rankings.map(p=>(
+          <div key={p.rank} onClick={()=>setSelPlayer(p)} style={{display:'flex',alignItems:'center',padding:'12px 16px',borderBottom:`1px solid ${C.border}`,cursor:'pointer'}}>
+            <span style={{width:45,fontSize:15,fontWeight:600,color:p.rank<=3?C.orange:C.navy}}>{p.rank<=3?['🥇','🥈','🥉'][p.rank-1]:p.rank}</span>
+            <div style={{flex:1,display:'flex',alignItems:'center',gap:8}}>
+              <div style={{width:34,height:34,borderRadius:17,background:p.rank<=3?`${C.orange}20`:C.accentLight,display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:600,color:p.rank<=3?C.orange:C.accent}}>{p.name[0]}</div>
+              <span style={{fontSize:15}}>{p.flag}</span>
+              <div><p style={{fontSize:14,fontWeight:500,color:C.navy,margin:0}}>{p.name}</p><p style={{fontSize:11,color:C.textMuted,margin:'2px 0 0'}}>Played {p.played}</p></div>
+            </div>
+            <span style={{width:55,fontSize:14,fontWeight:600,color:C.navy,textAlign:'right'}}>{p.pts.toLocaleString()}</span>
+            <span style={{width:45,fontSize:13,fontWeight:500,color:C.green,textAlign:'right'}}>{p.winRate}%</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  // ─── WALLET VIEW ─────────────────────────────────────────────────────────────
+  const WalletView = () => (
+    <div style={{background:C.bg,minHeight:'100vh'}}>
+      <div style={{background:C.headerBg,padding:20}}>
+        <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20}}>
+          <MobaLogo size={28} color="#fff"/>
+          <MobaWordmark color="#fff" fontSize={20}/>
+        </div>
+        <p style={{fontSize:13,color:'rgba(255,255,255,0.7)',margin:'0 0 4px'}}>Available Balance</p>
+        <p style={{fontSize:36,fontWeight:700,color:'#fff',margin:0}}>${balance.toLocaleString()}.00</p>
+        <div style={{display:'flex',gap:12,marginTop:20}}>
+          <Btn primary onClick={()=>{setDepStep(1);setDepAmt('');setModal('deposit');}} style={{flex:1,background:'rgba(255,255,255,0.15)',border:'1px solid rgba(255,255,255,0.3)',color:'#fff'}}><Plus size={18}/> Add Funds</Btn>
+          <Btn onClick={()=>{setWithdrawStep(1);setWithdrawAmt('');setModal('withdraw');}} style={{flex:1,background:'rgba(255,255,255,0.1)',border:'1px solid rgba(255,255,255,0.2)',color:'#fff'}}><ArrowUp size={18}/> Withdraw</Btn>
+        </div>
+      </div>
+      <div style={{padding:16,paddingBottom:100}}>
+        <div style={{display:'flex',gap:12,marginBottom:20}}>
+          {[['Total Earnings',`+$${user.earn.toLocaleString()}`,C.green,<TrendingUp size={18} color={C.green}/>],['Win Rate',`${user.win}%`,C.accent,<Trophy size={18} color={C.accent}/>]].map(([lbl,val,col,icon])=>(
+            <div key={lbl} style={{flex:1,background:C.card,borderRadius:12,padding:16,border:`1px solid ${C.border}`}}>
+              {icon}<p style={{fontSize:11,color:C.textMuted,margin:'8px 0 4px'}}>{lbl}</p>
+              <p style={{fontSize:22,fontWeight:700,color:col,margin:0}}>{val}</p>
+            </div>
+          ))}
+        </div>
+        <p style={{fontSize:14,fontWeight:600,color:C.navy,margin:'0 0 12px'}}>Recent Transactions</p>
+        <div style={{background:C.card,borderRadius:12,border:`1px solid ${C.border}`,overflow:'hidden'}}>
+          {userTx.map((t,i)=>(
+            <div key={t.id} style={{display:'flex',alignItems:'center',padding:16,borderBottom:i<userTx.length-1?`1px solid ${C.border}`:'none'}}>
+              <div style={{width:40,height:40,borderRadius:20,background:t.amt>0?C.greenLight:C.accentLight,display:'flex',alignItems:'center',justifyContent:'center',marginRight:12}}>
+                {t.amt>0?<ArrowDown size={18} color={C.green}/>:<ArrowUp size={18} color={C.accent}/>}
+              </div>
+              <div style={{flex:1}}><p style={{fontSize:14,fontWeight:500,color:C.navy,margin:0}}>{t.title}</p><p style={{fontSize:12,color:C.textMuted,margin:'2px 0 0'}}>{t.desc}</p></div>
+              <div style={{textAlign:'right'}}><p style={{fontSize:15,fontWeight:600,color:t.amt>0?C.green:C.navy,margin:0}}>{t.amt>0?'+':'-'}${Math.abs(t.amt).toLocaleString()}</p><p style={{fontSize:11,color:C.textMuted,margin:'2px 0 0'}}>{t.date}</p></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  // ─── MODALS ──────────────────────────────────────────────────────────────────
+  const DepositModal = () => {
+    if (depStep===3) return (
+      <ModalWrap title="Success" onClose={()=>setModal(null)}>
+        <div style={{padding:32,textAlign:'center'}}>
+          <div style={{width:72,height:72,borderRadius:36,background:C.greenLight,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 20px'}}><CheckCircle size={36} color={C.green}/></div>
+          <p style={{fontSize:15,color:C.textMid}}>Successfully deposited</p>
+          <p style={{fontSize:36,fontWeight:700,color:C.green,margin:'8px 0'}}>+${depAmt}</p>
+          <Btn primary full onClick={()=>setModal(null)} style={{marginTop:24}}>Done</Btn>
+        </div>
+      </ModalWrap>
+    );
+    return (
+      <ModalWrap title="Add Funds" onClose={()=>setModal(null)}>
+        <div style={{padding:16}}>
+          {depStep===1?(
+            <>
+              <p style={{fontSize:13,color:C.textMuted,margin:'0 0 10px'}}>Amount</p>
+              <div style={{position:'relative',marginBottom:20}}>
+                <span style={{position:'absolute',left:18,top:'50%',transform:'translateY(-50%)',fontSize:24,fontWeight:600,color:C.textMuted}}>$</span>
+                <input type="number" value={depAmt} onChange={e=>setDepAmt(e.target.value)} placeholder="0"
+                  style={{width:'100%',padding:'18px 18px 18px 45px',fontSize:28,fontWeight:700,background:C.inputBg,border:`2px solid ${depAmt?C.accent:C.border}`,borderRadius:12,color:C.navy,outline:'none'}}/>
+              </div>
+              <div style={{display:'flex',gap:8,marginBottom:24}}>
+                {[50,100,200,500].map(v=>(
+                  <button key={v} onClick={()=>setDepAmt(v.toString())} style={{flex:1,padding:12,borderRadius:8,fontSize:14,fontWeight:600,cursor:'pointer',background:depAmt===v.toString()?C.accentLight:C.bgLight,border:`1px solid ${depAmt===v.toString()?C.accent:C.border}`,color:depAmt===v.toString()?C.accent:C.textMid}}>${v}</button>
+                ))}
+              </div>
+              <Btn primary full disabled={!depAmt||parseFloat(depAmt)<10} onClick={()=>setDepStep(2)}>Continue</Btn>
+            </>
+          ):(
+            <>
+              <div style={{background:C.bgLight,borderRadius:12,padding:16,marginBottom:20}}>
+                {[['Amount',`$${depAmt}`],['Fee','$0.00'],['Total',`$${depAmt}`]].map(([k,v],i)=>(
+                  <div key={k}>{i===2&&<div style={{height:1,background:C.border,margin:'12px 0'}}/>}
+                    <div style={{display:'flex',justifyContent:'space-between',marginBottom:i<2?12:0}}>
+                      <span style={{color:C.textMuted}}>{k}</span>
+                      <span style={{fontWeight:i===2?700:600,fontSize:i===2?20:14,color:i===1?C.green:i===2?C.accent:C.navy}}>{v}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div style={{display:'flex',gap:12}}><Btn onClick={()=>setDepStep(1)} style={{flex:1}}>Back</Btn><Btn primary onClick={()=>{setBalance(balance+parseFloat(depAmt));setDepStep(3);}} style={{flex:2}}>Confirm</Btn></div>
+            </>
+          )}
+        </div>
+      </ModalWrap>
+    );
+  };
+
+  const WithdrawModal = () => {
+    const ok = withdrawAmt&&parseFloat(withdrawAmt)>=20&&parseFloat(withdrawAmt)<=balance;
+    if (withdrawStep===3) return (
+      <ModalWrap title="Success" onClose={()=>setModal(null)}>
+        <div style={{padding:32,textAlign:'center'}}>
+          <div style={{width:72,height:72,borderRadius:36,background:C.greenLight,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 20px'}}><CheckCircle size={36} color={C.green}/></div>
+          <p style={{fontSize:15,color:C.textMid}}>Withdrawal initiated</p>
+          <p style={{fontSize:36,fontWeight:700,color:C.navy,margin:'8px 0'}}>${withdrawAmt}</p>
+          <Btn primary full onClick={()=>setModal(null)} style={{marginTop:24}}>Done</Btn>
+        </div>
+      </ModalWrap>
+    );
+    return (
+      <ModalWrap title="Withdraw" onClose={()=>setModal(null)}>
+        <div style={{padding:16}}>
+          {withdrawStep===1?(
+            <>
+              <div style={{background:C.bgLight,borderRadius:12,padding:16,marginBottom:20,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                <span style={{fontSize:14,color:C.textMuted}}>Available Balance</span>
+                <span style={{fontSize:20,fontWeight:700,color:C.navy}}>${balance.toLocaleString()}</span>
+              </div>
+              <div style={{position:'relative',marginBottom:12}}>
+                <span style={{position:'absolute',left:18,top:'50%',transform:'translateY(-50%)',fontSize:24,fontWeight:600,color:C.textMuted}}>$</span>
+                <input type="number" value={withdrawAmt} onChange={e=>setWithdrawAmt(e.target.value)} placeholder="0"
+                  style={{width:'100%',padding:'18px 18px 18px 45px',fontSize:28,fontWeight:700,background:C.inputBg,border:`2px solid ${withdrawAmt?C.accent:C.border}`,borderRadius:12,color:C.navy,outline:'none'}}/>
+              </div>
+              <button onClick={()=>setWithdrawAmt(balance.toString())} style={{marginBottom:20,padding:'8px 14px',background:C.accentLight,border:`1px solid ${C.accent}`,borderRadius:8,color:C.accent,fontSize:12,fontWeight:600,cursor:'pointer'}}>
+                Withdraw All (${balance.toLocaleString()})
+              </button>
+              <div style={{background:C.accentLight,border:`2px solid ${C.accent}`,borderRadius:10,padding:14,marginBottom:16,display:'flex',alignItems:'center',gap:12}}>
+                <div style={{width:40,height:40,borderRadius:8,background:C.accent,display:'flex',alignItems:'center',justifyContent:'center'}}><span style={{fontSize:18}}>🏦</span></div>
+                <div><p style={{fontSize:14,fontWeight:600,color:C.navy,margin:0}}>Bank Account</p><p style={{fontSize:12,color:C.textMuted,margin:'2px 0 0'}}>····7891</p></div>
+                <Check size={20} color={C.accent} style={{marginLeft:'auto'}}/>
+              </div>
+              <Btn primary full disabled={!ok} onClick={()=>setWithdrawStep(2)}>Continue</Btn>
+            </>
+          ):(
+            <>
+              <div style={{background:C.bgLight,borderRadius:12,padding:16,marginBottom:20}}>
+                {[['Amount',`$${parseFloat(withdrawAmt).toLocaleString()}`],['Fee','$0.00'],['To','Bank ····7891']].map(([k,v])=>(
+                  <div key={k} style={{display:'flex',justifyContent:'space-between',marginBottom:12}}><span style={{color:C.textMuted}}>{k}</span><span style={{fontWeight:600,color:C.navy}}>{v}</span></div>
+                ))}
+                <div style={{height:1,background:C.border,margin:'0 0 12px'}}/>
+                <div style={{display:'flex',justifyContent:'space-between'}}><span style={{fontWeight:500,color:C.navy}}>You'll receive</span><span style={{fontWeight:700,fontSize:20,color:C.green}}>${parseFloat(withdrawAmt).toLocaleString()}</span></div>
+              </div>
+              <div style={{display:'flex',gap:12}}><Btn onClick={()=>setWithdrawStep(1)} style={{flex:1}}>Back</Btn><Btn primary onClick={()=>{setBalance(balance-parseFloat(withdrawAmt));setUserTx([{id:Date.now(),title:'Withdrawal',desc:'Bank ····7891',amt:-parseFloat(withdrawAmt),date:'Just now'},...userTx]);setWithdrawStep(3);}} style={{flex:2}}>Confirm</Btn></div>
+            </>
+          )}
+        </div>
+      </ModalWrap>
+    );
+  };
+
+  const SubmitModal = () => {
+    const fee = activeTournament.entry;
+    const can = balance>=fee;
+    const champion = predictions[`r${totalRounds-1}-m0`];
+    if (submitStep===3) return (
+      <ModalWrap title="Success" onClose={()=>{setModal(null);setPredictions({});}}>
+        <div style={{padding:32,textAlign:'center'}}>
+          <div style={{width:80,height:80,borderRadius:40,background:C.greenLight,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 20px'}}><CheckCircle size={40} color={C.green}/></div>
+          <h3 style={{fontSize:24,fontWeight:700,color:C.navy,margin:'0 0 8px'}}>Bracket Submitted!</h3>
+          <p style={{fontSize:15,color:C.textMuted}}>Good luck in {activeTournament.name}!</p>
+          {champion&&<div style={{background:C.accentLight,borderRadius:12,padding:16,marginTop:20}}><p style={{fontSize:12,color:C.accent,margin:'0 0 8px'}}>YOUR CHAMPION</p><div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:10}}><span style={{fontSize:28}}>{champion.flag}</span><span style={{fontSize:18,fontWeight:700,color:C.navy}}>{champion.name}</span></div></div>}
+          <Btn primary full onClick={()=>{setModal(null);setPredictions({});setView('calendar');}} style={{marginTop:24}}>Done</Btn>
+        </div>
+      </ModalWrap>
+    );
+    if (submitStep===2) return (
+      <ModalWrap title="Confirm Entry" onClose={()=>setModal(null)}>
+        <div style={{padding:16}}>
+          <div style={{background:C.bgLight,borderRadius:12,padding:16,marginBottom:20}}><p style={{fontSize:16,fontWeight:600,color:C.navy,margin:'0 0 4px'}}>{activeTournament.name}</p></div>
+          <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:16,marginBottom:20}}>
+            {[['Entry Fee',`$${fee}`,C.navy],['Your Balance',`$${balance.toLocaleString()}`,can?C.green:C.red],['After Payment',`$${(balance-fee).toLocaleString()}`,C.navy]].map(([k,v,col],i)=>(
+              <div key={k}>{i===2&&<div style={{height:1,background:C.border,margin:'12px 0'}}/>}
+                <div style={{display:'flex',justifyContent:'space-between',marginBottom:i<2?12:0}}><span style={{color:C.textMuted}}>{k}</span><span style={{fontWeight:600,color:col}}>{v}</span></div>
+              </div>
+            ))}
+          </div>
+          <div style={{display:'flex',gap:12}}><Btn onClick={()=>setSubmitStep(1)} style={{flex:1}}>Back</Btn>
+            {can?<Btn primary onClick={()=>{setBalance(balance-fee);setUserTx([{id:Date.now(),title:'Tournament Entry',desc:activeTournament.name,amt:-fee,date:'Just now'},...userTx]);setMyBrackets([...myBrackets,{id:Date.now(),tournament:activeTournament,champion,blackHorse,predictions:{...predictions},submittedAt:new Date().toISOString(),status:'active',position:null,prevPosition:null,points:0,correctPicks:0,totalPicks:rounds.reduce((s,r)=>s+r.matches,0),blackHorseAlive:true,prize:0}]);setBlackHorse(null);setSubmitStep(3);}} style={{flex:2}}>Pay ${fee}</Btn>
+            :<Btn primary onClick={()=>{setModal('deposit');setDepStep(1);setDepAmt('');}} style={{flex:2}}><Plus size={18}/> Add Funds</Btn>}
+          </div>
+        </div>
+      </ModalWrap>
+    );
+    return (
+      <ModalWrap title="Review Bracket" onClose={()=>setModal(null)}>
+        <div style={{padding:16}}>
+          {champion&&<div style={{background:C.headerBg,borderRadius:12,padding:20,marginBottom:20,textAlign:'center'}}><p style={{fontSize:12,color:'rgba(255,255,255,0.7)',margin:'0 0 10px'}}>YOUR CHAMPION</p><div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:12}}><span style={{fontSize:36}}>{champion.flag}</span><p style={{fontSize:20,fontWeight:700,color:'#fff',margin:0}}>{champion.name}</p></div><Trophy size={28} color="#FCD34D" style={{marginTop:12}}/></div>}
+          <div style={{background:blackHorse?`${C.orange}10`:C.bgLight,border:`1px solid ${blackHorse?C.orange:C.border}`,borderRadius:12,padding:16,marginBottom:16}}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+              <div style={{display:'flex',alignItems:'center',gap:8}}><span style={{fontSize:18}}>🐴</span><span style={{fontSize:14,fontWeight:600,color:C.navy}}>Black Horse</span><span style={{fontSize:10,fontWeight:600,color:C.orange,background:`${C.orange}15`,padding:'2px 6px',borderRadius:4}}>1.5x</span></div>
+              {blackHorse?<div style={{display:'flex',alignItems:'center',gap:8}}><span style={{fontSize:18}}>{blackHorse.flag}</span><span style={{fontSize:14,fontWeight:600,color:C.navy}}>{blackHorse.name}</span></div>:<span style={{fontSize:13,color:C.textMuted}}>Not selected</span>}
+            </div>
+          </div>
+          <div style={{background:C.bgLight,borderRadius:12,padding:16,marginBottom:20,display:'flex',justifyContent:'space-between',alignItems:'center'}}><span style={{fontSize:14,color:C.textMuted}}>Entry Fee</span><span style={{fontSize:20,fontWeight:700,color:C.accent}}>${fee}</span></div>
+          <Btn primary full onClick={()=>setSubmitStep(2)}>Continue to Payment</Btn>
+        </div>
+      </ModalWrap>
+    );
+  };
+
+  const BlackHorseModal = () => {
+    const size = getBracketSize(activeTournament);
+    const players = getBlackHorse(size);
+    return (
+      <ModalWrap title="🐴 Select Black Horse" onClose={()=>setModal(null)}>
+        <div style={{padding:16}}>
+          <div style={{background:`${C.orange}12`,border:`1px solid ${C.orange}`,borderRadius:12,padding:16,marginBottom:16}}>
+            <p style={{fontSize:13,color:C.textMid,margin:0,lineHeight:1.5}}>Choose an unseeded/lower-seeded player. If they win a match you predicted correctly, you earn <strong>1.5x points</strong> for that match.</p>
+          </div>
+          <div style={{maxHeight:380,overflowY:'auto'}}>
+            {players.map(p=>(
+              <button key={p.id} onClick={()=>{setBlackHorse(p);setModal(null);}}
+                style={{width:'100%',display:'flex',alignItems:'center',padding:'12px 14px',marginBottom:8,borderRadius:10,border:blackHorse?.id===p.id?`2px solid ${C.orange}`:`1px solid ${C.border}`,background:blackHorse?.id===p.id?`${C.orange}10`:C.card,cursor:'pointer'}}>
+                <span style={{fontSize:22,marginRight:12}}>{p.flag}</span>
+                <div style={{flex:1,textAlign:'left'}}><p style={{fontSize:15,fontWeight:500,color:C.navy,margin:0}}>{p.name}</p><p style={{fontSize:12,color:C.textMuted,margin:'2px 0 0'}}>Seed [{p.seed||'—'}]</p></div>
+                {blackHorse?.id===p.id&&<div style={{width:24,height:24,borderRadius:12,background:C.orange,display:'flex',alignItems:'center',justifyContent:'center'}}><Check size={14} color="#fff"/></div>}
+              </button>
+            ))}
+          </div>
+          {blackHorse&&<div style={{marginTop:16,paddingTop:16,borderTop:`1px solid ${C.border}`}}><Btn full onClick={()=>setBlackHorse(null)}>Clear Selection</Btn></div>}
+        </div>
+      </ModalWrap>
+    );
+  };
+
+  const PrizesModal = () => {
+    const [showAll, setShowAll] = useState(false);
+    const pool = calcPrizePool(activeTournament.entries||1, activeTournament.poolEntry||activeTournament.entry);
+    const rows = [
+      {place:'1st',pct:'20%',amt:Math.round(pool*0.20),medal:'🥇'},
+      {place:'2nd',pct:'12%',amt:Math.round(pool*0.12),medal:'🥈'},
+      {place:'3rd',pct:'8%',amt:Math.round(pool*0.08),medal:'🥉'},
+      {place:'4th',pct:'5.5%',amt:Math.round(pool*0.055)},
+      {place:'5th-8th',pct:'2.5%',amt:Math.round(pool*0.025)},
+      {place:'9th-16th',pct:'1.25%',amt:Math.round(pool*0.0125)},
+      {place:'17th-32nd',pct:'0.7%',amt:Math.round(pool*0.007)},
+      {place:'33rd-64th',pct:'0.4%',amt:Math.round(pool*0.004)},
+    ];
+    return (
+      <ModalWrap title="Prize Payouts" onClose={()=>setModal(null)}>
+        <div style={{padding:16}}>
+          <div style={{background:C.headerBg,borderRadius:12,padding:16,marginBottom:16}}><h3 style={{fontSize:18,fontWeight:700,color:'#fff',margin:'0 0 4px'}}>{activeTournament.name}</h3><p style={{fontSize:12,color:'rgba(255,255,255,0.7)',margin:0}}>{activeTournament.entries.toLocaleString()} entries</p></div>
+          <div style={{background:C.bgLight,borderRadius:12,padding:16,marginBottom:16,display:'flex',justifyContent:'space-between',alignItems:'center'}}><p style={{fontSize:12,color:C.textMuted,margin:0}}>Total Prize Pool</p><p style={{fontSize:24,fontWeight:700,color:C.green,margin:0}}>${pool.toLocaleString()}</p></div>
+          <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:12,overflow:'hidden'}}>
+            <div style={{display:'flex',padding:'10px 14px',background:C.bgLight,borderBottom:`1px solid ${C.border}`}}>
+              <span style={{flex:1,fontSize:11,fontWeight:600,color:C.textMuted}}>PLACE</span>
+              <span style={{width:60,fontSize:11,fontWeight:600,color:C.textMuted,textAlign:'right'}}>%</span>
+              <span style={{width:90,fontSize:11,fontWeight:600,color:C.textMuted,textAlign:'right'}}>PRIZE</span>
+            </div>
+            {(showAll?rows:rows.slice(0,5)).map((row,i)=>(
+              <div key={i} style={{display:'flex',alignItems:'center',padding:'11px 14px',borderBottom:i<(showAll?rows.length:5)-1?`1px solid ${C.border}`:'none'}}>
+                <div style={{flex:1,display:'flex',alignItems:'center',gap:8}}>{row.medal&&<span style={{fontSize:16}}>{row.medal}</span>}<span style={{fontSize:13,fontWeight:row.medal?600:500,color:C.navy}}>{row.place}</span></div>
+                <span style={{width:60,fontSize:12,color:C.textMuted,textAlign:'right'}}>{row.pct}</span>
+                <span style={{width:90,fontSize:13,fontWeight:600,color:row.medal?C.green:C.navy,textAlign:'right'}}>${row.amt.toLocaleString()}</span>
+              </div>
+            ))}
+          </div>
+          <button onClick={()=>setShowAll(!showAll)} style={{width:'100%',padding:12,marginTop:12,background:'none',border:`1px solid ${C.border}`,borderRadius:8,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:6}}>
+            <span style={{fontSize:13,fontWeight:500,color:C.accent}}>{showAll?'Show Less':'Show All Places'}</span>
+            <ChevronDown size={16} color={C.accent} style={{transform:showAll?'rotate(180deg)':'none'}}/>
+          </button>
+        </div>
+      </ModalWrap>
+    );
+  };
+
+  const AuthModal = () => {
+    const [mode, setMode] = useState('login');
+    return (
+      <ModalWrap title={mode==='login'?'Sign In':'Create Account'} onClose={()=>setModal(null)}>
+        <div style={{padding:20}}>
+          <div style={{textAlign:'center',marginBottom:24}}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,marginBottom:8}}>
+              <MobaLogo size={32} color={C.accent}/>
+              <MobaWordmark color={C.navy} fontSize={22}/>
+            </div>
+            <p style={{fontSize:13,color:C.textMuted,margin:0}}>Bracket Battle</p>
+          </div>
+          {mode==='register'&&<div style={{marginBottom:16}}><label style={{fontSize:13,fontWeight:600,color:C.textMid,display:'block',marginBottom:6}}>Username</label><input type="text" value={authName} onChange={e=>setAuthName(e.target.value)} placeholder="Choose a username" style={{width:'100%',padding:14,fontSize:15,border:`1.5px solid ${C.border}`,borderRadius:10,outline:'none',color:C.navy,background:C.inputBg,boxSizing:'border-box'}}/></div>}
+          <div style={{marginBottom:16}}><label style={{fontSize:13,fontWeight:600,color:C.textMid,display:'block',marginBottom:6}}>Email</label><input type="email" value={authEmail} onChange={e=>setAuthEmail(e.target.value)} placeholder="your@email.com" style={{width:'100%',padding:14,fontSize:15,border:`1.5px solid ${C.border}`,borderRadius:10,outline:'none',color:C.navy,background:C.inputBg,boxSizing:'border-box'}}/></div>
+          <div style={{marginBottom:20}}><label style={{fontSize:13,fontWeight:600,color:C.textMid,display:'block',marginBottom:6}}>Password</label>
+            <div style={{position:'relative'}}><input type={showPass?'text':'password'} value={authPassword} onChange={e=>setAuthPassword(e.target.value)} placeholder="Password" style={{width:'100%',padding:14,paddingRight:46,fontSize:15,border:`1.5px solid ${C.border}`,borderRadius:10,outline:'none',color:C.navy,background:C.inputBg,boxSizing:'border-box'}}/><button onClick={()=>setShowPass(!showPass)} style={{position:'absolute',right:12,top:'50%',transform:'translateY(-50%)',background:'none',border:'none',cursor:'pointer',fontSize:18}}>{showPass?'🙈':'👁️'}</button></div>
+          </div>
+          <Btn primary full disabled={mode==='login'?!authEmail||!authPassword:!authName||!authEmail||!authPassword} onClick={()=>{setIsLoggedIn(true);setModal(null);setAuthEmail('');setAuthPassword('');setAuthName('');}}>
+            {mode==='login'?'Sign In':'Create Account'}
+          </Btn>
+          <div style={{marginTop:20,paddingTop:20,borderTop:`1px solid ${C.border}`,textAlign:'center'}}>
+            {mode==='login'?<p style={{fontSize:14,color:C.textMid,margin:0}}>Don't have an account? <span onClick={()=>setMode('register')} style={{color:C.accent,fontWeight:600,cursor:'pointer'}}>Sign Up</span></p>:<p style={{fontSize:14,color:C.textMid,margin:0}}>Already have an account? <span onClick={()=>setMode('login')} style={{color:C.accent,fontWeight:600,cursor:'pointer'}}>Sign In</span></p>}
+          </div>
+        </div>
+      </ModalWrap>
+    );
+  };
+
+  // ─── PROFILE MODAL — theme controls here ─────────────────────────────────
+  const ProfileModal = () => (
+    <ModalWrap title="My Profile" onClose={()=>setModal(null)}>
+      <div style={{padding:20}}>
+        <div style={{textAlign:'center',marginBottom:24}}>
+          <div style={{width:80,height:80,borderRadius:40,background:C.accentLight,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 12px',fontSize:32,fontWeight:600,color:C.accent}}>{user.name[0]}</div>
+          <h3 style={{fontSize:22,fontWeight:700,color:C.navy,margin:0}}>{user.name}</h3>
+          <p style={{fontSize:14,color:C.accent,margin:'4px 0'}}>Rank #{user.rank}</p>
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:12,marginBottom:24}}>
+          {[['Win Rate',`${user.win}%`,C.green],['Earnings',`$${user.earn.toLocaleString()}`,C.accent],['Brackets',user.brackets,C.navy],['Balance',`$${balance.toLocaleString()}`,C.navy]].map(([l,v,col])=>(
+            <div key={l} style={{background:C.bgLight,borderRadius:10,padding:16,textAlign:'center'}}><p style={{fontSize:11,color:C.textMuted,margin:'0 0 4px'}}>{l}</p><p style={{fontSize:22,fontWeight:700,color:col,margin:0}}>{v}</p></div>
+          ))}
+        </div>
+
+        {/* ── APPEARANCE ── */}
+        <div style={{background:C.bgLight,borderRadius:12,padding:16,marginBottom:16,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+          <div style={{display:'flex',alignItems:'center',gap:10}}>
+            {isDark?<Moon size={18} color={C.accent}/>:<Sun size={18} color={C.orange}/>}
+            <div><p style={{fontSize:14,fontWeight:600,color:C.navy,margin:0}}>{isDark?'Dark Mode':'Light Mode'}</p><p style={{fontSize:11,color:C.textMuted,margin:'2px 0 0'}}>Toggle appearance</p></div>
+          </div>
+          <button onClick={()=>setIsDark(!isDark)} style={{width:52,height:28,borderRadius:14,border:'none',cursor:'pointer',position:'relative',background:isDark?C.accent:C.border,transition:'background 0.25s'}}>
+            <div style={{position:'absolute',top:3,left:isDark?27:3,width:22,height:22,borderRadius:11,background:'#fff',transition:'left 0.25s',display:'flex',alignItems:'center',justifyContent:'center'}}>
+              {isDark?<Moon size={12} color={C.accent}/>:<Sun size={12} color={C.orange}/>}
+            </div>
+          </button>
+        </div>
+
+        <div style={{display:'flex',flexDirection:'column',gap:10}}>
+          <Btn full onClick={()=>{setModal(null);setView('wallet');}}><Wallet size={18}/> Wallet</Btn>
+          <Btn full onClick={()=>{setModal(null);setCalendarTab('my');setView('calendar');}}><Target size={18}/> My Brackets</Btn>
+          <button onClick={()=>{setIsLoggedIn(false);setModal(null);}} style={{width:'100%',padding:14,borderRadius:10,border:`1px solid ${C.red}`,background:'transparent',color:C.red,fontSize:15,fontWeight:600,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
+            <LogIn size={18}/> Sign Out
+          </button>
+        </div>
+      </div>
+    </ModalWrap>
+  );
+
+  const BracketDetailsModal = () => {
+    if (!selectedBracket) return null;
+    return (
+      <ModalWrap title="Bracket Details" onClose={()=>setSelectedBracket(null)}>
+        <div style={{padding:16}}>
+          <div style={{background:C.headerBg,borderRadius:12,padding:16,marginBottom:16}}>
+            <h3 style={{fontSize:20,fontWeight:700,color:'#fff',margin:'0 0 4px'}}>{selectedBracket.tournament.name}</h3>
+            <span style={{fontSize:10,fontWeight:600,padding:'4px 10px',borderRadius:4,background:'rgba(255,255,255,0.2)',color:'#fff'}}>{selectedBracket.status.toUpperCase()}</span>
+          </div>
+          <div style={{background:C.bgLight,borderRadius:12,padding:16,marginBottom:16}}>
+            <p style={{fontSize:11,color:C.textMuted,margin:'0 0 10px'}}>YOUR CHAMPION</p>
+            <div style={{display:'flex',alignItems:'center',gap:12}}><span style={{fontSize:36}}>{selectedBracket.champion?.flag}</span><div><p style={{fontSize:18,fontWeight:700,color:C.navy,margin:0}}>{selectedBracket.champion?.name}</p></div><Trophy size={24} color="#FCD34D" style={{marginLeft:'auto'}}/></div>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10,marginBottom:16}}>
+            {[['Entry',`$${selectedBracket.tournament.entry}`,C.navy],['Points',selectedBracket.points,C.green],['Position',selectedBracket.position||'—',C.accent]].map(([l,v,col])=>(
+              <div key={l} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:12,textAlign:'center'}}><p style={{fontSize:11,color:C.textMuted,margin:0}}>{l}</p><p style={{fontSize:16,fontWeight:700,color:col,margin:'4px 0 0'}}>{v}</p></div>
+            ))}
+          </div>
+          <Btn full onClick={()=>setSelectedBracket(null)}>Close</Btn>
+        </div>
+      </ModalWrap>
+    );
+  };
+
+  const PlayerModal = () => selPlayer && (
+    <ModalWrap title="Player Stats" onClose={()=>setSelPlayer(null)}>
+      <div style={{padding:16}}>
+        <div style={{textAlign:'center',marginBottom:24}}>
+          <div style={{width:80,height:80,borderRadius:40,background:C.accentLight,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px',fontSize:28,fontWeight:600,color:C.accent}}>{selPlayer.name[0]}</div>
+          <h3 style={{fontSize:22,fontWeight:700,color:C.navy,margin:0}}>{selPlayer.name}</h3>
+          <p style={{fontSize:14,color:C.accent,margin:'4px 0'}}>Rank #{selPlayer.rank}</p>
+          <p style={{fontSize:14,color:C.textMuted}}>{selPlayer.flag} Played {selPlayer.played}</p>
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:12}}>
+          {[['Points',selPlayer.pts.toLocaleString(),C.navy],['Win Rate',`${selPlayer.winRate}%`,C.green],['Earnings',`$${selPlayer.earnings?.toLocaleString()}`,C.accent],['Brackets',selPlayer.played,C.navy]].map(([l,v,col])=>(
+            <div key={l} style={{background:C.bgLight,borderRadius:8,padding:16,textAlign:'center'}}><p style={{fontSize:11,color:C.textMuted,margin:'0 0 4px'}}>{l}</p><p style={{fontSize:20,fontWeight:700,color:col,margin:0}}>{v}</p></div>
+          ))}
+        </div>
+      </div>
+    </ModalWrap>
+  );
+
+  // ─── RENDER ──────────────────────────────────────────────────────────────────
+  return (
+    <div style={{minHeight:'100vh',background:C.bg,fontFamily:'-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,sans-serif',transition:'background 0.3s,color 0.3s'}}>
+      <style>{`
+        *{box-sizing:border-box;margin:0;padding:0;}
+        ::-webkit-scrollbar{width:0;height:0;}
+        input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;}
+        @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+      `}</style>
+      <div style={{maxWidth:430,margin:'0 auto',minHeight:'100vh',paddingBottom:80}}>
+        {view==='bracket'&&<BracketView/>}
+        {view==='calendar'&&<CalendarView/>}
+        {view==='live'&&<LiveView/>}
+        {view==='rankings'&&<RankingsView/>}
+        {view==='wallet'&&<WalletView/>}
+        <BottomNav/>
+        {modal==='deposit'&&<DepositModal/>}
+        {modal==='withdraw'&&<WithdrawModal/>}
+        {modal==='submit'&&<SubmitModal/>}
+        {modal==='blackhorse'&&<BlackHorseModal/>}
+        {modal==='auth'&&<AuthModal/>}
+        {modal==='profile'&&<ProfileModal/>}
+        {modal==='prizes'&&<PrizesModal/>}
+        {selectedBracket&&<BracketDetailsModal/>}
+        {selPlayer&&<PlayerModal/>}
+        {leaderboardBracket&&<LeaderboardModal/>}
+      </div>
+    </div>
+  );
+}

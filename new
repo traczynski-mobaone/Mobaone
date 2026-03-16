@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Trophy, Wallet, ChevronRight, ChevronLeft, Target, Search, ArrowUp, ArrowDown, Radio, BarChart2, User, X, Check, TrendingUp, Plus, CheckCircle, Heart, Calendar, ChevronDown, LogIn, Sun, Moon } from 'lucide-react';
+import { Trophy, Wallet, ChevronRight, ChevronLeft, Target, Search, ArrowUp, ArrowDown, Radio, BarChart2, User, X, Check, TrendingUp, Plus, CheckCircle, Heart, Calendar, ChevronDown, LogIn, Sun, Moon, Bell, Zap, Gift, Flag, Lock, Clock, Star, Flame, Mail, Bot, Shield, Activity, Award, Layers, DollarSign, Eye, EyeOff, Share2, Swords, RefreshCw, CircleDollarSign } from 'lucide-react';
 
 // ─── THEME DEFINITIONS ────────────────────────────────────────────────────────
 // THEME A: Purple/Navy (original, WCAG-fixed)
@@ -9,7 +9,7 @@ const themeA_light = {
   bgLight: '#F5F5F7',      // very subtle off-white
   card: '#FFFFFF',
   navy: '#1E1B4B',
-  accent: '#3730A3',       // indigo-700 — 9.93:1 on white ✅ AAA
+  accent: '#3730A3',       // indigo-700  9.93:1 on white ✅ AAA
   accentText: '#3730A3',   // same as accent in light mode
   accentLight: '#E0E7FF',
   textDark: '#1F2937', textMid: '#4B5563', textMuted: '#6B7280', textLight: '#5F6B7A',
@@ -28,11 +28,11 @@ const themeA_light = {
 };
 const themeA_dark = {
   gradientStart: '#1E1B4B', gradientMid: '#2D2686', gradientEnd: '#3730A3',
-  bg: '#1A1D22',           // dark bg — minimally lighter than card
+  bg: '#1A1D22',           // dark bg  minimally lighter than card
   bgLight: '#2B3139',      // elevated sections
   card: '#222630',
   navy: '#EAECEF',         // primary text ~18:1 on bg ✅ AAA
-  accent: '#3730A3',       // indigo-700 — same as light mode for buttons ✅
+  accent: '#3730A3',       // indigo-700  same as light mode for buttons ✅
   accentText: '#818CF8',   // indigo-400 for text/labels on dark bg ✅ AA
   accentLight: '#1E1B4B',  // dark indigo for active highlights
   textDark: '#EAECEF', textMid: '#C7C9CC', textMuted: '#848E9C', textLight: '#848E9C',
@@ -198,45 +198,90 @@ const generateR128 = () => {
   return m;
 };
 
-// Entry tiers per tournament type
-const ENTRY_TIERS = {
-  atp250:    [
-    { id:'starter', label:'Starter',  entry:10,  poolEntry:9,  color:'#6B7280', entries:842,  prizeMulti:1   },
-    { id:'pro',     label:'Pro',      entry:25,  poolEntry:23, color:'#3730A3', entries:356,  prizeMulti:2.5 },
-    { id:'elite',   label:'Elite',    entry:50,  poolEntry:46, color:'#B45309', entries:124,  prizeMulti:5   },
-  ],
-  atp500:    [
-    { id:'starter', label:'Starter',  entry:15,  poolEntry:13, color:'#6B7280', entries:1205, prizeMulti:1   },
-    { id:'pro',     label:'Pro',      entry:50,  poolEntry:46, color:'#3730A3', entries:489,  prizeMulti:3   },
-    { id:'elite',   label:'Elite',    entry:100, poolEntry:92, color:'#B45309', entries:167,  prizeMulti:6   },
-  ],
-  atp1000:   [
-    { id:'starter', label:'Starter',  entry:20,  poolEntry:18, color:'#6B7280', entries:2156, prizeMulti:1   },
-    { id:'pro',     label:'Pro',      entry:50,  poolEntry:46, color:'#3730A3', entries:891,  prizeMulti:2.5 },
-    { id:'elite',   label:'Elite',    entry:100, poolEntry:92, color:'#B45309', entries:312,  prizeMulti:5   },
-  ],
-  grandslam: [
-    { id:'starter', label:'Starter',  entry:25,  poolEntry:23, color:'#6B7280', entries:3420, prizeMulti:1   },
-    { id:'pro',     label:'Pro',      entry:75,  poolEntry:69, color:'#3730A3', entries:1240, prizeMulti:3   },
-    { id:'elite',   label:'Elite',    entry:150, poolEntry:138,color:'#B45309', entries:425,  prizeMulti:6   },
-  ],
+// ─── POKER-STYLE STAKES ─────────────────────────────────────────────────────
+// Every tournament has the same 10 buy-in levels.
+// Rake = 10% (poolEntry = entry * 0.9, rounded down).
+// Each stake has its own separate prize pool and leaderboard.
+// Mock entries scale inversely with buy-in (micro = many players, high = few).
+
+// ─── POKER-STYLE STAKES ─────────────────────────────────────────────────────
+// poolEntry = amount going to prize pool per player
+// rake = platform fee per entry
+// Micro stakes ($1-$2): no rake  platform growth/acquisition strategy
+// From $5+: 10% rake
+const STAKES = [
+  { id:'s1',  entry:1,    poolEntry:1,   rake:0,   color:'#6B7280', mockEntries:80000 },
+  { id:'s2',  entry:2,    poolEntry:2,   rake:0,   color:'#6B7280', mockEntries:45000 },
+  { id:'s3',  entry:5,    poolEntry:4,   rake:1,   color:'#059669', mockEntries:22000 },
+  { id:'s4',  entry:10,   poolEntry:9,   rake:1,   color:'#059669', mockEntries:12000 },
+  { id:'s5',  entry:25,   poolEntry:22,  rake:3,   color:'#3730A3', mockEntries:5500  },
+  { id:'s6',  entry:50,   poolEntry:45,  rake:5,   color:'#3730A3', mockEntries:2800  },
+  { id:'s7',  entry:100,  poolEntry:90,  rake:10,  color:'#B45309', mockEntries:1400  },
+  { id:'s8',  entry:250,  poolEntry:225, rake:25,  color:'#B45309', mockEntries:580   },
+  { id:'s9',  entry:500,  poolEntry:450, rake:50,  color:'#DC2626', mockEntries:240   },
+  { id:'s10', entry:1000, poolEntry:900, rake:100, color:'#DC2626', mockEntries:95    },
+];
+
+// Prize pool for a given stake
+const getPoolEntry = (stake) => stake.poolEntry;
+const getStakePool = (stake) => stake.mockEntries * stake.poolEntry;
+const getStakeRake = (stake) => stake.rake;
+
+// ─── GUARANTEED PRIZE POOL ────────────────────────────────────────────────────
+// Each stake level gets a proportional share of the guarantee
+// Share = (stake.poolEntry / total_pool_entry_across_all_stakes) * guaranteed
+const getTotalPoolWeight = () => STAKES.reduce((s, st) => s + st.poolEntry * st.mockEntries, 0);
+
+const getGuaranteedForStake = (stake, tournament) => {
+  if (!tournament?.guaranteed) return 0;
+  const weight = (stake.poolEntry * stake.mockEntries) / getTotalPoolWeight();
+  return Math.round(tournament.guaranteed * weight);
 };
 
-const getTiers = (tournament) => ENTRY_TIERS[tournament?.type] || ENTRY_TIERS.atp1000;
+// Effective pool = max(natural pool, guaranteed share)
+const getEffectivePool = (stake, tournament) => {
+  const natural = getStakePool(stake);
+  const guaranteed = getGuaranteedForStake(stake, tournament);
+  return Math.max(natural, guaranteed);
+};
+
+// Overlay = how much organiser tops up (guaranteed - natural, if positive)
+const getOverlay = (stake, tournament) => {
+  const natural = getStakePool(stake);
+  const guaranteed = getGuaranteedForStake(stake, tournament);
+  return Math.max(0, guaranteed - natural);
+};
+
+// Total guaranteed pool across ALL stakes for a tournament
+const getTotalGuaranteedPool = (tournament) => {
+  if (!tournament?.guaranteed) return STAKES.reduce((s, st) => s + getStakePool(st), 0);
+  return Math.max(
+    STAKES.reduce((s, st) => s + getStakePool(st), 0),
+    tournament.guaranteed
+  );
+};
+
+
+
+const getTiers = (tournament) => STAKES; // all tournaments same stakes
 
 const tournaments = [
-  { id:1, month:'March 2026', dates:'04-15', dateSuffix:'Mar', type:'atp1000', name:'Indian Wells', subtitle:'BNP Paribas Open', status:'live', pool:85000, entries:2156, entry:20, poolEntry:18, surface:'Hard' },
-  { id:2, month:'March 2026', dates:'18-29', dateSuffix:'Mar', type:'atp1000', name:'Miami', subtitle:'Miami Open presented by Itau', status:'open', pool:78000, entries:1892, entry:20, poolEntry:18, surface:'Hard' },
+  { id:1, month:'March 2026', dates:'04-15', dateSuffix:'Mar', type:'atp1000', name:'Indian Wells', subtitle:'BNP Paribas Open', status:'live', pool:85000, entries:2156, entry:20, poolEntry:18, surface:'Hard', guaranteed:1000000 },
+  { id:2, month:'March 2026', dates:'18-29', dateSuffix:'Mar', type:'atp1000', name:'Miami', subtitle:'Miami Open presented by Itau', status:'open', pool:78000, entries:1892, entry:20, poolEntry:18, surface:'Hard', guaranteed:1000000 },
   { id:3, month:'March 2026', dates:'30 Mar', dateSuffix:'05 Apr', type:'atp250', name:'Houston', subtitle:"U.S. Men's Clay Court Championship", status:'upcoming', pool:18000, entries:0, entry:10, poolEntry:9, surface:'Clay' },
   { id:4, month:'March 2026', dates:'30 Mar', dateSuffix:'05 Apr', type:'atp250', name:'Marrakech', subtitle:'Grand Prix Hassan II', status:'upcoming', pool:15000, entries:0, entry:10, poolEntry:9, surface:'Clay' },
-  { id:5, month:'April 2026', dates:'05-12', dateSuffix:'Apr', type:'atp1000', name:'Monte-Carlo', subtitle:'Rolex Monte-Carlo Masters', status:'upcoming', pool:65000, entries:0, entry:20, poolEntry:18, surface:'Clay' },
+  { id:5, month:'April 2026', dates:'05-12', dateSuffix:'Apr', type:'atp1000', name:'Monte-Carlo', guaranteed:1000000, subtitle:'Rolex Monte-Carlo Masters', status:'upcoming', pool:65000, entries:0, entry:20, poolEntry:18, surface:'Clay' },
   { id:6, month:'April 2026', dates:'13-19', dateSuffix:'Apr', type:'atp500', name:'Barcelona', subtitle:'Barcelona Open Banc Sabadell', status:'upcoming', pool:32000, entries:0, entry:15, poolEntry:13, surface:'Clay' },
   { id:7, month:'April 2026', dates:'13-19', dateSuffix:'Apr', type:'atp500', name:'Munich', subtitle:'BMW Open by Bitpanda', status:'upcoming', pool:28000, entries:0, entry:15, poolEntry:13, surface:'Clay' },
-  { id:8, month:'April 2026', dates:'22 Apr', dateSuffix:'03 May', type:'atp1000', name:'Madrid', subtitle:'Mutua Madrid Open', status:'upcoming', pool:72000, entries:0, entry:20, poolEntry:18, surface:'Clay' },
-  { id:9, month:'May 2026', dates:'06-17', dateSuffix:'May', type:'atp1000', name:'Rome', subtitle:"Internazionali BNL d'Italia", status:'upcoming', pool:70000, entries:0, entry:20, poolEntry:18, surface:'Clay' },
+  { id:8, month:'April 2026', dates:'22 Apr', dateSuffix:'03 May', type:'atp1000', name:'Madrid', guaranteed:1500000, subtitle:'Mutua Madrid Open', status:'upcoming', pool:72000, entries:0, entry:20, poolEntry:18, surface:'Clay' },
+  { id:9, month:'May 2026', dates:'06-17', dateSuffix:'May', type:'atp1000', name:'Rome', guaranteed:1000000, subtitle:"Internazionali BNL d'Italia", status:'upcoming', pool:70000, entries:0, entry:20, poolEntry:18, surface:'Clay' },
   { id:10, month:'May 2026', dates:'17-23', dateSuffix:'May', type:'atp500', name:'Hamburg', subtitle:'Bitpanda Hamburg Open', status:'upcoming', pool:25000, entries:0, entry:15, poolEntry:13, surface:'Clay' },
   { id:11, month:'May 2026', dates:'17-23', dateSuffix:'May', type:'atp250', name:'Geneva', subtitle:'Gonet Geneva Open', status:'upcoming', pool:14000, entries:0, entry:10, poolEntry:9, surface:'Clay' },
-  { id:12, month:'May 2026', dates:'24 May', dateSuffix:'07 Jun', type:'grandslam', name:'Paris', subtitle:'Roland Garros', status:'upcoming', pool:150000, entries:0, entry:25, poolEntry:23, surface:'Clay' },
+  { id:12, month:'May 2026', dates:'24 May', dateSuffix:'07 Jun', type:'grandslam', name:'Paris', subtitle:'Roland Garros', guaranteed:5000000, status:'upcoming', pool:150000, entries:0, entry:25, poolEntry:23, surface:'Clay' },
+  // ── FREEROLL tournaments (Feature 12) ──────────────────────────────────────
+  { id:101, month:'March 2026', dates:'18-29', dateSuffix:'Mar', type:'atp1000', name:'Miami Freeroll', subtitle:'Sponsored by Wilson - FREE entry', status:'open', pool:5000, entries:4820, entry:0, poolEntry:0, surface:'Hard', freeroll:true, sponsor:'Wilson', freerollPool:5000 },
+  { id:102, month:'April 2026', dates:'05-12', dateSuffix:'Apr', type:'atp1000', name:'Monte-Carlo Freeroll', subtitle:'Sponsored by Babolat - FREE entry', status:'upcoming', pool:3000, entries:0, entry:0, poolEntry:0, surface:'Clay', freeroll:true, sponsor:'Babolat', freerollPool:3000 },
+  { id:103, month:'May 2026', dates:'24 May', dateSuffix:'07 Jun', type:'grandslam', name:'Roland Garros Freeroll', subtitle:'New User Special - FREE entry', status:'upcoming', pool:10000, entries:0, entry:0, poolEntry:0, surface:'Clay', freeroll:true, sponsor:'mobaOne', freerollPool:10000, newUserOnly:true },
 ];
 
 const liveMatches = [
@@ -340,8 +385,8 @@ const calcPrizePool = (entries, poolEntry) => entries * poolEntry;
 // ─── LOGO ─────────────────────────────────────────────────────────────────────
 const MobaLogo = ({ size = 28, color = '#FFFFFF' }) => (
   <svg
-    width={size}
-    height={size * (85.4 / 130)}
+    width={size * (130 / 85.4)}
+    height={size}
     viewBox="0 0 130 85.4"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
@@ -358,8 +403,8 @@ const MobaLogo = ({ size = 28, color = '#FFFFFF' }) => (
 );
 
 const MobaWordmark = ({ color = '#FFFFFF', fontSize = 18 }) => (
-  <span style={{ fontSize, fontWeight: 700, color, letterSpacing: '-0.3px', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif' }}>
-    moba<span style={{ fontWeight: 300 }}>One</span>
+  <span style={{ fontSize, fontWeight: 700, color, letterSpacing: '-0.5px', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif' }}>
+    mobaOne
   </span>
 );
 
@@ -417,14 +462,105 @@ export default function App() {
   const [prizesShowAll, setPrizesShowAll] = useState(false);
   const [authMode, setAuthMode] = useState('login');
 
-  // Mock player form data
+  // ─── WAVE 2 DATA ────────────────────────────────────────────────────────────
+
+  // Extended player form + historical data (Feature 15)
   const playerFormData = {
     'C. Alcaraz': { recentForm: ['W','W','W','L','W'], hardWin: 78, clayWin: 82, grassWin: 71, rank: 1 },
     'J. Sinner': { recentForm: ['W','W','L','W','W'], hardWin: 81, clayWin: 74, grassWin: 68, rank: 2 },
     'N. Djokovic': { recentForm: ['W','L','W','W','W'], hardWin: 76, clayWin: 79, grassWin: 85, rank: 3 },
     'A. Zverev': { recentForm: ['W','W','W','W','L'], hardWin: 72, clayWin: 77, grassWin: 65, rank: 4 },
-    'D. Medvedev': { recentForm: ['L','W','W','L','W'], hardWin: 79, clayWin: 61, grassWin: 58, rank: 11 },
+    'D. Medvedev':       { recentForm: ['L','W','W','L','W'], hardWin: 79, clayWin: 61, grassWin: 58, rank: 11, qfRate: 61, titles: 1 },
+    'C. Ruud':           { recentForm: ['W','L','W','W','L'], hardWin: 62, clayWin: 79, grassWin: 44, rank: 13, qfRate: 58, titles: 0 },
+    'T. Fritz':          { recentForm: ['W','W','L','W','W'], hardWin: 71, clayWin: 55, grassWin: 63, rank: 7,  qfRate: 52, titles: 0 },
+    'A. de Minaur':      { recentForm: ['W','W','W','L','W'], hardWin: 74, clayWin: 66, grassWin: 61, rank: 6,  qfRate: 55, titles: 0 },
+    'B. Shelton':        { recentForm: ['L','W','W','W','W'], hardWin: 69, clayWin: 58, grassWin: 54, rank: 8,  qfRate: 48, titles: 0 },
+    'J. Draper':         { recentForm: ['W','W','W','W','L'], hardWin: 67, clayWin: 61, grassWin: 69, rank: 14, qfRate: 45, titles: 0 },
+    'C. Alcaraz':        { recentForm: ['W','W','W','L','W'], hardWin: 78, clayWin: 82, grassWin: 71, rank: 1,  qfRate: 81, titles: 4 },
+    'J. Sinner':         { recentForm: ['W','W','L','W','W'], hardWin: 81, clayWin: 74, grassWin: 68, rank: 2,  qfRate: 78, titles: 3 },
+    'N. Djokovic':       { recentForm: ['W','L','W','W','W'], hardWin: 76, clayWin: 79, grassWin: 85, rank: 3,  qfRate: 85, titles: 24 },
+    'A. Zverev':         { recentForm: ['W','W','W','W','L'], hardWin: 72, clayWin: 77, grassWin: 65, rank: 4,  qfRate: 72, titles: 0 },
   };
+
+  // Historical draw analysis per player per surface (Feature 15)
+  const getHistoricalAnalysis = (playerName, surface) => {
+    const form = playerFormData[playerName];
+    if (!form) return null;
+    const surfWin = surface === 'Hard' ? form.hardWin : surface === 'Clay' ? form.clayWin : form.grassWin;
+    const formStr = form.recentForm || [];
+    const wins = formStr.filter(r => r === 'W').length;
+    return {
+      surfaceWinRate: surfWin || 65,
+      recentForm: formStr,
+      recentWins: wins,
+      qfRate: form.qfRate || 50,
+      titles: form.titles || 0,
+      rank: form.rank || 50,
+    };
+  };
+
+  // What If Simulator state (Feature 5)
+  const [whatIfBracket, setWhatIfBracket] = useState(null);
+  const [aiBuilderOpen, setAiBuilderOpen] = useState(false);
+  const [aiSuggestion, setAiSuggestion] = useState(null);
+  const [aiLoading, setAiLoading] = useState(false);
+
+  // Live commentary state (Feature 4)
+  // ── WAVE 3 STATE ────────────────────────────────────────────────────────────
+  const [notifications, setNotifications] = useState([
+    { id:1, type:'points',   read:false, title:'Alcaraz wins QF!',           body:'Your pick is correct. +8 pts added to your bracket.',         time:'2m ago',  icon:'points' },
+    { id:2, type:'ranking',  read:false, title:'You climbed 15 spots!',       body:'Now ranked #112 in Indian Wells. Top 15% in sight!',           time:'8m ago',  icon:'ranking' },
+    { id:3, type:'bh',       read:false, title:'Black Horse still alive!',    body:'Medvedev beats Bublik in R16. 1.5x multiplier continues.',     time:'1h ago',  icon:'bh' },
+    { id:4, type:'lock',     read:true,  title:'Miami Open locks in 24h',     body:'Submit your bracket before the tournament starts.',            time:'3h ago',  icon:'lock' },
+    { id:5, type:'result',   read:true,  title:'Miami Open bracket ready',    body:'Draw has been released. Start building your predictions.',     time:'1d ago',  icon:'result' },
+    { id:6, type:'win',      read:true,  title:'Prize credited!',             body:'$1,250 from Indian Wells (3rd place) added to your wallet.',   time:'2d ago',  icon:'win' },
+  ]);
+  const [globalFeed, setGlobalFeed] = useState([
+    { id:1,  user:'TennisKing99',  flag:'🇺🇸', action:'won',      detail:'$4,200 - Indian Wells $50 entry',  time:'2m ago',  pts:89  },
+    { id:2,  user:'SlamMaster',    flag:'🇪🇸', action:'submitted', detail:'Roland Garros bracket ($25)',      time:'5m ago',  pts:null },
+    { id:3,  user:'ClayKing',      flag:'🇫🇷', action:'climbed',  detail:'to #3 in Miami leaderboard',       time:'12m ago', pts:null },
+    { id:4,  user:'NetRusher',     flag:'🇦🇺', action:'won',      detail:'$890 - Miami Open $10 entry',      time:'18m ago', pts:74  },
+    { id:5,  user:'AcePredictor',  flag:'🇬🇧', action:'submitted', detail:'Indian Wells bracket ($100)',     time:'25m ago', pts:null },
+    { id:6,  user:'ServeAce',      flag:'🇩🇪', action:'unlocked', detail:'Achievement: Perfect QF',          time:'31m ago', pts:null },
+    { id:7,  user:'MatchPoint',    flag:'🇮🇹', action:'won',      detail:'$12,400 - Roland Garros $250',     time:'45m ago', pts:112 },
+    { id:8,  user:'CourtKing',     flag:'🇨🇦', action:'climbed',  detail:'to #8 in Indian Wells',            time:'1h ago',  pts:null },
+    { id:9,  user:'GrandSlamPro',  flag:'🇯🇵', action:'submitted', detail:'Monte-Carlo bracket ($50)',       time:'1h ago',  pts:null },
+    { id:10, user:'TopSpinWiz',    flag:'🇧🇷', action:'won',      detail:'$38,000 - Roland Garros $1000',   time:'2h ago',  pts:156 },
+  ]);
+  const [vsOpponent, setVsOpponent] = useState(null);
+  const [sharePopup, setSharePopup] = useState(null);
+
+  // ── WAVE 4 STATE ────────────────────────────────────────────────────────────
+  const [cashbackData, setCashbackData] = useState({
+    currentMonth: 'March 2026',
+    totalRakePaid: 47,        // total rake paid this month
+    cashbackRate: 0.05,       // 5% cashback
+    cashbackEarned: 2.35,     // earned so far
+    cashbackPending: 1.20,    // from recent entries, clears in 48h
+    cashbackPaid: 1.15,       // already credited
+    tier: 'Bronze',           // Bronze/Silver/Gold/Platinum based on volume
+    nextTierAt: 100,          // rake needed for next tier
+    history: [
+      { month:'Feb 2026', rakePaid: 28, cashback: 1.40, status:'paid' },
+      { month:'Jan 2026', rakePaid: 15, cashback: 0.75, status:'paid' },
+    ],
+    tiers: [
+      { name:'Bronze',   minRake:0,   rate:0.05, color:'#92400E' },
+      { name:'Silver',   minRake:100, rate:0.07, color:'#6B7280' },
+      { name:'Gold',     minRake:300, rate:0.10, color:'#B45309' },
+      { name:'Platinum', minRake:750, rate:0.15, color:'#1D4ED8' },
+    ],
+  });
+
+  const unreadCount = notifications.filter(n => !n.read).length;
+  const markAllRead = () => setNotifications(prev => prev.map(n => ({...n, read:true})));
+
+  const [liveCommentary, setLiveCommentary] = useState([
+    { id:1, time:'2:34', type:'pick_correct', player:'C. Alcaraz', round:'QF', pts:8,  msg:'Your pick Alcaraz is winning the 3rd set 5-4!' },
+    { id:2, time:'1:52', type:'pick_correct', player:'J. Sinner',  round:'QF', pts:8,  msg:'Sinner just won in straight sets - bracket point confirmed!' },
+    { id:3, time:'0:45', type:'pick_wrong',   player:'T. Fritz',   round:'QF', pts:0,  msg:'Zverev broke Fritz in the 1st set - looking tough for your bracket.' },
+    { id:4, time:'0:12', type:'bh_alive',     player:'D. Medvedev',round:'QF', pts:12, msg:'Your Black Horse Medvedev just made it to the QF! 1.5x multiplier active!' },
+  ]);
 
   // Pick popularity mock data (% of users who picked each player per match)
   const getPickPopularity = (playerName, matchId) => {
@@ -468,10 +604,43 @@ export default function App() {
   const [userTx, setUserTx] = useState([
     {id:1,title:'Tournament Entry',desc:'Miami Open',amt:-15,date:'Today'},
     {id:2,title:'Winnings - 3rd Place',desc:'Indian Wells',amt:1250,date:'Mar 15'},
-    {id:3,title:'Deposit',desc:'Visa ····4532',amt:200,date:'Mar 12'},
+    {id:3,title:'Deposit',desc:'Visa ....4532',amt:200,date:'Mar 12'},
     {id:4,title:'Winnings - 1st Place',desc:'Dubai Championship',amt:4200,date:'Mar 8'},
   ]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // ── WAVE 1 STATE ────────────────────────────────────────────────────────────
+  const [showSplash, setShowSplash] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [onboardingStep, setOnboardingStep] = useState(0);
+
+  // Auto-hide splash after 2s, then show onboarding for new users
+  React.useEffect(() => {
+    const t = setTimeout(() => {
+      setShowSplash(false);
+      setShowOnboarding(true);
+    }, 2200);
+    return () => clearTimeout(t);
+  }, []);
+  const [achievements, setAchievements] = useState([
+    { id:'first_bracket', title:'First Pick', desc:'Submit your first bracket', icon:'🎾', earned:true,  earnedAt:'Mar 10' },
+    { id:'black_horse',   title:'Dark Horse', desc:'Pick a Black Horse correctly', icon:'🐴', earned:true,  earnedAt:'Mar 12' },
+    { id:'high_roller',   title:'High Roller', desc:'Enter a $500+ buy-in', icon:'👑', earned:false, earnedAt:null },
+    { id:'perfect_qf',    title:'Perfect QF', desc:'Predict all QF matches correctly', icon:'🎯', earned:false, earnedAt:null },
+    { id:'streak_5',      title:'On Fire', desc:'Enter 5 tournaments in a row', icon:'🔥', earned:false, earnedAt:null },
+    { id:'bh_winner',     title:'BH Champion', desc:'Your Black Horse wins the title', icon:'🏆', earned:false, earnedAt:null },
+    { id:'top_10',        title:'Top 10', desc:'Finish in top 10 of any tournament', icon:'*', earned:false, earnedAt:null },
+    { id:'millionaire',   title:'Millionaire Pool', desc:'Enter a $1M GTD tournament', icon:'💰', earned:true,  earnedAt:'Mar 15' },
+  ]);
+  const [dailyChallenges, setDailyChallenges] = useState([
+    { id:'dc1', title:'Upset Special', desc:'Pick at least 3 unseeded players to win their R1 match', reward:'+50 bonus pts', active:true,  completed:false, expires:'23:41:00' },
+    { id:'dc2', title:'All-Favorites', desc:'Pick the top seed to win every match in QF bracket', reward:'+30 bonus pts', active:true,  completed:false, expires:'23:41:00' },
+    { id:'dc3', title:'Surface Expert', desc:'Submit a bracket for a clay court tournament', reward:'+20 bonus pts', active:false, completed:true,  expires:null },
+  ]);
+  const [lockTimers, setLockTimers] = useState({
+    1: { hours: 0, minutes: 0, seconds: 0, locked: true },
+    2: { hours: 47, minutes: 23, seconds: 11, locked: false },
+  });
   const [authEmail, setAuthEmail] = useState('');
   const [authPassword, setAuthPassword] = useState('');
   const [authName, setAuthName] = useState('');
@@ -555,7 +724,9 @@ export default function App() {
               <ChevronLeft size={24} color="#fff"/>
             </button>
           ) : (
-            <MobaLogo size={28} color="#fff"/>
+            <button onClick={()=>setView('bracket')} style={{background:'none',border:'none',cursor:'pointer',padding:0,display:'flex',alignItems:'center'}}>
+              <MobaLogo size={24} color="#fff"/>
+            </button>
           )}
         </div>
 
@@ -579,11 +750,16 @@ export default function App() {
               <circle cx="12" cy="17" r="1" fill="#fff"/>
             </svg>
           </button>
-          <button onClick={()=>setModal('chat')} style={{background:'none',border:'none',cursor:'pointer',padding:4,position:'relative'}}>
+          <button onClick={()=>setModal('notifications')} style={{background:'none',border:'none',cursor:'pointer',padding:4,position:'relative'}}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.5">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
             </svg>
-            <div style={{position:'absolute',top:2,right:2,width:8,height:8,borderRadius:4,background:'#3B82F6'}}/>
+            {unreadCount > 0 && (
+              <div style={{position:'absolute',top:1,right:1,minWidth:16,height:16,borderRadius:8,background:'#EF4444',display:'flex',alignItems:'center',justifyContent:'center',padding:'0 3px'}}>
+                <span style={{fontSize:9,fontWeight:800,color:'#fff'}}>{unreadCount}</span>
+              </div>
+            )}
           </button>
           {!showBack && (
             <button onClick={()=>setModal(isLoggedIn?'profile':'auth')} style={{background:'none',border:'none',cursor:'pointer',padding:4}}>
@@ -596,7 +772,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* Balance bar — shown when logged in */}
+      {/* Balance bar - shown when logged in */}
       {isLoggedIn && !showBack && (
         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginTop:12,paddingTop:12,borderTop:'1px solid rgba(255,255,255,0.1)'}}>
           <span style={{fontSize:13,fontWeight:500,color:'#fff'}}>{user.name}</span>
@@ -648,14 +824,14 @@ export default function App() {
                   minWidth: 56,
                 }}>
                 {item.isLogo
-                  ? <MobaLogo size={24} color={active ? iconActive : iconInactive}/>
-                  : <item.icon size={24} color={active ? iconActive : iconInactive} strokeWidth={active ? 2 : 1.5}/>
+                  ? <MobaLogo size={18} color={active ? iconActive : iconInactive}/>
+                  : <item.icon size={20} color={active ? iconActive : iconInactive} strokeWidth={active ? 2 : 1.5}/>
                 }
                 <span style={{
                   fontSize: 10,
                   fontWeight: active ? 600 : 400,
                   color: active ? labelActive : labelInactive,
-                  marginTop: 3,
+                  marginTop: 2,
                 }}>
                   {item.label}
                 </span>
@@ -705,16 +881,16 @@ export default function App() {
         <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
           {bracket.blackHorse && (
             <div style={{display:'flex',alignItems:'center',gap:4,padding:'4px 8px',borderRadius:6,background:bracket.blackHorseAlive?`${C.orange}18`:C.bgLight,border:`1px solid ${bracket.blackHorseAlive?C.orange:C.border}`}}>
-              <span style={{fontSize:10}}>🐴</span>
+              <Shield size={10} color={C.orange}/>
               <span style={{fontSize:10,fontWeight:600,color:bracket.blackHorseAlive?C.orange:C.textMuted}}>
-                {bracket.blackHorse.name} {bracket.blackHorseAlive?'• Still in!':'• Eliminated'}
+                {bracket.blackHorse.name} {bracket.blackHorseAlive?'Still in!':'* Eliminated'}
               </span>
             </div>
           )}
           <div style={{display:'flex',alignItems:'center',gap:4,padding:'4px 8px',borderRadius:6,background:inPrize?C.greenLight:C.bgLight,border:`1px solid ${inPrize?C.green:C.border}`}}>
             <Trophy size={10} color={inPrize?C.green:C.textMuted}/>
             <span style={{fontSize:10,fontWeight:600,color:inPrize?C.green:C.textMuted}}>
-              {inPrize?'In Prize Zone 🎉':`Top 15% at #${Math.floor(total*0.15)}`}
+              {inPrize?'In Prize Zone':`Top 15% at #${Math.floor(total*0.15)}`}
             </span>
           </div>
         </div>
@@ -728,7 +904,7 @@ export default function App() {
     const total = leaderboardBracket.tournament.entries || 2156;
     const me = mockLeaderboard.find(p=>p.isYou);
     return (
-      <ModalWrap title={`${leaderboardBracket.tournament.name} — Leaderboard`} onClose={()=>setLeaderboardBracket(null)} full>
+      <ModalWrap title={`${leaderboardBracket.tournament.name} - Leaderboard`} onClose={()=>setLeaderboardBracket(null)} full>
         <div>
           <div style={{background:C.headerBg,padding:'16px 20px'}}>
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
@@ -766,7 +942,7 @@ export default function App() {
               const ch = p.prevRank-p.rank;
               return (
                 <div key={p.rank} style={{display:'flex',alignItems:'center',padding:'12px 16px',borderBottom:`1px solid ${C.border}`,background:p.isYou?`${C.accent}10`:C.card}}>
-                  <span style={{width:44,fontSize:14,fontWeight:700,color:p.rank<=3?C.orange:C.navy}}>{p.rank===1?'🥇':p.rank===2?'🥈':p.rank===3?'🥉':p.rank}</span>
+                  <span style={{width:44,fontSize:14,fontWeight:700,color:p.rank<=3?C.orange:C.navy}}>{p.rank===1?'1st':p.rank===2?'2nd':p.rank===3?'3rd':p.rank}</span>
                   <div style={{flex:1,display:'flex',alignItems:'center',gap:8}}>
                     <span style={{fontSize:15}}>{p.flag}</span>
                     <div>
@@ -775,14 +951,14 @@ export default function App() {
                     </div>
                   </div>
                   <div style={{width:36,display:'flex',justifyContent:'center'}}>
-                    {ch>0?<span style={{fontSize:11,fontWeight:600,color:C.green,display:'flex',alignItems:'center',gap:1}}><ArrowUp size={11}/>{ch}</span>:ch<0?<span style={{fontSize:11,fontWeight:600,color:C.red,display:'flex',alignItems:'center',gap:1}}><ArrowDown size={11}/>{Math.abs(ch)}</span>:<span style={{fontSize:11,color:C.textMuted}}>—</span>}
+                    {ch>0?<span style={{fontSize:11,fontWeight:600,color:C.green,display:'flex',alignItems:'center',gap:1}}><ArrowUp size={11}/>{ch}</span>:ch<0?<span style={{fontSize:11,fontWeight:600,color:C.red,display:'flex',alignItems:'center',gap:1}}><ArrowDown size={11}/>{Math.abs(ch)}</span>:<span style={{fontSize:11,color:C.textMuted}}>-</span>}
                   </div>
                   <span style={{width:48,fontSize:14,fontWeight:700,color:C.navy,textAlign:'right'}}>{p.pts}</span>
                 </div>
               );
             })}
             <div style={{display:'flex',alignItems:'center',padding:'8px 16px',gap:8}}>
-              <div style={{flex:1,height:1,background:C.border}}/><span style={{fontSize:11,color:C.textMuted}}>···</span><div style={{flex:1,height:1,background:C.border}}/>
+              <div style={{flex:1,height:1,background:C.border}}/><span style={{fontSize:11,color:C.textMuted}}>...</span><div style={{flex:1,height:1,background:C.border}}/>
             </div>
             {mockLeaderboard.filter(p=>p.rank>=120&&p.rank<=135).map(p=>{
               const ch = p.prevRank-p.rank;
@@ -792,12 +968,12 @@ export default function App() {
                   <div style={{flex:1,display:'flex',alignItems:'center',gap:8}}>
                     <span style={{fontSize:15}}>{p.flag}</span>
                     <div>
-                      <p style={{fontSize:14,fontWeight:p.isYou?700:500,color:p.isYou?C.accentText:C.navy,margin:0}}>{p.name}{p.isYou&&<span style={{fontSize:10}}> 👈 You</span>}</p>
+                      <p style={{fontSize:14,fontWeight:p.isYou?700:500,color:p.isYou?C.accentText:C.navy,margin:0}}>{p.name}{p.isYou&&<span style={{fontSize:10}}>  You</span>}</p>
                       <p style={{fontSize:10,color:C.textMuted,margin:'1px 0 0'}}>R128:{p.r128} R64:{p.r64} R32:{p.r32} R16:{p.r16} QF:{p.qf}</p>
                     </div>
                   </div>
                   <div style={{width:36,display:'flex',justifyContent:'center'}}>
-                    {ch>0?<span style={{fontSize:11,fontWeight:600,color:C.green,display:'flex',alignItems:'center',gap:1}}><ArrowUp size={11}/>{ch}</span>:ch<0?<span style={{fontSize:11,fontWeight:600,color:C.red,display:'flex',alignItems:'center',gap:1}}><ArrowDown size={11}/>{Math.abs(ch)}</span>:<span style={{fontSize:11,color:C.textMuted}}>—</span>}
+                    {ch>0?<span style={{fontSize:11,fontWeight:600,color:C.green,display:'flex',alignItems:'center',gap:1}}><ArrowUp size={11}/>{ch}</span>:ch<0?<span style={{fontSize:11,fontWeight:600,color:C.red,display:'flex',alignItems:'center',gap:1}}><ArrowDown size={11}/>{Math.abs(ch)}</span>:<span style={{fontSize:11,color:C.textMuted}}>-</span>}
                   </div>
                   <span style={{width:48,fontSize:14,fontWeight:700,color:p.isYou?C.accentText:C.navy,textAlign:'right'}}>{p.pts}</span>
                 </div>
@@ -826,7 +1002,7 @@ export default function App() {
                   <span style={{fontSize:10,fontWeight:600,color:activeTournament.status==='live'?C.red:C.green,background:activeTournament.status==='live'?C.redLight:C.greenLight,padding:'2px 6px',borderRadius:4}}>{activeTournament.status.toUpperCase()}</span>
                 </div>
                 <h3 style={{fontSize:17,fontWeight:700,color:C.navy,margin:'6px 0 2px'}}>{activeTournament.name}</h3>
-                <p style={{fontSize:11,color:C.textMuted,margin:0}}>{activeTournament.dates} {activeTournament.dateSuffix} • {activeTournament.surface}</p>
+                <p style={{fontSize:11,color:C.textMuted,margin:0}}>{activeTournament.dates} {activeTournament.dateSuffix} * {activeTournament.surface}</p>
               </div>
             </div>
             <div style={{display:'flex',padding:'10px 14px',background:C.bgLight}}>
@@ -845,22 +1021,41 @@ export default function App() {
           </div>
         </div>
 
+        {/* Daily Challenge Banner */}
+        {dailyChallenges.some(c=>c.active&&!c.completed) && (
+          <button onClick={()=>setModal('challenges')} style={{width:'100%',background:`${C.accent}10`,borderTop:`1px solid ${C.accent}30`,borderBottom:`1px solid ${C.accent}30`,border:'none',padding:'10px 16px',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+            <div style={{display:'flex',alignItems:'center',gap:8}}>
+              <Target size={16} color={C.accentText}/>
+              <span style={{fontSize:13,fontWeight:600,color:C.accentText}}>
+                {dailyChallenges.filter(c=>c.active&&!c.completed).length} Daily Challenge{dailyChallenges.filter(c=>c.active&&!c.completed).length>1?'s':''} available
+              </span>
+            </div>
+            <span style={{fontSize:12,color:C.accentText}}>View &rsaquo;</span>
+          </button>
+        )}
+
         <div style={{background:C.card,padding:'12px 16px',borderBottom:`1px solid ${C.border}`}}>
-          <div style={{display:'flex',justifyContent:'space-between',marginBottom:6}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
             <span style={{fontSize:12,fontWeight:500,color:C.navy}}>Bracket Progress</span>
             <span style={{fontSize:12,fontWeight:600,color:C.accentText}}>{progress}%</span>
           </div>
           <div style={{height:5,background:C.bgLight,borderRadius:3}}>
             <div style={{height:'100%',width:`${progress}%`,background:C.accent,borderRadius:3,transition:'width 0.3s'}}/>
           </div>
-          <p style={{fontSize:10,color:C.textMuted,margin:'6px 0 0'}}>{completedPicks} of {totalPicks} picks made</p>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginTop:8}}>
+            <p style={{fontSize:10,color:C.textMuted,margin:0}}>{completedPicks} of {totalPicks} picks made</p>
+            <button onClick={()=>setModal('aibuilder')} style={{display:'flex',alignItems:'center',gap:5,background:`${C.accent}12`,border:`1px solid ${C.accent}30`,borderRadius:6,padding:'4px 10px',cursor:'pointer'}}>
+              <Bot size={13} color={C.accentText}/>
+              <span style={{fontSize:11,fontWeight:600,color:C.accentText}}>AI Strategy</span>
+            </button>
+          </div>
         </div>
 
         <div style={{background:C.card,padding:16,borderBottom:`1px solid ${C.border}`}}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
             <div>
               <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:4}}>
-                <span style={{fontSize:14,fontWeight:600,color:C.navy}}>🐴 Black Horse</span>
+                <div style={{display:"flex",alignItems:"center",gap:6}}><Shield size={14} color={C.orange}/><span style={{fontSize:14,fontWeight:600,color:C.navy}}>Black Horse</span></div>
                 <span style={{fontSize:10,fontWeight:600,color:C.orange,background:`${C.orange}18`,padding:'2px 6px',borderRadius:4}}>1.5x POINTS</span>
               </div>
               <p style={{fontSize:12,color:C.textMuted,margin:0}}>Pick a player for bonus points</p>
@@ -904,13 +1099,7 @@ export default function App() {
                           <div style={{flex:1,textAlign:'left',minWidth:0}}>
                             <span style={{fontSize:14,fontWeight:500,color:C.navy,display:'block',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{player.name}</span>
                             <span style={{fontSize:10,color:C.textMuted}}>{getPickPopularity(player.name, match.id)}% picked</span>
-                            {playerFormData[player.name] && (
-                              <span style={{display:'inline-flex',gap:2,marginLeft:6}}>
-                                {playerFormData[player.name].recentForm.map((r,i) => (
-                                  <span key={i} style={{width:6,height:6,borderRadius:3,background:r==='W'?C.green:C.red,display:'inline-block'}}/>
-                                ))}
-                              </span>
-                            )}
+                            <PlayerHistoryBadge playerName={player.name} surface={activeTournament?.surface}/>
                           </div>
                           {player.seed&&<span style={{fontSize:11,color:C.textMuted,marginLeft:6,flexShrink:0}}>[{player.seed}]</span>}
                           {predictions[match.id]?.id===player?.id&&<Check size={18} color={C.accentText} style={{marginLeft:8,flexShrink:0}}/>}
@@ -962,6 +1151,13 @@ export default function App() {
   const LiveView = () => (
     <div style={{background:C.bg,minHeight:'100vh'}}>
       <AppHeader title="Live Scores" showBack/>
+      <button onClick={()=>setModal('globalfeed')} style={{width:'100%',background:`${C.accent}10`,border:'none',borderBottom:`1px solid ${C.accent}30`,padding:'10px 16px',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+        <div style={{display:'flex',alignItems:'center',gap:8}}>
+          <div style={{width:7,height:7,borderRadius:4,background:C.red,animation:'pulse 2s infinite'}}/>
+          <span style={{fontSize:13,fontWeight:600,color:C.accentText}}>Global Feed - live player activity</span>
+        </div>
+        <span style={{fontSize:12,color:C.accentText}}>View &rsaquo;</span>
+      </button>
       <TabBar tabs={[{id:'live',label:'Live'},{id:'completed',label:'Completed'},{id:'upcoming',label:'Upcoming'}]} active={liveTab} onChange={setLiveTab} light/>
       <div style={{padding:16}}>
         {liveTab==='live'&&liveMatches.map(m=>(
@@ -989,7 +1185,7 @@ export default function App() {
         ))}
         {liveTab==='completed'&&completedMatches.map(m=>(
           <div key={m.id} style={{background:C.card,borderRadius:12,marginBottom:12,border:`1px solid ${C.border}`,padding:16}}>
-            <div style={{display:'flex',justifyContent:'space-between',marginBottom:12}}><span style={{fontSize:13,color:C.textMuted}}>{m.tournament} • {m.round}</span><span style={{fontSize:12,color:C.textMuted}}>{m.duration}</span></div>
+            <div style={{display:'flex',justifyContent:'space-between',marginBottom:12}}><span style={{fontSize:13,color:C.textMuted}}>{m.tournament} * {m.round}</span><span style={{fontSize:12,color:C.textMuted}}>{m.duration}</span></div>
             {[m.p1,m.p2].map((p,pi)=>(
               <div key={pi} style={{display:'flex',alignItems:'center',marginBottom:pi===0?10:0}}>
                 <span style={{fontSize:18,marginRight:10}}>{p.flag}</span><span style={{flex:1,fontSize:15,fontWeight:p.winner?600:400,color:p.winner?C.navy:C.textMid}}>{p.name}</span>
@@ -1001,7 +1197,7 @@ export default function App() {
         ))}
         {liveTab==='upcoming'&&upcomingMatches.map(m=>(
           <div key={m.id} style={{background:C.card,borderRadius:12,marginBottom:12,border:`1px solid ${C.border}`,padding:16}}>
-            <div style={{display:'flex',justifyContent:'space-between',marginBottom:12}}><span style={{fontSize:13,color:C.textMuted}}>{m.tournament} • {m.round}</span><span style={{fontSize:14,fontWeight:600,color:C.accentText}}>{m.time}</span></div>
+            <div style={{display:'flex',justifyContent:'space-between',marginBottom:12}}><span style={{fontSize:13,color:C.textMuted}}>{m.tournament} * {m.round}</span><span style={{fontSize:14,fontWeight:600,color:C.accentText}}>{m.time}</span></div>
             {[m.p1,m.p2].map((p,pi)=>(
               <div key={pi} style={{display:'flex',alignItems:'center',marginBottom:pi===0?10:0}}>
                 <span style={{fontSize:18,marginRight:10}}>{p.flag}</span><span style={{flex:1,fontSize:15,fontWeight:500,color:C.navy}}>{p.name}</span><span style={{fontSize:12,color:C.textMuted}}>[{p.seed}]</span>
@@ -1030,16 +1226,30 @@ export default function App() {
             {h2hOpponent && (
               <div style={{background:C.headerBg,borderRadius:12,padding:16,marginBottom:16}}>
                 <div style={{display:'flex',alignItems:'center',gap:10}}>
-                  <span style={{fontSize:24}}>⚔️</span>
+                  <span style={{fontSize:24}}>x</span>
                   <div style={{flex:1}}>
                     <p style={{fontSize:14,fontWeight:700,color:'#fff',margin:0}}>H2H Challenge Active!</p>
-                    <p style={{fontSize:12,color:'rgba(255,255,255,0.7)',margin:'2px 0 0'}}>vs {h2hOpponent.name} • Indian Wells</p>
+                    <p style={{fontSize:12,color:'rgba(255,255,255,0.7)',margin:'2px 0 0'}}>vs {h2hOpponent.name} * Indian Wells</p>
                   </div>
                   <button onClick={()=>setH2hOpponent(null)} style={{background:'rgba(255,255,255,0.15)',border:'none',borderRadius:8,padding:'6px 10px',cursor:'pointer'}}>
                     <span style={{fontSize:12,color:'#fff'}}>Cancel</span>
                   </button>
                 </div>
               </div>
+            )}
+            {/* Freeroll Banner */}
+            {calendarTab === 'all' && (
+              <button onClick={()=>setModal('freeroll')}
+                style={{width:'100%',background:'linear-gradient(135deg,#064E3B,#047857)',borderRadius:12,padding:14,marginBottom:14,border:'none',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                <div style={{display:'flex',alignItems:'center',gap:10}}>
+                  <Gift size={22} color="#fff"/>
+                  <div style={{textAlign:'left'}}>
+                    <p style={{fontSize:14,fontWeight:700,color:'#fff',margin:0}}>Freeroll Tournaments</p>
+                    <p style={{fontSize:11,color:'rgba(255,255,255,0.75)',margin:'2px 0 0'}}>FREE entry - real prize pools up to $10,000</p>
+                  </div>
+                </div>
+                <span style={{fontSize:20,fontWeight:800,color:'#FCD34D'}}>FREE</span>
+              </button>
             )}
             {myBrackets.length===0?(
               <div style={{background:C.card,borderRadius:12,padding:32,textAlign:'center',border:`1px solid ${C.border}`}}>
@@ -1079,7 +1289,7 @@ export default function App() {
                     </div>
                     {bracket.blackHorse&&(
                       <div style={{flex:1}}>
-                        <p style={{fontSize:10,color:C.orange,margin:'0 0 6px'}}>🐴 BLACK HORSE</p>
+                        <div style={{display:"flex",alignItems:"center",gap:4,marginBottom:6}}><Shield size={10} color={C.orange}/><p style={{fontSize:10,color:C.orange,margin:0}}>BLACK HORSE</p></div>
                         <div style={{display:'flex',alignItems:'center',gap:8}}>
                           <span style={{fontSize:24}}>{bracket.blackHorse.flag}</span>
                           <div><p style={{fontSize:14,fontWeight:600,color:C.navy,margin:0}}>{bracket.blackHorse.name}</p><p style={{fontSize:11,color:C.orange,margin:0}}>1.5x pts</p></div>
@@ -1089,7 +1299,14 @@ export default function App() {
                   </div>
                 </div>
                 {bracket.status==='active'&&bracket.tournament.status==='live'&&(
-                  <div style={{padding:'0 16px 16px'}}><LiveRankingCard bracket={bracket}/></div>
+                  <div style={{padding:'0 16px 16px'}}>
+                    <LiveRankingCard bracket={bracket}/>
+                    <button onClick={()=>setModal('commentary')} style={{width:'100%',marginTop:8,padding:'8px 14px',borderRadius:8,background:`${C.red}10`,border:`1px solid ${C.red}30`,cursor:'pointer',display:'flex',alignItems:'center',gap:8}}>
+                      <div style={{width:7,height:7,borderRadius:4,background:C.red,animation:'pulse 2s infinite'}}/>
+                      <span style={{fontSize:12,fontWeight:600,color:C.red}}>Live Commentary</span>
+                      <span style={{fontSize:12,color:C.textMuted,marginLeft:'auto'}}>{liveCommentary.length} updates</span>
+                    </button>
+                  </div>
                 )}
                 <div style={{padding:'12px 16px',display:'flex',gap:16,borderTop:`1px solid ${C.border}`}}>
                   {[['Entry',`$${bracket.tournament.entry}`,C.navy],['Pool',`$${bracket.tournament.pool?.toLocaleString('en-US')}`,C.accent],['Points',bracket.points,C.green]].map(([l,v,col])=>(
@@ -1129,20 +1346,28 @@ export default function App() {
                           </div>
                           <h3 style={{fontSize:16,fontWeight:600,color:C.navy,margin:'0 0 2px'}}>{t.name}</h3>
                           <p style={{fontSize:13,color:C.textMuted,margin:0}}>{t.subtitle}</p>
-                          {t.pool>0&&(
-                            <div style={{display:'flex',alignItems:'center',gap:8,marginTop:8}}>
-                              <span style={{fontSize:11,fontWeight:600,color:C.accentText,background:`${C.accent}18`,padding:'4px 8px',borderRadius:4}}>${t.pool.toLocaleString('en-US')}</span>
-                              {(t.status==='live'||t.status==='open') && !myBrackets.some(b=>b.tournament.id===t.id) && (
-                                <span style={{fontSize:10,fontWeight:600,color:C.textMuted,background:C.bgLight,padding:'4px 8px',borderRadius:4}}>
-                                  ${getTiers(t)[0].entry}–${getTiers(t)[2].entry}
-                                </span>
-                              )}
-                              {t.status==='live'&&<span style={{fontSize:10,fontWeight:600,color:C.red,background:C.redLight,padding:'4px 8px',borderRadius:4}}>LIVE</span>}
-                              {t.status==='live'&&<span style={{fontSize:10,fontWeight:600,color:'#92400E',background:'#FEF3C7',padding:'4px 8px',borderRadius:4}}>LOCKED</span>}
-                              {t.status==='open'&&<span style={{fontSize:10,fontWeight:600,color:C.green,background:C.greenLight,padding:'4px 8px',borderRadius:4}}>OPEN</span>}
-                              {entered&&<span style={{fontSize:10,fontWeight:600,color:C.accentText,background:`${C.accent}18`,padding:'4px 8px',borderRadius:4}}>ENTERED</span>}
+                          <div style={{marginTop:8}}>
+                            {/* Row 1: status only */}
+                            <div style={{display:'flex',alignItems:'center',gap:5,marginBottom:4}}>
+                              {t.status==='live'&&<span style={{fontSize:10,fontWeight:600,color:C.red,background:C.redLight,padding:'2px 6px',borderRadius:4}}>LIVE</span>}
+                              {t.status==='open'&&<span style={{fontSize:10,fontWeight:600,color:C.green,background:C.greenLight,padding:'2px 6px',borderRadius:4}}>OPEN</span>}
+                              {entered&&<span style={{fontSize:10,fontWeight:600,color:C.accentText,background:`${C.accent}18`,padding:'2px 6px',borderRadius:4}}>ENTERED</span>}
+                              <LockTimerBadge tournament={t}/>
                             </div>
-                          )}
+                            {/* Row 2: prize pool + entry range */}
+                            <div style={{display:'flex',alignItems:'center',gap:5}}>
+                              {t.guaranteed ? (
+                                <span style={{fontSize:10,fontWeight:700,color:'#92400E',background:'#FEF3C7',padding:'2px 6px',borderRadius:4}}>
+                                  ${t.guaranteed>=1000000?(t.guaranteed/1000000).toFixed(t.guaranteed%1000000===0?0:1)+'M':(t.guaranteed/1000).toFixed(0)+'K'} GTD
+                                </span>
+                              ) : t.pool>0 ? (
+                                <span style={{fontSize:10,fontWeight:600,color:C.accentText,background:`${C.accent}18`,padding:'2px 6px',borderRadius:4}}>${t.pool.toLocaleString('en-US')}</span>
+                              ) : null}
+                              {(t.status==='live'||t.status==='open')&&!entered&&(
+                                <span style={{fontSize:10,color:C.textMuted,padding:'2px 6px',borderRadius:4,border:`1px solid ${C.border}`}}>$1 - $1,000</span>
+                              )}
+                            </div>
+                          </div>
                         </div>
                         <div style={{display:'flex',alignItems:'center',gap:10}}>
                           {(t.status==='live'||t.status==='open')&&!entered&&(
@@ -1183,7 +1408,7 @@ export default function App() {
       <div style={{background:C.card,paddingBottom:100}}>
         {rankings.map(p=>(
           <div key={p.rank} onClick={()=>setSelPlayer(p)} style={{display:'flex',alignItems:'center',padding:'12px 16px',borderBottom:`1px solid ${C.border}`,cursor:'pointer'}}>
-            <span style={{width:45,fontSize:15,fontWeight:600,color:p.rank<=3?C.orange:C.navy}}>{p.rank<=3?['🥇','🥈','🥉'][p.rank-1]:p.rank}</span>
+            <span style={{width:45,fontSize:15,fontWeight:600,color:p.rank<=3?C.orange:C.navy}}>{p.rank<=3?['1st','2nd','3rd'][p.rank-1]:p.rank}</span>
             <div style={{flex:1,display:'flex',alignItems:'center',gap:8}}>
               <div style={{width:34,height:34,borderRadius:17,background:p.rank<=3?`${C.orange}20`:C.accentLight,display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:600,color:p.rank<=3?C.orange:C.accent}}>{p.name[0]}</div>
               <span style={{fontSize:15}}>{p.flag}</span>
@@ -1202,7 +1427,7 @@ export default function App() {
     <div style={{background:C.bg,minHeight:'100vh'}}>
       <div style={{background:C.headerBg,padding:20}}>
         <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20}}>
-          <MobaLogo size={28} color="#fff"/>
+          <MobaLogo size={24} color="#fff"/>
           <MobaWordmark color="#fff" fontSize={20}/>
         </div>
         <p style={{fontSize:13,color:'rgba(255,255,255,0.7)',margin:'0 0 4px'}}>Available Balance</p>
@@ -1317,8 +1542,8 @@ export default function App() {
                 Withdraw All (${balance.toLocaleString('en-US')})
               </button>
               <div style={{background:C.accentLight,border:`2px solid ${C.accent}`,borderRadius:10,padding:14,marginBottom:16,display:'flex',alignItems:'center',gap:12}}>
-                <div style={{width:40,height:40,borderRadius:8,background:C.accent,display:'flex',alignItems:'center',justifyContent:'center'}}><span style={{fontSize:18}}>🏦</span></div>
-                <div><p style={{fontSize:14,fontWeight:600,color:C.navy,margin:0}}>Bank Account</p><p style={{fontSize:12,color:C.textMuted,margin:'2px 0 0'}}>····7891</p></div>
+                <div style={{width:40,height:40,borderRadius:8,background:C.accent,display:'flex',alignItems:'center',justifyContent:'center'}}><DollarSign size={16} color="#fff"/></div>
+                <div><p style={{fontSize:14,fontWeight:600,color:C.navy,margin:0}}>Bank Account</p><p style={{fontSize:12,color:C.textMuted,margin:'2px 0 0'}}>....7891</p></div>
                 <Check size={20} color={C.accentText} style={{marginLeft:'auto'}}/>
               </div>
               <Btn primary full disabled={!ok} onClick={()=>setWithdrawStep(2)}>Continue</Btn>
@@ -1326,13 +1551,13 @@ export default function App() {
           ):(
             <>
               <div style={{background:C.bgLight,borderRadius:12,padding:16,marginBottom:20}}>
-                {[['Amount',`$${parseFloat(withdrawAmt).toLocaleString('en-US')}`],['Fee','$0.00'],['To','Bank ····7891']].map(([k,v])=>(
+                {[['Amount',`$${parseFloat(withdrawAmt).toLocaleString('en-US')}`],['Fee','$0.00'],['To','Bank ....7891']].map(([k,v])=>(
                   <div key={k} style={{display:'flex',justifyContent:'space-between',marginBottom:12}}><span style={{color:C.textMuted}}>{k}</span><span style={{fontWeight:600,color:C.navy}}>{v}</span></div>
                 ))}
                 <div style={{height:1,background:C.border,margin:'0 0 12px'}}/>
                 <div style={{display:'flex',justifyContent:'space-between'}}><span style={{fontWeight:500,color:C.navy}}>You'll receive</span><span style={{fontWeight:700,fontSize:20,color:C.green}}>${parseFloat(withdrawAmt).toLocaleString('en-US')}</span></div>
               </div>
-              <div style={{display:'flex',gap:12}}><Btn onClick={()=>setWithdrawStep(1)} style={{flex:1}}>Back</Btn><Btn primary onClick={()=>{setBalance(balance-parseFloat(withdrawAmt));setUserTx([{id:Date.now(),title:'Withdrawal',desc:'Bank ····7891',amt:-parseFloat(withdrawAmt),date:'Just now'},...userTx]);setWithdrawStep(3);}} style={{flex:2}}>Confirm</Btn></div>
+              <div style={{display:'flex',gap:12}}><Btn onClick={()=>setWithdrawStep(1)} style={{flex:1}}>Back</Btn><Btn primary onClick={()=>{setBalance(balance-parseFloat(withdrawAmt));setUserTx([{id:Date.now(),title:'Withdrawal',desc:'Bank ....7891',amt:-parseFloat(withdrawAmt),date:'Just now'},...userTx]);setWithdrawStep(3);}} style={{flex:2}}>Confirm</Btn></div>
             </>
           )}
         </div>
@@ -1341,7 +1566,11 @@ export default function App() {
   };
 
   const SubmitModal = () => {
-    const fee = selectedTier?.entry || activeTournament.entry;
+    const stakeEntry = selectedTier?.entry || activeTournament.entry;
+    const stakePool = selectedTier ? getStakePool(selectedTier) : calcPrizePool(activeTournament.entries||1, activeTournament.poolEntry||activeTournament.entry);
+    const fee = stakeEntry;
+    const rake = selectedTier?.rake || 0;
+    const netPool = selectedTier ? selectedTier.poolEntry : (activeTournament.poolEntry || activeTournament.entry);
     const can = balance >= fee;
     const champion = predictions[`r${totalRounds-1}-m0`];
     const existingCount = getBracketCount(activeTournament.id);
@@ -1360,7 +1589,7 @@ export default function App() {
           <p style={{fontSize:15,color:C.textMuted}}>Good luck in {activeTournament.name}!</p>
           {earlyBonus > 0 && (
             <div style={{background:`${C.green}18`,border:`1px solid ${C.green}`,borderRadius:10,padding:12,marginTop:16,display:'flex',alignItems:'center',gap:8,justifyContent:'center'}}>
-              <span style={{fontSize:18}}>⚡</span>
+              <span style={{fontSize:18}}></span>
               <span style={{fontSize:13,fontWeight:600,color:C.green}}>Early Bird Bonus: +{earlyBonus} pts added!</span>
             </div>
           )}
@@ -1373,14 +1602,35 @@ export default function App() {
               </div>
             </div>
           )}
+          {/* Achievement unlock notification */}
+          {existingCount === 0 && (
+            <div style={{background:`${C.green}15`,border:`1px solid ${C.green}`,borderRadius:10,padding:12,marginTop:12,display:'flex',alignItems:'center',gap:10}}>
+              <Award size={20} color={C.green}/>
+              <div>
+                <p style={{fontSize:13,fontWeight:700,color:C.green,margin:0}}>Achievement Unlocked!</p>
+                <p style={{fontSize:11,color:C.green,margin:'2px 0 0',opacity:0.8}}>First Pick - Submit your first bracket</p>
+              </div>
+            </div>
+          )}
           {existingCount < MAX_BRACKETS_PER_TOURNAMENT - 1 && (
             <div style={{background:C.bgLight,borderRadius:10,padding:12,marginTop:16}}>
               <p style={{fontSize:12,color:C.textMuted,margin:0}}>
-                💡 You can submit up to {MAX_BRACKETS_PER_TOURNAMENT} brackets per tournament
+                You can submit up to {MAX_BRACKETS_PER_TOURNAMENT} brackets per tournament
               </p>
             </div>
           )}
-          <Btn primary full onClick={() => { setModal(null); setPredictions({}); setBracketName(''); setView('calendar'); setCalendarTab('my'); }} style={{marginTop:24}}>
+          {/* Push notification opt-in */}
+          <div style={{background:C.bgLight,borderRadius:12,padding:14,marginTop:16,display:'flex',alignItems:'center',gap:12}}>
+            <Bell size={22} color={C.accentText}/>
+            <div style={{flex:1}}>
+              <p style={{fontSize:13,fontWeight:600,color:C.navy,margin:0}}>Enable Push Notifications</p>
+              <p style={{fontSize:11,color:C.textMuted,margin:'2px 0 0'}}>Get live updates when your picks win</p>
+            </div>
+            <button style={{padding:'6px 12px',borderRadius:8,background:C.accent,border:'none',cursor:'pointer'}}>
+              <span style={{fontSize:12,fontWeight:600,color:'#fff'}}>Enable</span>
+            </button>
+          </div>
+          <Btn primary full onClick={() => { setModal(null); setPredictions({}); setBracketName(''); setView('calendar'); setCalendarTab('my'); }} style={{marginTop:16}}>
             View My Brackets
           </Btn>
         </div>
@@ -1397,7 +1647,10 @@ export default function App() {
           </div>
           <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:16,marginBottom:16}}>
             {[
-              ['Entry Fee', `$${fee}`, C.navy],
+              ['Buy-in', `$${fee}`, C.navy],
+              ['Rake (10%)', `-$${rake}`, C.textMuted],
+              ['Cashback (5%)', `+$${(rake*0.05).toFixed(2)}`, C.green],
+              ['-&gt; Prize Pool', `$${netPool}/player`, C.green],
               ['Your Balance', `$${balance.toLocaleString('en-US')}`, can ? C.green : C.red],
               ['After Payment', `$${(balance - fee).toLocaleString('en-US')}`, C.navy],
             ].map(([k, v, col], i) => (
@@ -1411,7 +1664,7 @@ export default function App() {
             ))}
             {earlyBonus > 0 && (
               <div style={{marginTop:12,paddingTop:12,borderTop:`1px solid ${C.border}`,display:'flex',justifyContent:'space-between'}}>
-                <span style={{color:C.green,fontSize:13}}>⚡ Early Bird Bonus</span>
+                <span style={{color:C.green,fontSize:13}}> Early Bird Bonus</span>
                 <span style={{fontWeight:600,color:C.green}}>+{earlyBonus} pts</span>
               </div>
             )}
@@ -1419,7 +1672,7 @@ export default function App() {
           {/* Bracket # indicator */}
           {existingCount > 0 && (
             <div style={{background:C.accentLight,borderRadius:8,padding:10,marginBottom:16,display:'flex',alignItems:'center',gap:8}}>
-              <span style={{fontSize:13,color:C.accentText}}>📋 This will be your bracket #{existingCount + 1} for {activeTournament.name}</span>
+              <span style={{fontSize:13,color:C.accentText}}>Bracket #{existingCount + 1} for {activeTournament.name}</span>
             </div>
           )}
           <div style={{display:'flex',gap:12}}>
@@ -1443,7 +1696,7 @@ export default function App() {
                     blackHorseAlive: true, prize: 0,
                   };
                   setBalance(balance - fee);
-                  setUserTx([{id:Date.now(),title:'Tournament Entry',desc:`${activeTournament.name} — ${newBracket.name}`,amt:-fee,date:'Just now'},...userTx]);
+                  setUserTx([{id:Date.now(),title:'Tournament Entry',desc:`${activeTournament.name} - ${newBracket.name}`,amt:-fee,date:'Just now'},...userTx]);
                   setMyBrackets([...myBrackets, newBracket]);
                   setBlackHorse(null);
                   setSubmitStep(3);
@@ -1507,7 +1760,7 @@ export default function App() {
           <div style={{background:blackHorse?`${C.orange}10`:C.bgLight,border:`1px solid ${blackHorse?C.orange:C.border}`,borderRadius:12,padding:16,marginBottom:16}}>
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
               <div style={{display:'flex',alignItems:'center',gap:8}}>
-                <span style={{fontSize:18}}>🐴</span>
+                <Shield size={18} color={C.orange}/>
                 <span style={{fontSize:14,fontWeight:600,color:C.navy}}>Black Horse</span>
                 <span style={{fontSize:10,fontWeight:600,color:C.orange,background:`${C.orange}15`,padding:'2px 6px',borderRadius:4}}>1.5x</span>
               </div>
@@ -1521,10 +1774,10 @@ export default function App() {
           {/* Early Bird bonus */}
           {earlyBonus > 0 && (
             <div style={{background:`${C.green}12`,border:`1px solid ${C.green}`,borderRadius:10,padding:12,marginBottom:16,display:'flex',alignItems:'center',gap:8}}>
-              <span style={{fontSize:18}}>⚡</span>
+              <span style={{fontSize:18}}></span>
               <div>
                 <p style={{fontSize:13,fontWeight:600,color:C.green,margin:0}}>Early Bird Bonus Active!</p>
-                <p style={{fontSize:11,color:C.green,margin:'2px 0 0',opacity:0.8}}>Submit 24h+ early → +{earlyBonus} bonus points</p>
+                <p style={{fontSize:11,color:C.green,margin:'2px 0 0',opacity:0.8}}>Submit 24h+ early -&gt; +{earlyBonus} bonus points</p>
               </div>
             </div>
           )}
@@ -1543,100 +1796,135 @@ export default function App() {
     );
   };
 
-  // ─── TIER SELECTOR MODAL ──────────────────────────────────────────────────
-  const TierSelectorModal = ({ tournament, onSelect }) => {
-    const tiers = getTiers(tournament);
-    return (
-      <ModalWrap title={`${tournament.name} — Choose Entry`} onClose={() => setModal(null)}>
-        <div style={{padding:16}}>
-          {/* Header */}
-          <div style={{background:C.headerBg, borderRadius:12, padding:16, marginBottom:20, textAlign:'center'}}>
-            <p style={{fontSize:13,color:'rgba(255,255,255,0.7)',margin:'0 0 4px'}}>Select your entry level</p>
-            <p style={{fontSize:12,color:'rgba(255,255,255,0.55)',margin:0}}>Higher entry = larger prize pool & fewer competitors</p>
-          </div>
+  // ─── STAKES SELECTOR MODAL ──────────────────────────────────────────────────
+  const TierSelectorModal = ({ tournament }) => (
+    <ModalWrap title={`${tournament?.name} - Choose Entry Fee`} onClose={() => setModal(null)} full>
+      <div style={{padding:0}}>
+        {/* Header */}
+        <div style={{background:C.headerBg, padding:'14px 20px'}}> 
+          {tournament?.guaranteed && (
+            <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10,background:'rgba(255,255,255,0.12)',borderRadius:10,padding:'10px 14px'}}>
+              <CircleDollarSign size={22} color="#FCD34D"/>
+              <div>
+                <p style={{fontSize:15,fontWeight:800,color:'#FCD34D',margin:0}}>
+                  ${(tournament.guaranteed >= 1000000
+                    ? (tournament.guaranteed/1000000).toFixed(tournament.guaranteed%1000000===0?0:1)+'M'
+                    : (tournament.guaranteed/1000).toFixed(0)+'K')} GUARANTEED
+                </p>
+                <p style={{fontSize:11,color:'rgba(255,255,255,0.7)',margin:'2px 0 0'}}>
+                  Total prize pool across all entry levels
+                </p>
+              </div>
+            </div>
+          )}
+          <p style={{fontSize:11,color:'rgba(255,255,255,0.65)',margin:0}}>
+            Each entry fee has its own pool | 10% rake from $5+ | Max {MAX_BRACKETS_PER_TOURNAMENT} brackets per level
+          </p>
+        </div>
 
-          {tiers.map((tier, i) => {
-            const tierPool = Math.round(tier.entries * tier.poolEntry);
-            const paidPlaces = Math.floor(tier.entries * 0.15);
-            const topPrize = Math.round(tierPool * 0.20);
-            const isSelected = selectedTier?.id === tier.id;
-            const tierColors = {
-              starter: { bg: C.bgLight, border: C.border,   badge: '#6B7280', badgeBg: '#F3F4F6' },
-              pro:     { bg: `${C.accent}08`, border: C.accent, badge: '#fff',    badgeBg: C.accent  },
-              elite:   { bg: '#FEF3C7', border: '#B45309',   badge: '#fff',    badgeBg: '#B45309'  },
-            }[tier.id];
+        {/* Flat stake list */}
+        <div style={{padding:'12px 16px 120px'}}>
+          {STAKES.map(stake => {
+            const pool = getStakePool(stake);
+            const effectivePool = getEffectivePool(stake, tournament);
+            const overlay = getOverlay(stake, tournament);
+            const topPrize = Math.round(effectivePool * 0.20);
+            const isSelected = selectedTier?.id === stake.id;
+            const canAfford = balance >= stake.entry;
+            const existingAtStake = myBrackets.filter(b =>
+              b.tournament?.id === tournament?.id && b.tier?.id === stake.id
+            ).length;
+            const maxed = existingAtStake >= MAX_BRACKETS_PER_TOURNAMENT;
 
             return (
-              <button key={tier.id} onClick={() => { setSelectedTier(tier); }}
+              <button key={stake.id}
+                onClick={() => canAfford && !maxed && setSelectedTier(stake)}
                 style={{
-                  width:'100%', textAlign:'left', padding:0, border:`2px solid ${isSelected ? tier.color : tierColors.border}`,
-                  borderRadius:14, marginBottom:12, cursor:'pointer', overflow:'hidden',
-                  background: isSelected ? `${tier.color}10` : tierColors.bg,
-                  transition:'all 0.15s',
+                  width:'100%', display:'flex', alignItems:'center',
+                  padding:'14px 16px', marginBottom:8,
+                  border:`2px solid ${isSelected ? stake.color : C.border}`,
+                  borderRadius:12,
+                  background: isSelected ? `${stake.color}12` : C.card,
+                  cursor: canAfford && !maxed ? 'pointer' : 'not-allowed',
+                  opacity: canAfford && !maxed ? 1 : 0.45,
+                  textAlign:'left',
                 }}>
-                {/* Tier header */}
-                <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 16px',borderBottom:`1px solid ${C.border}`}}>
-                  <div style={{display:'flex',alignItems:'center',gap:10}}>
-                    <div style={{padding:'3px 10px',borderRadius:20,background:tierColors.badgeBg}}>
-                      <span style={{fontSize:12,fontWeight:700,color:tierColors.badge}}>
-                        {tier.id === 'starter' ? '🎾' : tier.id === 'pro' ? '⭐' : '👑'} {tier.label.toUpperCase()}
-                      </span>
-                    </div>
-                    {tier.id === 'pro' && (
-                      <span style={{fontSize:10,fontWeight:600,color:C.accentText,background:C.accentLight,padding:'2px 6px',borderRadius:4}}>POPULAR</span>
-                    )}
-                  </div>
-                  <div style={{display:'flex',alignItems:'center',gap:8}}>
-                    <span style={{fontSize:22,fontWeight:800,color:tier.color}}>${tier.entry}</span>
-                    {isSelected && <Check size={20} color={tier.color}/>}
-                  </div>
+
+                {/* Entry fee - large and prominent */}
+                <div style={{width:80, flexShrink:0}}>
+                  <span style={{fontSize:22,fontWeight:800,color:isSelected ? stake.color : C.navy}}>
+                    ${stake.entry}
+                  </span>
                 </div>
 
-                {/* Tier stats */}
-                <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',padding:'12px 16px',gap:8}}>
-                  {[
-                    ['Prize Pool', `$${tierPool.toLocaleString('en-US')}`, C.green],
-                    ['Top Prize',  `$${topPrize.toLocaleString('en-US')}`,  tier.color],
-                    ['Entries',    tier.entries.toLocaleString('en-US'),    C.textMid],
-                  ].map(([label, val, color]) => (
-                    <div key={label} style={{textAlign:'center'}}>
-                      <p style={{fontSize:9,color:C.textMuted,margin:'0 0 2px',textTransform:'uppercase',letterSpacing:0.3}}>{label}</p>
-                      <p style={{fontSize:13,fontWeight:700,color,margin:0}}>{val}</p>
+                {/* Pool stats */}
+                <div style={{flex:1}}>
+                  <div style={{display:'flex',gap:20}}>
+                    <div>
+                      <p style={{fontSize:9,color:C.textMuted,margin:'0 0 1px',textTransform:'uppercase',letterSpacing:0.4}}>Prize Pool</p>
+                      <div style={{display:'flex',alignItems:'center',gap:4}}>
+                        <p style={{fontSize:14,fontWeight:700,color:C.green,margin:0}}>${effectivePool.toLocaleString('en-US')}</p>
+                        {overlay > 0 && (
+                          <span style={{fontSize:9,fontWeight:700,color:'#FCD34D',background:'rgba(252,211,77,0.15)',padding:'1px 5px',borderRadius:4}}>GTD</span>
+                        )}
+                      </div>
                     </div>
-                  ))}
-                </div>
-
-                {/* Paid places info */}
-                <div style={{padding:'8px 16px',borderTop:`1px solid ${C.border}`,background:C.bgLight}}>
-                  <p style={{fontSize:11,color:C.textMuted,margin:0}}>
-                    Top {paidPlaces.toLocaleString('en-US')} places paid • Max {MAX_BRACKETS_PER_TOURNAMENT} brackets per tier
+                    <div>
+                      <p style={{fontSize:9,color:C.textMuted,margin:'0 0 1px',textTransform:'uppercase',letterSpacing:0.4}}>Top Prize</p>
+                      <p style={{fontSize:14,fontWeight:700,color:stake.color,margin:0}}>${Math.round(effectivePool*0.20).toLocaleString('en-US')}</p>
+                    </div>
+                    <div>
+                      <p style={{fontSize:9,color:C.textMuted,margin:'0 0 1px',textTransform:'uppercase',letterSpacing:0.4}}>Players</p>
+                      <p style={{fontSize:14,fontWeight:600,color:C.textMid,margin:0}}>{stake.mockEntries.toLocaleString('en-US')}</p>
+                    </div>
+                  </div>
+                  <p style={{fontSize:10,color:C.textMuted,margin:'4px 0 0'}}>
+                    {stake.rake === 0 ? 'No rake' : `Rake: $${stake.rake}`} | {Math.floor(stake.mockEntries * 0.15).toLocaleString('en-US')} paid places
                   </p>
+                </div>
+
+                {/* Right: selected check or maxed */}
+                <div style={{width:24,flexShrink:0,textAlign:'right'}}>
+                  {isSelected && <Check size={20} color={stake.color}/>}
+                  {!isSelected && maxed && <span style={{fontSize:10,color:C.red,fontWeight:700}}>MAX</span>}
+                  {!isSelected && !canAfford && <DollarSign size={10} color={C.textMuted}/>}
                 </div>
               </button>
             );
           })}
+        </div>
 
+        {/* Fixed bottom CTA */}
+        <div style={{position:'sticky',bottom:0,background:C.card,borderTop:`1px solid ${C.border}`,padding:'12px 16px',paddingBottom:28}}>
+          {selectedTier ? (
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
+              <span style={{fontSize:13,color:C.textMuted}}>Entry fee: <strong style={{color:C.navy}}>${selectedTier.entry}</strong></span>
+              <span style={{fontSize:13,color:C.green,fontWeight:600}}>
+                Pool: ${getEffectivePool(selectedTier, tournament).toLocaleString('en-US')}
+                {getOverlay(selectedTier, tournament) > 0 && <span style={{fontSize:10,color:'#FCD34D',fontWeight:700,marginLeft:4}}>GTD</span>}
+              </span>
+            </div>
+          ) : (
+            <p style={{fontSize:13,color:C.textMuted,marginBottom:10,textAlign:'center'}}>Select an entry fee above</p>
+          )}
           <Btn primary full
-            disabled={!selectedTier}
-            onClick={() => {
-              setActiveTournament(tournament);
-              setModal(null);
-              setView('bracket');
-            }}
-            style={{marginTop:4}}
+            disabled={!selectedTier || balance < selectedTier.entry}
+            onClick={() => { setActiveTournament(tournament); setModal(null); setView('bracket'); }}
           >
-            Enter with {selectedTier ? `$${selectedTier.entry} ${selectedTier.label}` : '...'}
+            {selectedTier
+              ? `Enter - $${selectedTier.entry} entry fee`
+              : 'Select entry fee to continue'}
           </Btn>
         </div>
-      </ModalWrap>
-    );
-  };
+      </div>
+    </ModalWrap>
+  );
 
   const BlackHorseModal = () => {
     const size = getBracketSize(activeTournament);
     const players = getBlackHorse(size);
     return (
-      <ModalWrap title="🐴 Select Black Horse" onClose={()=>setModal(null)}>
+      <ModalWrap title="Select Black Horse" onClose={()=>setModal(null)}>
         <div style={{padding:16}}>
           <div style={{background:`${C.orange}12`,border:`1px solid ${C.orange}`,borderRadius:12,padding:16,marginBottom:16}}>
             <p style={{fontSize:13,color:C.textMid,margin:0,lineHeight:1.5}}>Choose an unseeded/lower-seeded player. If they win a match you predicted correctly, you earn <strong>1.5x points</strong> for that match.</p>
@@ -1646,7 +1934,7 @@ export default function App() {
               <button key={p.id} onClick={()=>{setBlackHorse(p);setModal(null);}}
                 style={{width:'100%',display:'flex',alignItems:'center',padding:'12px 14px',marginBottom:8,borderRadius:10,border:blackHorse?.id===p.id?`2px solid ${C.orange}`:`1px solid ${C.border}`,background:blackHorse?.id===p.id?`${C.orange}10`:C.card,cursor:'pointer'}}>
                 <span style={{fontSize:22,marginRight:12}}>{p.flag}</span>
-                <div style={{flex:1,textAlign:'left'}}><p style={{fontSize:15,fontWeight:500,color:C.navy,margin:0}}>{p.name}</p><p style={{fontSize:12,color:C.textMuted,margin:'2px 0 0'}}>Seed [{p.seed||'—'}]</p></div>
+                <div style={{flex:1,textAlign:'left'}}><p style={{fontSize:15,fontWeight:500,color:C.navy,margin:0}}>{p.name}</p><p style={{fontSize:12,color:C.textMuted,margin:'2px 0 0'}}>Seed [{p.seed||'-'}]</p></div>
                 {blackHorse?.id===p.id&&<div style={{width:24,height:24,borderRadius:12,background:C.orange,display:'flex',alignItems:'center',justifyContent:'center'}}><Check size={14} color="#fff"/></div>}
               </button>
             ))}
@@ -1662,9 +1950,9 @@ export default function App() {
     const setShowAll = setPrizesShowAll;
     const pool = calcPrizePool(activeTournament.entries||1, activeTournament.poolEntry||activeTournament.entry);
     const rows = [
-      {place:'1st',pct:'20%',amt:Math.round(pool*0.20),medal:'🥇'},
-      {place:'2nd',pct:'12%',amt:Math.round(pool*0.12),medal:'🥈'},
-      {place:'3rd',pct:'8%',amt:Math.round(pool*0.08),medal:'🥉'},
+      {place:'1st',pct:'20%',amt:Math.round(pool*0.20),medal:'1'},
+      {place:'2nd',pct:'12%',amt:Math.round(pool*0.12),medal:'2'},
+      {place:'3rd',pct:'8%',amt:Math.round(pool*0.08),medal:'3'},
       {place:'4th',pct:'5.5%',amt:Math.round(pool*0.055)},
       {place:'5th-8th',pct:'2.5%',amt:Math.round(pool*0.025)},
       {place:'9th-16th',pct:'1.25%',amt:Math.round(pool*0.0125)},
@@ -1684,7 +1972,7 @@ export default function App() {
             </div>
             {(showAll?rows:rows.slice(0,5)).map((row,i)=>(
               <div key={i} style={{display:'flex',alignItems:'center',padding:'11px 14px',borderBottom:i<(showAll?rows.length:5)-1?`1px solid ${C.border}`:'none'}}>
-                <div style={{flex:1,display:'flex',alignItems:'center',gap:8}}>{row.medal&&<span style={{fontSize:16}}>{row.medal}</span>}<span style={{fontSize:13,fontWeight:row.medal?600:500,color:C.navy}}>{row.place}</span></div>
+                <div style={{flex:1,display:'flex',alignItems:'center',gap:8}}>{row.medal&&<span style={{fontSize:12,fontWeight:700,color:C.orange,background:`${C.orange}15`,borderRadius:4,padding:'1px 6px',marginRight:2}}>{row.medal}</span>}<span style={{fontSize:13,fontWeight:row.medal?600:500,color:C.navy}}>{row.place}</span></div>
                 <span style={{width:60,fontSize:12,color:C.textMuted,textAlign:'right'}}>{row.pct}</span>
                 <span style={{width:90,fontSize:13,fontWeight:600,color:row.medal?C.green:C.navy,textAlign:'right'}}>${row.amt.toLocaleString('en-US')}</span>
               </div>
@@ -1716,7 +2004,7 @@ export default function App() {
           {mode==='register'&&<div style={{marginBottom:16}}><label style={{fontSize:13,fontWeight:600,color:C.textMid,display:'block',marginBottom:6}}>Username</label><input type="text" value={authName} onChange={e=>setAuthName(e.target.value)} placeholder="Choose a username" style={{width:'100%',padding:14,fontSize:15,border:`1.5px solid ${C.border}`,borderRadius:10,outline:'none',color:C.navy,background:C.inputBg,boxSizing:'border-box'}}/></div>}
           <div style={{marginBottom:16}}><label style={{fontSize:13,fontWeight:600,color:C.textMid,display:'block',marginBottom:6}}>Email</label><input type="email" value={authEmail} onChange={e=>setAuthEmail(e.target.value)} placeholder="your@email.com" style={{width:'100%',padding:14,fontSize:15,border:`1.5px solid ${C.border}`,borderRadius:10,outline:'none',color:C.navy,background:C.inputBg,boxSizing:'border-box'}}/></div>
           <div style={{marginBottom:20}}><label style={{fontSize:13,fontWeight:600,color:C.textMid,display:'block',marginBottom:6}}>Password</label>
-            <div style={{position:'relative'}}><input type={showPass?'text':'password'} value={authPassword} onChange={e=>setAuthPassword(e.target.value)} placeholder="Password" style={{width:'100%',padding:14,paddingRight:46,fontSize:15,border:`1.5px solid ${C.border}`,borderRadius:10,outline:'none',color:C.navy,background:C.inputBg,boxSizing:'border-box'}}/><button onClick={()=>setShowPass(!showPass)} style={{position:'absolute',right:12,top:'50%',transform:'translateY(-50%)',background:'none',border:'none',cursor:'pointer',fontSize:18}}>{showPass?'🙈':'👁️'}</button></div>
+            <div style={{position:'relative'}}><input type={showPass?'text':'password'} value={authPassword} onChange={e=>setAuthPassword(e.target.value)} placeholder="Password" style={{width:'100%',padding:14,paddingRight:46,fontSize:15,border:`1.5px solid ${C.border}`,borderRadius:10,outline:'none',color:C.navy,background:C.inputBg,boxSizing:'border-box'}}/><button onClick={()=>setShowPass(!showPass)} style={{position:'absolute',right:12,top:'50%',transform:'translateY(-50%)',background:'none',border:'none',cursor:'pointer',display:'flex',alignItems:'center'}}>{showPass?<EyeOff size={18} color={C.textMuted}/>:<Eye size={18} color={C.textMuted}/>}</button></div>
           </div>
           <Btn primary full disabled={mode==='login'?!authEmail||!authPassword:!authName||!authEmail||!authPassword} onClick={()=>{setIsLoggedIn(true);setModal(null);setAuthEmail('');setAuthPassword('');setAuthName('');}}>
             {mode==='login'?'Sign In':'Create Account'}
@@ -1728,6 +2016,268 @@ export default function App() {
       </ModalWrap>
     );
   };
+
+  // ─── ONBOARDING (Feature 1) ─────────────────────────────────────────────────
+  // ─── SPLASH SCREEN ──────────────────────────────────────────────────────────
+  const SplashScreen = () => (
+    <div style={{
+      position:'fixed', inset:0, zIndex:3000,
+      background:'linear-gradient(160deg, #1E1B4B 0%, #2D2686 50%, #3730A3 100%)',
+      display:'flex', flexDirection:'column',
+      alignItems:'center', justifyContent:'center',
+      maxWidth:430, margin:'0 auto',
+      animation:'fadeIn 0.4s ease',
+    }}>
+      {/* Logo */}
+      <div style={{marginBottom:20, animation:'splashIn 0.6s ease 0.2s both'}}>
+        <MobaLogo size={72} color="#fff"/>
+      </div>
+      {/* Wordmark */}
+      <div style={{animation:'splashIn 0.6s ease 0.4s both'}}>
+        <MobaWordmark color="#fff" fontSize={32}/>
+      </div>
+      {/* Tagline */}
+      <p style={{
+        fontSize:14, color:'rgba(255,255,255,0.55)',
+        margin:'12px 0 0', letterSpacing:1,
+        animation:'splashIn 0.6s ease 0.6s both',
+      }}>
+        Bracket Battle
+      </p>
+      {/* Loading dots */}
+      <div style={{
+        display:'flex', gap:6, marginTop:48,
+        animation:'splashIn 0.6s ease 0.8s both',
+      }}>
+        {[0,1,2].map(i => (
+          <div key={i} style={{
+            width:6, height:6, borderRadius:3,
+            background:'rgba(255,255,255,0.4)',
+            animation:`pulse 1.2s ease ${i*0.2}s infinite`,
+          }}/>
+        ))}
+      </div>
+    </div>
+  );
+
+  const ONBOARDING_STEPS = [
+    {
+      icon: '🎾',
+      title: 'Welcome to mobaOne',
+      subtitle: 'Bracket Battle',
+      desc: 'Predict tournament brackets, compete against thousands of players, and win real prize pools.',
+      highlight: null,
+    },
+    {
+      icon: '🏆',
+      title: 'Build Your Bracket',
+      subtitle: 'Pick winners round by round',
+      desc: 'Choose the winner of every match from R128 all the way to the Final. More points for later rounds.',
+      highlight: 'Fibonacci scoring: R128=1pt, R64=2pt, R32=3pt, R16=5pt, QF=8pt, SF=13pt, F=21pt',
+    },
+    {
+      icon: '🐴',
+      title: 'Pick a Black Horse',
+      subtitle: '1.5x bonus points',
+      desc: 'Select one lower-ranked player. Every correct pick involving your Black Horse earns 1.5x points.',
+      highlight: 'Strategy tip: pick someone likely to reach at least QF for maximum value.',
+    },
+    {
+      icon: '💰',
+      title: 'Choose Your Stakes',
+      subtitle: 'From $1 to $1,000',
+      desc: 'Every tournament has 10 buy-in levels. Each has its own prize pool and leaderboard. Big tournaments guarantee $1M+.',
+      highlight: 'Top 15% of entries win cash prizes. Higher stakes = fewer competitors.',
+    },
+  ];
+
+  const OnboardingScreen = () => {
+    const step = ONBOARDING_STEPS[onboardingStep];
+    const isLast = onboardingStep === ONBOARDING_STEPS.length - 1;
+    const isFirst = onboardingStep === 0;
+
+    return (
+      <div style={{
+        position:'fixed', inset:0, zIndex:2000,
+        background:'linear-gradient(160deg, #1E1B4B 0%, #2D2686 55%, #3730A3 100%)',
+        display:'flex', flexDirection:'column',
+        maxWidth:430, margin:'0 auto',
+      }}>
+        {/* Top bar: logo + skip */}
+        <div style={{padding:'20px 24px', display:'flex', alignItems:'center', justifyContent:'space-between'}}>
+          <div style={{display:'flex',alignItems:'center',gap:10}}>
+            <MobaLogo size={22} color="#fff"/>
+            <MobaWordmark color="#fff" fontSize={16}/>
+          </div>
+          <button onClick={()=>setShowOnboarding(false)}
+            style={{background:'rgba(255,255,255,0.12)',border:'none',borderRadius:20,padding:'6px 14px',color:'rgba(255,255,255,0.7)',fontSize:12,cursor:'pointer'}}>
+            Skip
+          </button>
+        </div>
+
+        {/* Step indicator */}
+        <div style={{display:'flex',gap:4,padding:'0 24px 0'}}>
+          {ONBOARDING_STEPS.map((_,i) => (
+            <div key={i} style={{flex:1,height:2,borderRadius:1,background:i<=onboardingStep?'#fff':'rgba(255,255,255,0.2)',transition:'background 0.3s'}}/>
+          ))}
+        </div>
+
+        {/* Content */}
+        <div style={{flex:1,display:'flex',flexDirection:'column',padding:'32px 28px 24px'}}>
+          {/* Step number */}
+          <p style={{fontSize:11,fontWeight:600,color:'rgba(255,255,255,0.4)',margin:'0 0 20px',letterSpacing:1,textTransform:'uppercase'}}>
+            Step {onboardingStep+1} of {ONBOARDING_STEPS.length}
+          </p>
+
+          {/* Icon  lucide style */}
+          <div style={{
+            width:64, height:64, borderRadius:18,
+            background:'rgba(255,255,255,0.12)',
+            display:'flex', alignItems:'center', justifyContent:'center',
+            marginBottom:24,
+          }}>
+            {onboardingStep===0 && <Trophy size={32} color="#FCD34D"/>}
+            {onboardingStep===1 && <Layers size={32} color="#60A5FA"/>}
+            {onboardingStep===2 && <Shield size={32} color="#FB923C"/>}
+            {onboardingStep===3 && <CircleDollarSign size={32} color="#34D399"/>}
+          </div>
+
+          <h1 style={{fontSize:26,fontWeight:800,color:'#fff',margin:'0 0 8px',lineHeight:1.2}}>{step.title}</h1>
+          <p style={{fontSize:15,color:'rgba(255,255,255,0.6)',margin:'0 0 20px',fontWeight:500}}>{step.subtitle}</p>
+          <p style={{fontSize:14,color:'rgba(255,255,255,0.82)',lineHeight:1.65,margin:0}}>{step.desc}</p>
+
+          {step.highlight && (
+            <div style={{marginTop:20,background:'rgba(252,211,77,0.12)',border:'1px solid rgba(252,211,77,0.3)',borderRadius:12,padding:'12px 16px'}}>
+              <p style={{fontSize:12,color:'#FCD34D',margin:0,lineHeight:1.5}}>{step.highlight}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Bottom CTA */}
+        <div style={{padding:'16px 24px 40px',display:'flex',gap:12,alignItems:'center'}}>
+          {!isFirst && (
+            <button onClick={()=>setOnboardingStep(s=>s-1)}
+              style={{width:44,height:44,borderRadius:12,background:'rgba(255,255,255,0.12)',border:'none',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>
+              <ChevronLeft size={20} color="#fff"/>
+            </button>
+          )}
+          <button
+            onClick={() => isLast ? setShowOnboarding(false) : setOnboardingStep(s=>s+1)}
+            style={{flex:1,padding:15,borderRadius:14,border:'none',background:'#fff',color:C.accent,fontSize:15,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
+            {isLast ? 'Start Playing' : 'Continue'}
+            {!isLast && <ChevronRight size={18} color={C.accent}/>}
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  // ─── BRACKET LOCK TIMER (Feature 3) ──────────────────────────────────────────
+  const LockTimerBadge = ({ tournament }) => {
+    const timer = lockTimers[tournament.id];
+    if (!timer) return null;
+    if (timer.locked) return (
+      <div style={{display:'flex',alignItems:'center',gap:4,padding:'4px 8px',borderRadius:6,background:C.redLight,border:`1px solid ${C.red}`}}>
+        <Lock size={10} color={C.red}/>
+        <span style={{fontSize:10,fontWeight:700,color:C.red}}>LOCKED</span>
+      </div>
+    );
+    const { hours, minutes, seconds } = timer;
+    const urgent = hours === 0 && minutes < 60;
+    return (
+      <div style={{display:'flex',alignItems:'center',gap:4,padding:'4px 8px',borderRadius:6,background:urgent?C.redLight:`${C.accent}12`,border:`1px solid ${urgent?C.red:C.accent}`}}>
+        <span style={{fontSize:10}}></span>
+        <span style={{fontSize:11,fontWeight:700,color:urgent?C.red:C.accentText,fontVariantNumeric:'tabular-nums'}}>
+          {hours>0?`${hours}h `:''}{String(minutes).padStart(2,'0')}:{String(seconds).padStart(2,'0')}
+        </span>
+      </div>
+    );
+  };
+
+  // ─── ACHIEVEMENTS MODAL (Feature 6) ──────────────────────────────────────────
+  const AchievementsModal = () => {
+    const earned = achievements.filter(a=>a.earned);
+    const locked = achievements.filter(a=>!a.earned);
+    return (
+      <ModalWrap title="Achievements" onClose={()=>setModal(null)}>
+        <div style={{padding:16}}>
+          {/* Progress bar */}
+          <div style={{background:C.bgLight,borderRadius:12,padding:14,marginBottom:20}}>
+            <div style={{display:'flex',justifyContent:'space-between',marginBottom:8}}>
+              <span style={{fontSize:13,fontWeight:600,color:C.navy}}>Collection Progress</span>
+              <span style={{fontSize:13,fontWeight:700,color:C.accentText}}>{earned.length}/{achievements.length}</span>
+            </div>
+            <div style={{height:8,background:C.border,borderRadius:4}}>
+              <div style={{height:'100%',width:`${(earned.length/achievements.length)*100}%`,background:C.accent,borderRadius:4,transition:'width 0.5s'}}/>
+            </div>
+          </div>
+
+          {/* Earned */}
+          <p style={{fontSize:12,fontWeight:700,color:C.textMuted,margin:'0 0 10px',letterSpacing:0.5}}>EARNED ({earned.length})</p>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:20}}>
+            {earned.map(a => (
+              <div key={a.id} style={{background:C.bgLight,borderRadius:12,padding:14,border:`1px solid ${C.accent}40`,textAlign:'center'}}>
+                <div style={{fontSize:32,marginBottom:8}}>{a.icon}</div>
+                <p style={{fontSize:13,fontWeight:700,color:C.navy,margin:'0 0 4px'}}>{a.title}</p>
+                <p style={{fontSize:10,color:C.textMuted,margin:'0 0 6px',lineHeight:1.3}}>{a.desc}</p>
+                <p style={{fontSize:10,color:C.green,margin:0}}>{a.earnedAt}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Locked */}
+          <p style={{fontSize:12,fontWeight:700,color:C.textMuted,margin:'0 0 10px',letterSpacing:0.5}}>LOCKED ({locked.length})</p>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+            {locked.map(a => (
+              <div key={a.id} style={{background:C.bgLight,borderRadius:12,padding:14,border:`1px solid ${C.border}`,textAlign:'center',opacity:0.6}}>
+                <div style={{fontSize:32,marginBottom:8,filter:'grayscale(1)'}}>{a.icon}</div>
+                <p style={{fontSize:13,fontWeight:700,color:C.navy,margin:'0 0 4px'}}>{a.title}</p>
+                <p style={{fontSize:10,color:C.textMuted,margin:0,lineHeight:1.3}}>{a.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </ModalWrap>
+    );
+  };
+
+  // ─── DAILY CHALLENGES MODAL (Feature 7) ──────────────────────────────────────
+  const DailyChallengesModal = () => (
+    <ModalWrap title="Daily Challenges" onClose={()=>setModal(null)}>
+      <div style={{padding:16}}>
+        <div style={{background:C.bgLight,borderRadius:12,padding:14,marginBottom:16,display:'flex',alignItems:'center',gap:10}}>
+          <Target size={22} color={C.accentText}/>
+          <div>
+            <p style={{fontSize:13,fontWeight:600,color:C.navy,margin:0}}>Complete challenges for bonus points</p>
+            <p style={{fontSize:11,color:C.textMuted,margin:'2px 0 0'}}>New challenges every 24 hours</p>
+          </div>
+        </div>
+
+        {dailyChallenges.map(ch => (
+          <div key={ch.id} style={{background:C.card,borderRadius:12,padding:16,marginBottom:12,border:`1px solid ${ch.completed?C.green:C.border}`,opacity:ch.completed?0.7:1}}>
+            <div style={{display:'flex',alignItems:'start',justifyContent:'space-between',marginBottom:8}}>
+              <div style={{flex:1}}>
+                <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:4}}>
+                  <p style={{fontSize:15,fontWeight:700,color:C.navy,margin:0}}>{ch.title}</p>
+                  {ch.completed && <span style={{fontSize:10,fontWeight:700,color:C.green,background:C.greenLight,padding:'2px 6px',borderRadius:4}}>DONE</span>}
+                </div>
+                <p style={{fontSize:12,color:C.textMuted,margin:'0 0 8px',lineHeight:1.4}}>{ch.desc}</p>
+                <div style={{display:'inline-flex',alignItems:'center',gap:4,background:`${C.accent}12`,borderRadius:6,padding:'4px 10px'}}>
+                  <span style={{fontSize:12,fontWeight:700,color:C.accentText}}>{ch.reward}</span>
+                </div>
+              </div>
+            </div>
+            {ch.expires && !ch.completed && (
+              <div style={{display:'flex',alignItems:'center',gap:4,marginTop:10,paddingTop:10,borderTop:`1px solid ${C.border}`}}>
+                <span style={{fontSize:10,color:C.textMuted}}>Expires in</span>
+                <span style={{fontSize:11,fontWeight:700,color:C.red,fontVariantNumeric:'tabular-nums'}}>{ch.expires}</span>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </ModalWrap>
+  );
 
   // ─── LIVE TICKER OVERLAY (Feature 10) ────────────────────────────────────────
   const LiveTicker = () => {
@@ -1741,7 +2291,7 @@ export default function App() {
         animation:'slideUp 0.3s ease',
         maxWidth:360, width:'calc(100% - 40px)',
       }}>
-        <span style={{fontSize:20}}>🎾</span>
+        <Activity size={20} color="#fff"/>
         <div style={{flex:1}}>
           <p style={{fontSize:13,fontWeight:700,color:'#fff',margin:0}}>{liveTickerMsg.playerName} won!</p>
           <p style={{fontSize:11,color:'rgba(255,255,255,0.8)',margin:'2px 0 0'}}>{liveTickerMsg.round} correct pick</p>
@@ -1764,7 +2314,7 @@ export default function App() {
           <p style={{fontSize:48,fontWeight:800,color:'#fff',margin:0}}>{accuracyStats.overall}%</p>
           <p style={{fontSize:13,color:'rgba(255,255,255,0.7)',margin:'4px 0 0'}}>{accuracyStats.totalCorrect} / {accuracyStats.totalPicks} correct picks</p>
           <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:6,marginTop:8}}>
-            <span style={{fontSize:13,color:'#FCD34D'}}>🔥 {accuracyStats.streak} tournament streak</span>
+            <div style={{display:"flex",alignItems:"center",gap:4}}><Flame size={13} color="#F97316"/><span style={{fontSize:13,color:'#FCD34D'}}>{accuracyStats.streak} tournament streak</span></div>
           </div>
         </div>
 
@@ -1795,7 +2345,7 @@ export default function App() {
 
         {/* Weekly digest preview */}
         <div style={{background:C.bgLight,borderRadius:12,padding:14,display:'flex',alignItems:'center',gap:12}}>
-          <span style={{fontSize:24}}>📧</span>
+          <Mail size={22} color={C.accentText}/>
           <div>
             <p style={{fontSize:13,fontWeight:600,color:C.navy,margin:0}}>Weekly Digest</p>
             <p style={{fontSize:11,color:C.textMuted,margin:'2px 0 0'}}>Get your weekly stats summary via email</p>
@@ -1900,7 +2450,7 @@ export default function App() {
               <span style={{fontSize:14,marginRight:8}}>{opp.flag}</span>
               <div style={{flex:1,textAlign:'left'}}>
                 <p style={{fontSize:14,fontWeight:500,color:C.navy,margin:0}}>{opp.name}</p>
-                <p style={{fontSize:11,color:C.textMuted,margin:'2px 0 0'}}>Rank #{opp.rank} • {opp.winRate}% win rate</p>
+                <p style={{fontSize:11,color:C.textMuted,margin:'2px 0 0'}}>Rank #{opp.rank} * {opp.winRate}% win rate</p>
               </div>
               {selected?.rank === opp.rank && <Check size={18} color={C.accentText}/>}
             </button>
@@ -1920,7 +2470,7 @@ export default function App() {
         {/* Streak bonus */}
         <div style={{background:C.headerBg,borderRadius:12,padding:16,marginBottom:16}}>
           <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:8}}>
-            <span style={{fontSize:24}}>🔥</span>
+            <Flame size={22} color="#F97316"/>
             <div>
               <p style={{fontSize:15,fontWeight:700,color:'#fff',margin:0}}>Tournament Streak</p>
               <p style={{fontSize:12,color:'rgba(255,255,255,0.7)',margin:'2px 0 0'}}>Play consecutive tournaments for discounts</p>
@@ -1931,13 +2481,13 @@ export default function App() {
               <div key={n} style={{flex:1,height:8,borderRadius:4,background:n<=3?'#FCD34D':'rgba(255,255,255,0.2)'}}/>
             ))}
           </div>
-          <p style={{fontSize:12,color:'rgba(255,255,255,0.8)',margin:'8px 0 0'}}>3/5 — 2 more for 20% entry discount!</p>
+          <p style={{fontSize:12,color:'rgba(255,255,255,0.8)',margin:'8px 0 0'}}>3/5 - 2 more for 20% entry discount!</p>
         </div>
 
         {/* Referral */}
         <div style={{background:C.bgLight,borderRadius:12,padding:16,marginBottom:16,border:`1px solid ${C.border}`}}>
           <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12}}>
-            <span style={{fontSize:20}}>🎁</span>
+            <Gift size={18} color={C.accentText}/>
             <div>
               <p style={{fontSize:14,fontWeight:700,color:C.navy,margin:0}}>Refer a Friend</p>
               <p style={{fontSize:11,color:C.textMuted,margin:'2px 0 0'}}>Both get $5 bonus when they enter first tournament</p>
@@ -1949,7 +2499,7 @@ export default function App() {
               <span style={{fontSize:12,fontWeight:600,color:'#fff'}}>Copy</span>
             </button>
           </div>
-          <p style={{fontSize:11,color:C.textMuted,margin:'8px 0 0'}}>3 friends referred • $15 earned</p>
+          <p style={{fontSize:11,color:C.textMuted,margin:'8px 0 0'}}>3 friends referred * $15 earned</p>
         </div>
 
         {/* Free vs Paid */}
@@ -1972,7 +2522,749 @@ export default function App() {
     </ModalWrap>
   );
 
-  // ─── PROFILE MODAL — theme controls here ─────────────────────────────────
+  // ─── PROFILE MODAL  theme controls here ─────────────────────────────────
+  // ─── HISTORICAL ANALYSIS TOOLTIP (Feature 15) ───────────────────────────────
+  const PlayerHistoryBadge = ({ playerName, surface }) => {
+    const data = getHistoricalAnalysis(playerName, surface || activeTournament?.surface || 'Hard');
+    if (!data) return null;
+    const color = data.surfaceWinRate >= 75 ? C.green : data.surfaceWinRate >= 60 ? C.orange : C.red;
+    return (
+      <div style={{display:'flex',alignItems:'center',gap:6,marginTop:3}}>
+        <span style={{fontSize:10,fontWeight:600,color,background:`${color}15`,padding:'1px 5px',borderRadius:4}}>
+          {data.surfaceWinRate}% {surface||'Hard'}
+        </span>
+        <div style={{display:'flex',gap:2}}>
+          {data.recentForm.map((r,i) => (
+            <div key={i} style={{width:6,height:6,borderRadius:3,background:r==='W'?C.green:C.red}}/>
+          ))}
+        </div>
+        {data.titles > 0 && (
+          <span style={{fontSize:10,color:C.orange}}>x{data.titles}</span>
+        )}
+      </div>
+    );
+  };
+
+  // ─── LIVE COMMENTARY MODAL (Feature 4) ───────────────────────────────────────
+  const LiveCommentaryModal = () => (
+    <ModalWrap title="Live Bracket Commentary" onClose={()=>setModal(null)}>
+      <div style={{padding:16}}>
+        <div style={{background:C.bgLight,borderRadius:12,padding:12,marginBottom:16,display:'flex',alignItems:'center',gap:10}}>
+          <div style={{width:8,height:8,borderRadius:4,background:C.red,animation:'pulse 2s infinite'}}/>
+          <span style={{fontSize:13,fontWeight:600,color:C.navy}}>Live updates for your Indian Wells bracket</span>
+        </div>
+        {liveCommentary.map(ev => {
+          const typeColors = {
+            pick_correct: C.green,
+            pick_wrong:   C.red,
+            bh_alive:     C.orange,
+          };
+          const typeIcons = {
+            pick_correct: 'V',
+            pick_wrong:   'X',
+            bh_alive:     '🐴',
+          };
+          const col = typeColors[ev.type] || C.textMid;
+          return (
+            <div key={ev.id} style={{display:'flex',gap:12,padding:'12px 0',borderBottom:`1px solid ${C.border}`}}>
+              <div style={{width:36,height:36,borderRadius:18,background:`${col}18`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                <span style={{fontSize:16,fontWeight:700,color:col}}>{typeIcons[ev.type]}</span>
+              </div>
+              <div style={{flex:1}}>
+                <p style={{fontSize:13,color:C.navy,margin:'0 0 4px',lineHeight:1.4}}>{ev.msg}</p>
+                <div style={{display:'flex',gap:8,alignItems:'center'}}>
+                  <span style={{fontSize:11,color:C.textMuted}}>{ev.round}</span>
+                  {ev.pts > 0 && (
+                    <span style={{fontSize:11,fontWeight:700,color:C.green,background:C.greenLight,padding:'1px 6px',borderRadius:4}}>+{ev.pts} pts</span>
+                  )}
+                  <span style={{fontSize:10,color:C.textMuted,marginLeft:'auto'}}>{ev.time} ago</span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+        <div style={{marginTop:16,padding:14,background:C.bgLight,borderRadius:10,textAlign:'center'}}>
+          <p style={{fontSize:12,color:C.textMuted,margin:0}}>Updates in real-time as matches finish</p>
+        </div>
+      </div>
+    </ModalWrap>
+  );
+
+  // ─── WHAT IF SIMULATOR (Feature 5) ───────────────────────────────────────────
+  const WhatIfModal = () => {
+    const bracket = whatIfBracket || myBrackets[0];
+    if (!bracket) return (
+      <ModalWrap title="What If Simulator" onClose={()=>setModal(null)}>
+        <div style={{padding:32,textAlign:'center'}}>
+          <p style={{color:C.textMuted}}>Submit a bracket first to use the simulator.</p>
+        </div>
+      </ModalWrap>
+    );
+    const scenarios = [
+      { label: 'You picked Alcaraz', actual: 'Sinner won', ptsYou: 47, ptsBest: 89, rankYou: 127, rankBest: 12, diff: -42 },
+      { label: 'Fritz in QF (your pick)', actual: 'Zverev advanced', ptsYou: 47, ptsAlt: 55, rankYou: 127, rankAlt: 68, diff: -8 },
+      { label: 'Medvedev as BH (your pick)', actual: 'Best BH was Bublik', ptsYou: 47, ptsAlt: 62, rankYou: 127, rankAlt: 45, diff: -15 },
+    ];
+    return (
+      <ModalWrap title="What If Simulator" onClose={()=>{ setWhatIfBracket(null); setModal(null); }}>
+        <div style={{padding:16}}>
+          <div style={{background:C.headerBg,borderRadius:12,padding:16,marginBottom:20}}>
+            <p style={{fontSize:12,color:'rgba(255,255,255,0.7)',margin:'0 0 4px'}}>Your bracket: {bracket.name || 'My Bracket'}</p>
+            <div style={{display:'flex',gap:20}}>
+              <div><p style={{fontSize:11,color:'rgba(255,255,255,0.6)',margin:'0 0 2px'}}>Your Score</p><p style={{fontSize:24,fontWeight:800,color:'#fff',margin:0}}>{bracket.points} pts</p></div>
+              <div><p style={{fontSize:11,color:'rgba(255,255,255,0.6)',margin:'0 0 2px'}}>Your Rank</p><p style={{fontSize:24,fontWeight:800,color:'#fff',margin:0}}>#{bracket.position || 127}</p></div>
+              <div><p style={{fontSize:11,color:'rgba(255,255,255,0.6)',margin:'0 0 2px'}}>Max Possible</p><p style={{fontSize:24,fontWeight:800,color:'#FCD34D',margin:0}}>89 pts</p></div>
+            </div>
+          </div>
+
+          <p style={{fontSize:13,fontWeight:700,color:C.navy,margin:'0 0 12px'}}>Key Decisions - What If...</p>
+
+          {scenarios.map((sc, i) => (
+            <div key={i} style={{background:C.bgLight,borderRadius:12,padding:14,marginBottom:12,border:`1px solid ${C.border}`}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'start',marginBottom:10}}>
+                <div style={{flex:1}}>
+                  <p style={{fontSize:12,color:C.textMuted,margin:'0 0 3px'}}>Your pick</p>
+                  <p style={{fontSize:14,fontWeight:600,color:C.navy,margin:0}}>{sc.label}</p>
+                </div>
+                <div style={{textAlign:'right'}}>
+                  <p style={{fontSize:12,color:C.textMuted,margin:'0 0 3px'}}>What happened</p>
+                  <p style={{fontSize:13,color:C.red,margin:0}}>{sc.actual}</p>
+                </div>
+              </div>
+              <div style={{display:'flex',gap:10}}>
+                <div style={{flex:1,background:C.card,borderRadius:8,padding:10,textAlign:'center',border:`1px solid ${C.border}`}}>
+                  <p style={{fontSize:10,color:C.textMuted,margin:'0 0 3px'}}>Your Result</p>
+                  <p style={{fontSize:16,fontWeight:700,color:C.navy,margin:'0 0 2px'}}>{sc.ptsYou} pts</p>
+                  <p style={{fontSize:11,color:C.textMuted}}>Rank #{sc.rankYou}</p>
+                </div>
+                <div style={{display:'flex',alignItems:'center',paddingBottom:16}}>
+                  <span style={{fontSize:18,color:C.red}}>-{Math.abs(sc.diff)}</span>
+                </div>
+                <div style={{flex:1,background:`${C.green}10`,borderRadius:8,padding:10,textAlign:'center',border:`1px solid ${C.green}40`}}>
+                  <p style={{fontSize:10,color:C.textMuted,margin:'0 0 3px'}}>Best Pick</p>
+                  <p style={{fontSize:16,fontWeight:700,color:C.green,margin:'0 0 2px'}}>{sc.ptsAlt || sc.ptsBest} pts</p>
+                  <p style={{fontSize:11,color:C.textMuted}}>Rank #{sc.rankAlt || sc.rankBest}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+
+          <div style={{background:`${C.accent}10`,borderRadius:12,padding:14,border:`1px solid ${C.accent}30`}}>
+            <p style={{fontSize:13,fontWeight:600,color:C.accentText,margin:'0 0 4px'}}>Key Takeaway</p>
+            <p style={{fontSize:12,color:C.textMid,margin:0,lineHeight:1.5}}>
+              Your champion pick cost you the most points. Sinner was the better choice on hard court this season with 81% win rate vs Alcaraz's 78%.
+            </p>
+          </div>
+        </div>
+      </ModalWrap>
+    );
+  };
+
+  // ─── AI BRACKET BUILDER (Feature 14) ─────────────────────────────────────────
+  const AIBuilderModal = () => {
+    const surface = activeTournament?.surface || 'Hard';
+    const handleGenerate = async () => {
+      setAiLoading(true);
+      setAiSuggestion(null);
+      try {
+        const prompt = `You are a tennis bracket prediction assistant for mobaOne app.
+Tournament: ${activeTournament?.name || 'Indian Wells'} (${surface} court)
+Top players: Alcaraz (rank 1, ${surface} win rate 78%), Sinner (rank 2, 81%), Djokovic (rank 3, 76%), Zverev (rank 4, 72%)
+
+Give a SHORT bracket strategy in 3-4 bullet points. Include:
+1. Recommended champion pick with reason
+2. Best Black Horse pick (unseeded/lower ranked player with upset potential)  
+3. One key upset to predict for bonus points
+4. Surface-specific tip
+
+Reply in JSON only:
+{"champion":{"name":"...","reason":"..."},"blackHorse":{"name":"...","reason":"..."},"keyUpset":{"match":"...","pick":"...","reason":"..."},"surfaceTip":"..."}`;
+
+        const res = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 1000,
+            messages: [{ role: 'user', content: prompt }]
+          })
+        });
+        const data = await res.json();
+        const text = data.content?.[0]?.text || '';
+        const clean = text.replace(/```json|```/g, '').trim();
+        const parsed = JSON.parse(clean);
+        setAiSuggestion(parsed);
+      } catch (e) {
+        setAiSuggestion({ error: 'Could not generate suggestion. Try again.' });
+      }
+      setAiLoading(false);
+    };
+
+    return (
+      <ModalWrap title="AI Bracket Builder" onClose={()=>{ setAiSuggestion(null); setModal(null); }}>
+        <div style={{padding:16}}>
+          {/* Header */}
+          <div style={{background:C.headerBg,borderRadius:12,padding:16,marginBottom:16,textAlign:'center'}}>
+            <div style={{marginBottom:8}}><Bot size={40} color="#fff"/></div>
+            <p style={{fontSize:15,fontWeight:700,color:'#fff',margin:'0 0 4px'}}>AI Bracket Strategy</p>
+            <p style={{fontSize:12,color:'rgba(255,255,255,0.7)',margin:0}}>
+              Powered by Claude - analyzing {activeTournament?.name} ({surface} court)
+            </p>
+          </div>
+
+          {!aiSuggestion && !aiLoading && (
+            <>
+              <div style={{background:C.bgLight,borderRadius:12,padding:14,marginBottom:16}}>
+                <p style={{fontSize:13,color:C.textMid,margin:0,lineHeight:1.6}}>
+                  Claude will analyze current player form, surface statistics, and head-to-head records to suggest the optimal bracket strategy for this tournament.
+                </p>
+              </div>
+              <Btn primary full onClick={handleGenerate}>
+                Generate AI Strategy
+              </Btn>
+            </>
+          )}
+
+          {aiLoading && (
+            <div style={{textAlign:'center',padding:40}}>
+              <div style={{width:48,height:48,borderRadius:24,border:`3px solid ${C.accent}`,borderTopColor:'transparent',margin:'0 auto 16px',animation:'spin 0.8s linear infinite'}}/>
+              <p style={{fontSize:14,color:C.textMuted}}>Analyzing player stats and form...</p>
+            </div>
+          )}
+
+          {aiSuggestion && !aiSuggestion.error && (
+            <div>
+              {/* Champion */}
+              <div style={{background:`${C.green}10`,border:`1px solid ${C.green}40`,borderRadius:12,padding:14,marginBottom:12}}>
+                <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
+                  <Trophy size={20} color={C.green}/>
+                  <p style={{fontSize:13,fontWeight:700,color:C.navy,margin:0}}>Recommended Champion</p>
+                </div>
+                <p style={{fontSize:16,fontWeight:800,color:C.green,margin:'0 0 4px'}}>{aiSuggestion.champion?.name}</p>
+                <p style={{fontSize:12,color:C.textMid,margin:0,lineHeight:1.4}}>{aiSuggestion.champion?.reason}</p>
+              </div>
+
+              {/* Black Horse */}
+              <div style={{background:'#FFF7ED',border:'1px solid #C2410C40',borderRadius:12,padding:14,marginBottom:12}}>
+                <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
+                  <Shield size={20} color={C.orange}/>
+                  <p style={{fontSize:13,fontWeight:700,color:C.navy,margin:0}}>Black Horse Pick</p>
+                  <span style={{fontSize:10,fontWeight:700,color:C.orange,background:'#C2410C20',padding:'2px 6px',borderRadius:4}}>1.5x</span>
+                </div>
+                <p style={{fontSize:16,fontWeight:800,color:C.orange,margin:'0 0 4px'}}>{aiSuggestion.blackHorse?.name}</p>
+                <p style={{fontSize:12,color:C.textMid,margin:0,lineHeight:1.4}}>{aiSuggestion.blackHorse?.reason}</p>
+              </div>
+
+              {/* Key Upset */}
+              <div style={{background:`${C.accent}08`,border:`1px solid ${C.accent}30`,borderRadius:12,padding:14,marginBottom:12}}>
+                <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
+                  <Zap size={20} color={C.accentText}/>
+                  <p style={{fontSize:13,fontWeight:700,color:C.navy,margin:0}}>Key Upset to Watch</p>
+                </div>
+                <p style={{fontSize:14,fontWeight:700,color:C.accentText,margin:'0 0 4px'}}>{aiSuggestion.keyUpset?.match}</p>
+                <p style={{fontSize:13,color:C.navy,margin:'0 0 4px'}}>Pick: <strong>{aiSuggestion.keyUpset?.pick}</strong></p>
+                <p style={{fontSize:12,color:C.textMid,margin:0,lineHeight:1.4}}>{aiSuggestion.keyUpset?.reason}</p>
+              </div>
+
+              {/* Surface tip */}
+              <div style={{background:C.bgLight,borderRadius:12,padding:14,marginBottom:16}}>
+                <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
+                  <Activity size={16} color={C.accentText}/>
+                  <p style={{fontSize:13,fontWeight:600,color:C.navy,margin:0}}>{surface} Court Tip</p>
+                </div>
+                <p style={{fontSize:12,color:C.textMid,margin:0,lineHeight:1.5}}>{aiSuggestion.surfaceTip}</p>
+              </div>
+
+              <div style={{display:'flex',gap:10}}>
+                <Btn onClick={handleGenerate} style={{flex:1}}>Regenerate</Btn>
+                <Btn primary onClick={()=>setModal(null)} style={{flex:2}}>Apply Strategy</Btn>
+              </div>
+            </div>
+          )}
+
+          {aiSuggestion?.error && (
+            <div style={{background:C.redLight,borderRadius:12,padding:16,textAlign:'center'}}>
+              <p style={{color:C.red,margin:0}}>{aiSuggestion.error}</p>
+              <Btn primary onClick={handleGenerate} style={{marginTop:12}}>Try Again</Btn>
+            </div>
+          )}
+        </div>
+      </ModalWrap>
+    );
+  };
+  // ─── NOTIFICATIONS MODAL (Feature 2) ───────────────────────────────────────
+  const NotificationsModal = () => (
+    <ModalWrap title="Notifications" onClose={()=>{ markAllRead(); setModal(null); }}>
+      <div style={{padding:0}}>
+        {unreadCount > 0 && (
+          <div style={{padding:'10px 16px',background:C.bgLight,borderBottom:`1px solid ${C.border}`,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            <span style={{fontSize:12,color:C.textMuted}}>{unreadCount} unread</span>
+            <button onClick={markAllRead} style={{background:'none',border:'none',cursor:'pointer',fontSize:12,color:C.accentText,fontWeight:600}}>Mark all read</button>
+          </div>
+        )}
+        {notifications.map(n => (
+          <div key={n.id} style={{display:'flex',gap:12,padding:'14px 16px',borderBottom:`1px solid ${C.border}`,background:n.read?C.card:`${C.accent}06`}}>
+            <div style={{width:40,height:40,borderRadius:20,background:C.bgLight,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+              {n.icon==='points'  && <Activity size={18} color={C.green}/>}
+              {n.icon==='ranking' && <TrendingUp size={18} color={C.accentText}/>}
+              {n.icon==='bh'      && <Shield size={18} color={C.orange}/>}
+              {n.icon==='lock'    && <Lock size={18} color={C.red}/>}
+              {n.icon==='result'  && <Layers size={18} color={C.textMid}/>}
+              {n.icon==='win'     && <CircleDollarSign size={18} color={C.green}/>}
+            </div>
+            <div style={{flex:1}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'start',marginBottom:3}}>
+                <p style={{fontSize:13,fontWeight:n.read?500:700,color:C.navy,margin:0}}>{n.title}</p>
+                {!n.read && <div style={{width:8,height:8,borderRadius:4,background:C.accent,flexShrink:0,marginTop:3}}/>}
+              </div>
+              <p style={{fontSize:12,color:C.textMuted,margin:'0 0 4px',lineHeight:1.4}}>{n.body}</p>
+              <span style={{fontSize:11,color:C.textLight}}>{n.time}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </ModalWrap>
+  );
+
+  // ─── GLOBAL FEED MODAL (Feature 10) ──────────────────────────────────────────
+  const GlobalFeedModal = () => {
+    const actionColors = { won:'#047857', submitted:C.accentText, climbed:C.orange, unlocked:C.orange };
+    const actionLabels = { won:'won', submitted:'submitted', climbed:'climbed', unlocked:'unlocked' };
+    return (
+      <ModalWrap title="Global Feed" onClose={()=>setModal(null)} full>
+        <div style={{padding:0}}>
+          <div style={{padding:'12px 16px',background:C.bgLight,borderBottom:`1px solid ${C.border}`,display:'flex',alignItems:'center',gap:8}}>
+            <div style={{width:8,height:8,borderRadius:4,background:C.red,animation:'pulse 2s infinite'}}/>
+            <span style={{fontSize:13,fontWeight:600,color:C.navy}}>Live activity from all players</span>
+          </div>
+          {globalFeed.map(item => (
+            <div key={item.id} style={{display:'flex',alignItems:'center',gap:12,padding:'13px 16px',borderBottom:`1px solid ${C.border}`}}>
+              <div style={{width:38,height:38,borderRadius:19,background:C.bgLight,display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,flexShrink:0}}>
+                {item.flag}
+              </div>
+              <div style={{flex:1}}>
+                <p style={{fontSize:13,color:C.navy,margin:'0 0 2px',lineHeight:1.4}}>
+                  <strong>{item.user}</strong>
+                  <span style={{color:actionColors[item.action]||C.textMid,fontWeight:600}}> {actionLabels[item.action]} </span>
+                  <span style={{color:C.textMid}}>{item.detail}</span>
+                </p>
+                <span style={{fontSize:11,color:C.textLight}}>{item.time}</span>
+              </div>
+              {item.pts && (
+                <div style={{background:C.greenLight,borderRadius:8,padding:'4px 8px',flexShrink:0}}>
+                  <p style={{fontSize:12,fontWeight:700,color:C.green,margin:0}}>{item.pts} pts</p>
+                </div>
+              )}
+            </div>
+          ))}
+          <div style={{padding:16,textAlign:'center'}}>
+            <p style={{fontSize:12,color:C.textMuted}}>Showing last 24 hours of activity</p>
+          </div>
+        </div>
+      </ModalWrap>
+    );
+  };
+
+  // ─── SHARE BRACKET MODAL (Feature 8) ─────────────────────────────────────────
+  const ShareBracketModal = () => {
+    const bracket = sharePopup;
+    if (!bracket) return null;
+    const shareUrl = `https://mobaone.app/bracket/${bracket.id}`;
+    const shareText = `My ${bracket.tournament?.name} bracket - Champion: ${bracket.champion?.name}. Can you beat me? #mobaOne`;
+    return (
+      <ModalWrap title="Share Bracket" onClose={()=>{ setSharePopup(null); setModal(null); }}>
+        <div style={{padding:16}}>
+          {/* Preview card */}
+          <div style={{background:C.headerBg,borderRadius:14,padding:20,marginBottom:20,textAlign:'center'}}>
+            <p style={{fontSize:11,color:'rgba(255,255,255,0.6)',margin:'0 0 4px',textTransform:'uppercase',letterSpacing:0.5}}>{bracket.tournament?.name}</p>
+            <p style={{fontSize:22,fontWeight:800,color:'#fff',margin:'0 0 12px'}}>My Bracket</p>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:10,marginBottom:8}}>
+              <span style={{fontSize:32}}>{bracket.champion?.flag}</span>
+              <div>
+                <p style={{fontSize:16,fontWeight:700,color:'#fff',margin:0}}>{bracket.champion?.name}</p>
+                <p style={{fontSize:12,color:'rgba(255,255,255,0.7)',margin:0}}>My Champion</p>
+              </div>
+            </div>
+            {bracket.blackHorse && (
+              <p style={{fontSize:12,color:'rgba(255,255,255,0.7)',margin:0}}>
+                Black Horse: {bracket.blackHorse.name}
+              </p>
+            )}
+            <div style={{display:'flex',justifyContent:'center',gap:20,marginTop:12,paddingTop:12,borderTop:'1px solid rgba(255,255,255,0.15)'}}>
+              <div><p style={{fontSize:10,color:'rgba(255,255,255,0.6)',margin:'0 0 2px'}}>Points</p><p style={{fontSize:18,fontWeight:700,color:'#FCD34D',margin:0}}>{bracket.points}</p></div>
+              <div><p style={{fontSize:10,color:'rgba(255,255,255,0.6)',margin:'0 0 2px'}}>Rank</p><p style={{fontSize:18,fontWeight:700,color:'#FCD34D',margin:0}}>#{bracket.position||'--'}</p></div>
+              <div><p style={{fontSize:10,color:'rgba(255,255,255,0.6)',margin:'0 0 2px'}}>Entry</p><p style={{fontSize:18,fontWeight:700,color:'#FCD34D',margin:0}}>${bracket.tier?.entry||bracket.tournament?.entry}</p></div>
+            </div>
+          </div>
+
+          {/* Share URL */}
+          <div style={{background:C.bgLight,borderRadius:10,padding:12,marginBottom:16,display:'flex',alignItems:'center',gap:10,border:`1px solid ${C.border}`}}>
+            <span style={{fontSize:12,color:C.textMuted,flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{shareUrl}</span>
+            <button style={{padding:'6px 12px',borderRadius:6,background:C.accent,border:'none',cursor:'pointer',flexShrink:0}}>
+              <span style={{fontSize:12,fontWeight:600,color:'#fff'}}>Copy</span>
+            </button>
+          </div>
+
+          {/* Share buttons */}
+          <p style={{fontSize:12,fontWeight:600,color:C.textMuted,margin:'0 0 10px',textTransform:'uppercase',letterSpacing:0.5}}>Share on</p>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10,marginBottom:16}}>
+            {[
+              { label:'Twitter/X', bg:'#000',    icon:'X' },
+              { label:'WhatsApp', bg:'#25D366',  icon:'W' },
+              { label:'Copy Text', bg:C.bgLight, icon:'T', textColor:C.navy },
+            ].map(s => (
+              <button key={s.label} style={{padding:'12px 8px',borderRadius:10,background:s.bg,border:`1px solid ${C.border}`,cursor:'pointer',textAlign:'center'}}>
+                <p style={{fontSize:18,fontWeight:800,color:s.textColor||'#fff',margin:'0 0 4px'}}>{s.icon}</p>
+                <p style={{fontSize:11,color:s.textColor||'rgba(255,255,255,0.8)',margin:0}}>{s.label}</p>
+              </button>
+            ))}
+          </div>
+
+          <div style={{background:C.bgLight,borderRadius:10,padding:12,border:`1px solid ${C.border}`}}>
+            <p style={{fontSize:12,color:C.textMuted,margin:0,lineHeight:1.5}}>"{shareText}"</p>
+          </div>
+        </div>
+      </ModalWrap>
+    );
+  };
+
+  // ─── BRACKET VS BRACKET MODAL (Feature 9) ────────────────────────────────────
+  const BracketVsModal = () => {
+    const myB = myBrackets[0];
+    const oppB = vsOpponent;
+    if (!myB) return (
+      <ModalWrap title="Bracket vs Bracket" onClose={()=>setModal(null)}>
+        <div style={{padding:32,textAlign:'center'}}><p style={{color:C.textMuted}}>Submit a bracket first.</p></div>
+      </ModalWrap>
+    );
+    const opp = oppB || { name:'TennisKing99', flag:'🇺🇸', champion:{name:'J. Sinner',flag:'🇮🇹',seed:2}, blackHorse:{name:'T. Fritz'}, points:89, position:1, correctPicks:19, totalPicks:31 };
+    const rounds = ['R128','R64','R32','R16','QF','SF','F'];
+    const myRoundPts  = [8, 12, 10, 9, 8, 0, 0];
+    const oppRoundPts = [8, 14, 12, 11, 8, 13, 21];
+    return (
+      <ModalWrap title="Bracket vs Bracket" onClose={()=>{ setVsOpponent(null); setModal(null); }} full>
+        <div style={{padding:16}}>
+          {/* Head to head scoreboard */}
+          <div style={{display:'grid',gridTemplateColumns:'1fr auto 1fr',gap:8,marginBottom:20,alignItems:'center'}}>
+            <div style={{textAlign:'center',background:C.accentLight,borderRadius:12,padding:14,border:`2px solid ${C.accent}`}}>
+              <p style={{fontSize:11,color:C.accentText,margin:'0 0 4px',fontWeight:600}}>YOU</p>
+              <p style={{fontSize:28,fontWeight:800,color:C.navy,margin:0}}>{myB.points}</p>
+              <p style={{fontSize:11,color:C.textMuted,margin:'2px 0 0'}}>pts</p>
+            </div>
+            <div style={{textAlign:'center'}}>
+              <p style={{fontSize:20,fontWeight:800,color:C.textMuted}}>VS</p>
+            </div>
+            <div style={{textAlign:'center',background:C.bgLight,borderRadius:12,padding:14,border:`1px solid ${C.border}`}}>
+              <p style={{fontSize:11,color:C.textMuted,margin:'0 0 4px',fontWeight:600}}>{opp.name}</p>
+              <p style={{fontSize:28,fontWeight:800,color:C.navy,margin:0}}>{opp.points}</p>
+              <p style={{fontSize:11,color:C.textMuted,margin:'2px 0 0'}}>pts</p>
+            </div>
+          </div>
+
+          {/* Champion comparison */}
+          <div style={{background:C.bgLight,borderRadius:12,padding:14,marginBottom:16}}>
+            <p style={{fontSize:11,fontWeight:700,color:C.textMuted,margin:'0 0 10px',textTransform:'uppercase',letterSpacing:0.5}}>Champion Picks</p>
+            <div style={{display:'grid',gridTemplateColumns:'1fr auto 1fr',gap:8,alignItems:'center'}}>
+              <div style={{textAlign:'center'}}>
+                <span style={{fontSize:28}}>{myB.champion?.flag}</span>
+                <p style={{fontSize:13,fontWeight:600,color:C.navy,margin:'4px 0 0'}}>{myB.champion?.name}</p>
+              </div>
+              <span style={{color:C.textMuted,fontSize:12}}>vs</span>
+              <div style={{textAlign:'center'}}>
+                <span style={{fontSize:28}}>{opp.champion?.flag}</span>
+                <p style={{fontSize:13,fontWeight:600,color:C.navy,margin:'4px 0 0'}}>{opp.champion?.name}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Round by round pts */}
+          <p style={{fontSize:12,fontWeight:700,color:C.textMuted,margin:'0 0 10px',textTransform:'uppercase',letterSpacing:0.5}}>Points by Round</p>
+          <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:12,overflow:'hidden',marginBottom:16}}>
+            {rounds.map((r, i) => {
+              const myPts = myRoundPts[i];
+              const opPts = oppRoundPts[i];
+              const myWin = myPts > opPts;
+              const opWin = opPts > myPts;
+              return (
+                <div key={r} style={{display:'grid',gridTemplateColumns:'1fr 48px 1fr',padding:'10px 14px',borderBottom:i<rounds.length-1?`1px solid ${C.border}`:'none'}}>
+                  <span style={{fontSize:14,fontWeight:700,color:myWin?C.green:C.textMid,textAlign:'center'}}>{myPts}</span>
+                  <span style={{fontSize:12,color:C.textMuted,textAlign:'center'}}>{r}</span>
+                  <span style={{fontSize:14,fontWeight:700,color:opWin?C.green:C.textMid,textAlign:'center'}}>{opPts}</span>
+                </div>
+              );
+            })}
+            <div style={{display:'grid',gridTemplateColumns:'1fr 48px 1fr',padding:'12px 14px',background:C.bgLight}}>
+              <span style={{fontSize:16,fontWeight:800,color:myB.points>opp.points?C.green:C.red,textAlign:'center'}}>{myB.points}</span>
+              <span style={{fontSize:12,fontWeight:600,color:C.textMuted,textAlign:'center'}}>Total</span>
+              <span style={{fontSize:16,fontWeight:800,color:opp.points>myB.points?C.green:C.red,textAlign:'center'}}>{opp.points}</span>
+            </div>
+          </div>
+
+          {/* Result */}
+          <div style={{background:myB.points>opp.points?C.greenLight:C.redLight,borderRadius:12,padding:14,textAlign:'center'}}>
+            <p style={{fontSize:16,fontWeight:700,color:myB.points>opp.points?C.green:C.red,margin:0}}>
+              {myB.points>opp.points ? 'You are winning this matchup!' : `${opp.name} leads by ${opp.points-myB.points} points`}
+            </p>
+          </div>
+        </div>
+      </ModalWrap>
+    );
+  };
+
+  // ─── CASHBACK MODAL (Feature 13) ────────────────────────────────────────────
+  const CashbackModal = () => {
+    const cb = cashbackData;
+    const currentTier = cb.tiers.find(t => t.name === cb.tier) || cb.tiers[0];
+    const nextTier = cb.tiers[cb.tiers.findIndex(t => t.name === cb.tier) + 1];
+    const progressToNext = nextTier ? Math.min(100, (cb.totalRakePaid / nextTier.minRake) * 100) : 100;
+
+    return (
+      <ModalWrap title="Cashback" onClose={() => setModal(null)}>
+        <div style={{padding:16}}>
+          {/* Current tier hero */}
+          <div style={{background:C.headerBg, borderRadius:14, padding:20, marginBottom:16, textAlign:'center'}}>
+            <p style={{fontSize:12, color:'rgba(255,255,255,0.6)', margin:'0 0 4px', textTransform:'uppercase', letterSpacing:0.5}}>Your Cashback Tier</p>
+            <p style={{fontSize:32, fontWeight:800, color:'#FCD34D', margin:'0 0 4px'}}>{cb.tier}</p>
+            <p style={{fontSize:22, fontWeight:700, color:'#fff', margin:'0 0 12px'}}>{(currentTier.rate * 100).toFixed(0)}% cashback on rake</p>
+            <div style={{display:'flex', justifyContent:'center', gap:24}}>
+              <div><p style={{fontSize:10, color:'rgba(255,255,255,0.6)', margin:'0 0 2px'}}>Earned this month</p><p style={{fontSize:20, fontWeight:700, color:'#fff', margin:0}}>${cb.cashbackEarned.toFixed(2)}</p></div>
+              <div><p style={{fontSize:10, color:'rgba(255,255,255,0.6)', margin:'0 0 2px'}}>Rake paid</p><p style={{fontSize:20, fontWeight:700, color:'#fff', margin:0}}>${cb.totalRakePaid}</p></div>
+            </div>
+          </div>
+
+          {/* Progress to next tier */}
+          {nextTier && (
+            <div style={{background:C.bgLight, borderRadius:12, padding:14, marginBottom:16}}>
+              <div style={{display:'flex', justifyContent:'space-between', marginBottom:8}}>
+                <span style={{fontSize:13, fontWeight:600, color:C.navy}}>Progress to {nextTier.name}</span>
+                <span style={{fontSize:13, color:C.accentText}}>${cb.totalRakePaid} / ${nextTier.minRake}</span>
+              </div>
+              <div style={{height:8, background:C.border, borderRadius:4, marginBottom:6}}>
+                <div style={{height:'100%', width:`${progressToNext}%`, background:C.accent, borderRadius:4, transition:'width 0.5s'}}/>
+              </div>
+              <p style={{fontSize:11, color:C.textMuted, margin:0}}>
+                ${nextTier.minRake - cb.totalRakePaid} more in rake to unlock {nextTier.name} ({(nextTier.rate*100).toFixed(0)}% cashback)
+              </p>
+            </div>
+          )}
+
+          {/* Cashback breakdown */}
+          <div style={{background:C.card, border:`1px solid ${C.border}`, borderRadius:12, overflow:'hidden', marginBottom:16}}>
+            {[
+              ['Pending (48h)',  `$${cb.cashbackPending.toFixed(2)}`,  C.orange],
+              ['Paid out',       `$${cb.cashbackPaid.toFixed(2)}`,     C.green],
+              ['Total earned',   `$${cb.cashbackEarned.toFixed(2)}`,   C.navy],
+            ].map(([label, val, color], i, arr) => (
+              <div key={label} style={{display:'flex', justifyContent:'space-between', padding:'12px 16px', borderBottom:i<arr.length-1?`1px solid ${C.border}`:'none'}}>
+                <span style={{fontSize:13, color:C.textMuted}}>{label}</span>
+                <span style={{fontSize:14, fontWeight:700, color}}>{val}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* All tiers */}
+          <p style={{fontSize:12, fontWeight:700, color:C.textMuted, margin:'0 0 10px', textTransform:'uppercase', letterSpacing:0.5}}>All Tiers</p>
+          <div style={{display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:8, marginBottom:16}}>
+            {cb.tiers.map(tier => {
+              const active = tier.name === cb.tier;
+              return (
+                <div key={tier.name} style={{background:active?`${C.accent}12`:C.bgLight, borderRadius:10, padding:10, textAlign:'center', border:`1.5px solid ${active?C.accent:C.border}`}}>
+                  <p style={{fontSize:11, fontWeight:700, color:tier.color, margin:'0 0 3px'}}>{tier.name}</p>
+                  <p style={{fontSize:16, fontWeight:800, color:active?C.accent:C.textMid, margin:'0 0 2px'}}>{(tier.rate*100).toFixed(0)}%</p>
+                  <p style={{fontSize:9, color:C.textMuted, margin:0}}>${tier.minRake}+ rake</p>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* History */}
+          <p style={{fontSize:12, fontWeight:700, color:C.textMuted, margin:'0 0 10px', textTransform:'uppercase', letterSpacing:0.5}}>History</p>
+          {cb.history.map(h => (
+            <div key={h.month} style={{display:'flex', justifyContent:'space-between', alignItems:'center', padding:'12px 0', borderBottom:`1px solid ${C.border}`}}>
+              <div>
+                <p style={{fontSize:13, fontWeight:500, color:C.navy, margin:0}}>{h.month}</p>
+                <p style={{fontSize:11, color:C.textMuted, margin:'2px 0 0'}}>Rake paid: ${h.rakePaid}</p>
+              </div>
+              <div style={{textAlign:'right'}}>
+                <p style={{fontSize:14, fontWeight:700, color:C.green, margin:0}}>+${h.cashback.toFixed(2)}</p>
+                <span style={{fontSize:10, fontWeight:600, color:C.green, background:C.greenLight, padding:'1px 6px', borderRadius:4}}>PAID</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </ModalWrap>
+    );
+  };
+
+  // ─── FREEROLL MODAL (Feature 12) ─────────────────────────────────────────────
+  const FreerollModal = () => {
+    const freerolls = tournaments.filter(t => t.freeroll);
+    return (
+      <ModalWrap title="Freeroll Tournaments" onClose={() => setModal(null)}>
+        <div style={{padding:16}}>
+          {/* Header */}
+          <div style={{background:C.headerBg, borderRadius:12, padding:16, marginBottom:16, textAlign:'center'}}>
+            <p style={{fontSize:32, fontWeight:800, color:'#FCD34D', margin:'0 0 4px'}}>FREE</p>
+            <p style={{fontSize:15, fontWeight:600, color:'#fff', margin:'0 0 4px'}}>No entry fee. Real prize pools.</p>
+            <p style={{fontSize:12, color:'rgba(255,255,255,0.65)', margin:0}}>Sponsored tournaments open to all players</p>
+          </div>
+
+          {freerolls.map(t => {
+            const entered = myBrackets.some(b => b.tournament?.id === t.id);
+            return (
+              <div key={t.id} style={{background:C.bgLight, borderRadius:14, padding:16, marginBottom:12, border:`1px solid ${C.border}`}}>
+                {/* Sponsor badge */}
+                <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10}}>
+                  <span style={{fontSize:11, fontWeight:700, color:'#fff', background:C.green, padding:'3px 10px', borderRadius:12}}>
+                    FREE ENTRY
+                  </span>
+                  <span style={{fontSize:11, color:C.textMuted}}>
+                    Sponsored by {t.sponsor}
+                  </span>
+                </div>
+
+                <p style={{fontSize:17, fontWeight:700, color:C.navy, margin:'0 0 2px'}}>{t.name.replace(' Freeroll','')}</p>
+                <p style={{fontSize:12, color:C.textMuted, margin:'0 0 12px'}}>{t.subtitle}</p>
+
+                {/* Stats */}
+                <div style={{display:'flex', gap:12, marginBottom:12}}>
+                  <div style={{flex:1, background:C.card, borderRadius:8, padding:10, textAlign:'center'}}>
+                    <p style={{fontSize:9, color:C.textMuted, margin:'0 0 2px', textTransform:'uppercase'}}>Prize Pool</p>
+                    <p style={{fontSize:16, fontWeight:700, color:C.green, margin:0}}>${t.freerollPool.toLocaleString('en-US')}</p>
+                  </div>
+                  <div style={{flex:1, background:C.card, borderRadius:8, padding:10, textAlign:'center'}}>
+                    <p style={{fontSize:9, color:C.textMuted, margin:'0 0 2px', textTransform:'uppercase'}}>Entries</p>
+                    <p style={{fontSize:16, fontWeight:700, color:C.navy, margin:0}}>{t.entries.toLocaleString('en-US')}</p>
+                  </div>
+                  <div style={{flex:1, background:C.card, borderRadius:8, padding:10, textAlign:'center'}}>
+                    <p style={{fontSize:9, color:C.textMuted, margin:'0 0 2px', textTransform:'uppercase'}}>Surface</p>
+                    <p style={{fontSize:16, fontWeight:700, color:C.navy, margin:0}}>{t.surface}</p>
+                  </div>
+                </div>
+
+                {t.newUserOnly && (
+                  <div style={{background:`${C.orange}15`, border:`1px solid ${C.orange}40`, borderRadius:8, padding:8, marginBottom:10}}>
+                    <p style={{fontSize:11, color:C.orange, margin:0, fontWeight:600}}>New players only - one entry per account</p>
+                  </div>
+                )}
+
+                {entered ? (
+                  <div style={{padding:10, background:C.greenLight, borderRadius:8, textAlign:'center'}}>
+                    <span style={{fontSize:13, fontWeight:600, color:C.green}}>Entered</span>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => { setActiveTournament(t); setSelectedTier(null); setModal(null); setView('bracket'); }}
+                    disabled={t.status==='upcoming'}
+                    style={{width:'100%', padding:12, borderRadius:10, background:t.status==='upcoming'?C.bgLight:C.green, border:'none', cursor:t.status==='upcoming'?'not-allowed':'pointer', opacity:t.status==='upcoming'?0.6:1}}>
+                    <span style={{fontSize:14, fontWeight:700, color:t.status==='upcoming'?C.textMuted:'#fff'}}>
+                      {t.status==='upcoming' ? 'Opening Soon' : 'Enter Free'}
+                    </span>
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </ModalWrap>
+    );
+  };
+
+  // ─── HELP / FAQ MODAL ───────────────────────────────────────────────────────
+  const HelpModal = () => {
+    const faqs = [
+      {
+        q: 'How does mobaOne work?',
+        a: 'Build a bracket by picking the winner of every match in a tennis tournament. Earn points for each correct pick. More points are awarded in later rounds (Fibonacci scoring: R128=1pt up to Final=21pt).',
+      },
+      {
+        q: 'What is the Black Horse?',
+        a: 'Before submitting your bracket, select one lower-ranked or unseeded player. Every correct pick that involves your Black Horse earns 1.5x points. Choose wisely  the further they go, the more you earn.',
+      },
+      {
+        q: 'How are entry fees and prize pools calculated?',
+        a: 'Each tournament has 10 buy-in levels ($1 to $1,000). Every level has its own separate prize pool and leaderboard. 90% of each entry fee goes to the prize pool (10% rake from $5+). Big tournaments like Masters 1000 and Grand Slams have guaranteed prize pools of $1M or more.',
+      },
+      {
+        q: 'When does my bracket lock?',
+        a: 'Your bracket locks when the tournament starts. You can see the countdown timer on each tournament card. Submit your bracket at least 24 hours early to earn the Early Bird bonus points.',
+      },
+      {
+        q: 'How do payouts work?',
+        a: 'The top 15% of entries in each buy-in level win cash prizes. Prize distribution: 1st place ~20% of pool, 2nd ~12%, 3rd ~8%, then sliding scale down to 15th percentile. Winnings are credited instantly to your wallet.',
+      },
+      {
+        q: 'What is Cashback?',
+        a: 'You earn cashback on every rake paid. Bronze tier (default) gives 5% back. Play more to reach Silver (7%), Gold (10%), or Platinum (15%). Cashback is credited to your wallet at the end of each month.',
+      },
+      {
+        q: 'What are Freeroll tournaments?',
+        a: 'Freeroll tournaments have no entry fee but offer real cash prize pools, sponsored by brands like Wilson and Babolat. They are a great way to practice and win without any risk.',
+      },
+      {
+        q: 'Can I submit multiple brackets?',
+        a: 'Yes  you can submit up to 3 brackets per tournament per buy-in level. Each bracket can have different picks, a different champion, and a different Black Horse.',
+      },
+      {
+        q: 'How do Mini Leagues work?',
+        a: 'Create a private league and invite friends using a unique code. Your group has its own leaderboard separate from the global one. Perfect for office pools or friend groups.',
+      },
+      {
+        q: 'Is my balance safe?',
+        a: 'Yes. Your balance is held in your mobaOne wallet and can be withdrawn at any time via bank transfer. Deposits and withdrawals are processed within 1-3 business days.',
+      },
+    ];
+
+    const [openIdx, setOpenIdx] = React.useState(null);
+
+    return (
+      <ModalWrap title="Help &amp; FAQ" onClose={()=>setModal(null)} full>
+        <div style={{padding:16}}>
+          {/* Header */}
+          <div style={{background:C.bgLight,borderRadius:12,padding:14,marginBottom:20,display:'flex',alignItems:'center',gap:12}}>
+            <div style={{width:40,height:40,borderRadius:20,background:C.accent,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2">
+                <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
+                <path d="M9 9a3 3 0 1 1 4 2.829 1.5 1.5 0 0 0-1 1.415V14"/>
+                <circle cx="12" cy="17" r="1" fill="#fff"/>
+              </svg>
+            </div>
+            <div>
+              <p style={{fontSize:14,fontWeight:600,color:C.navy,margin:0}}>Frequently Asked Questions</p>
+              <p style={{fontSize:11,color:C.textMuted,margin:'2px 0 0'}}>Tap a question to see the answer</p>
+            </div>
+          </div>
+
+          {/* FAQ list */}
+          {faqs.map((faq, i) => (
+            <div key={i} style={{borderBottom:`1px solid ${C.border}`,overflow:'hidden'}}>
+              <button
+                onClick={()=>setOpenIdx(openIdx===i?null:i)}
+                style={{width:'100%',display:'flex',alignItems:'center',justifyContent:'space-between',padding:'14px 0',background:'none',border:'none',cursor:'pointer',textAlign:'left',gap:12}}>
+                <span style={{fontSize:14,fontWeight:600,color:C.navy,flex:1,lineHeight:1.4}}>{faq.q}</span>
+                <ChevronDown size={16} color={C.textMuted} style={{flexShrink:0,transform:openIdx===i?'rotate(180deg)':'none',transition:'transform 0.2s'}}/>
+              </button>
+              {openIdx===i && (
+                <div style={{paddingBottom:14}}>
+                  <p style={{fontSize:13,color:C.textMid,margin:0,lineHeight:1.6}}>{faq.a}</p>
+                </div>
+              )}
+            </div>
+          ))}
+
+          {/* Contact */}
+          <div style={{marginTop:20,padding:14,background:C.bgLight,borderRadius:12,textAlign:'center'}}>
+            <p style={{fontSize:13,fontWeight:600,color:C.navy,margin:'0 0 4px'}}>Still need help?</p>
+            <p style={{fontSize:12,color:C.textMuted,margin:'0 0 12px'}}>Our support team replies within 24 hours</p>
+            <button style={{padding:'8px 20px',borderRadius:8,background:C.accent,border:'none',cursor:'pointer'}}>
+              <span style={{fontSize:13,fontWeight:600,color:'#fff'}}>Contact Support</span>
+            </button>
+          </div>
+        </div>
+      </ModalWrap>
+    );
+  };
+
   const ProfileModal = () => (
     <ModalWrap title="My Profile" onClose={()=>setModal(null)}>
       <div style={{padding:20}}>
@@ -1982,12 +3274,12 @@ export default function App() {
           <p style={{fontSize:14,color:C.accentText,margin:'4px 0'}}>Rank #{user.rank}</p>
         </div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:12,marginBottom:24}}>
-          {[['Win Rate',`${user.win}%`,C.green],['Earnings',`$${user.earn.toLocaleString('en-US')}`,C.accent],['Brackets',user.brackets,C.navy],['Balance',`$${balance.toLocaleString('en-US')}`,C.navy]].map(([l,v,col])=>(
+          {[['Win Rate',`${user.win}%`,C.green],['Earnings',`$${user.earn.toLocaleString('en-US')}`,C.accentText],['Brackets',user.brackets,C.navy],['Balance',`$${balance.toLocaleString('en-US')}`,C.navy]].map(([l,v,col])=>(
             <div key={l} style={{background:C.bgLight,borderRadius:10,padding:16,textAlign:'center'}}><p style={{fontSize:11,color:C.textMuted,margin:'0 0 4px'}}>{l}</p><p style={{fontSize:22,fontWeight:700,color:col,margin:0}}>{v}</p></div>
           ))}
         </div>
 
-        {/* ── APPEARANCE ── */}
+        {/* Appearance toggle */}
         <div style={{background:C.bgLight,borderRadius:12,padding:16,marginBottom:16,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
           <div style={{display:'flex',alignItems:'center',gap:10}}>
             {isDark?<Moon size={18} color={C.accentText}/>:<Sun size={18} color={C.orange}/>}
@@ -2002,11 +3294,22 @@ export default function App() {
 
         <div style={{display:'flex',flexDirection:'column',gap:10}}>
           <Btn full onClick={()=>{setModal(null);setView('wallet');}}><Wallet size={18}/> Wallet</Btn>
+          <Btn full onClick={()=>setModal('notifications')}>
+            Notifications {unreadCount > 0 && <span style={{background:C.red,color:'#fff',borderRadius:10,padding:'1px 7px',fontSize:11,fontWeight:700,marginLeft:6}}>{unreadCount}</span>}
+          </Btn>
+          <Btn full onClick={()=>setModal('globalfeed')}>Global Feed</Btn>
           <Btn full onClick={()=>{setModal(null);setCalendarTab('my');setView('calendar');}}><Target size={18}/> My Brackets</Btn>
           <Btn full onClick={()=>setModal('stats')}><BarChart2 size={18}/> My Stats &amp; Accuracy</Btn>
+          <Btn full onClick={()=>setModal('commentary')}><Radio size={18}/> Live Commentary</Btn>
+          <Btn full onClick={()=>{ setWhatIfBracket(myBrackets[0]||null); setModal('whatif'); }}><TrendingUp size={18}/> What If Simulator</Btn>
+          <Btn full onClick={()=>setModal('aibuilder')}><span style={{fontSize:14}}>AI</span> AI Bracket Builder</Btn>
+          <Btn full onClick={()=>setModal('achievements')}>Achievements ({achievements.filter(a=>a.earned).length}/{achievements.length})</Btn>
+          <Btn full onClick={()=>setModal('challenges')}>Daily Challenges</Btn>
           <Btn full onClick={()=>setModal('leagues')}><Trophy size={18}/> Mini Leagues</Btn>
-          <Btn full onClick={()=>setModal('h2h')}><ArrowUp size={18}/> Head-to-Head Challenge</Btn>
-          <Btn full onClick={()=>setModal('rewards')}><span style={{fontSize:16}}>🎁</span> Rewards &amp; Referral</Btn>
+          <Btn full onClick={()=>setModal('h2h')}><ArrowUp size={18}/> Head-to-Head</Btn>
+          <Btn full onClick={()=>setModal('rewards')}>Rewards &amp; Referral</Btn>
+          <Btn full onClick={()=>setModal('freeroll')}>Freeroll Tournaments</Btn>
+          <Btn full onClick={()=>setModal('cashback')}>Cashback - {cashbackData.tier} ({(cashbackData.cashbackRate*100).toFixed(0)}%)</Btn>
           <button onClick={()=>{setIsLoggedIn(false);setModal(null);}} style={{width:'100%',padding:14,borderRadius:10,border:`1px solid ${C.red}`,background:'transparent',color:C.red,fontSize:15,fontWeight:600,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
             <LogIn size={18}/> Sign Out
           </button>
@@ -2029,7 +3332,7 @@ export default function App() {
             <div style={{display:'flex',alignItems:'center',gap:12}}><span style={{fontSize:36}}>{selectedBracket.champion?.flag}</span><div><p style={{fontSize:18,fontWeight:700,color:C.navy,margin:0}}>{selectedBracket.champion?.name}</p></div><Trophy size={24} color="#FCD34D" style={{marginLeft:'auto'}}/></div>
           </div>
           <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10,marginBottom:16}}>
-            {[['Entry',`$${selectedBracket.tournament.entry}`,C.navy],['Points',selectedBracket.points,C.green],['Position',selectedBracket.position||'—',C.accent]].map(([l,v,col])=>(
+            {[['Entry',`$${selectedBracket.tournament.entry}`,C.navy],['Points',selectedBracket.points,C.green],['Position',selectedBracket.position||'-',C.accent]].map(([l,v,col])=>(
               <div key={l} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:12,textAlign:'center'}}><p style={{fontSize:11,color:C.textMuted,margin:0}}>{l}</p><p style={{fontSize:16,fontWeight:700,color:col,margin:'4px 0 0'}}>{v}</p></div>
             ))}
           </div>
@@ -2060,12 +3363,17 @@ export default function App() {
   // ─── RENDER ──────────────────────────────────────────────────────────────────
   return (
     <div style={{minHeight:'100vh',background:C.bg,fontFamily:'-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,sans-serif',transition:'background 0.3s,color 0.3s'}}>
+      {showSplash && <SplashScreen/>}
+      {!showSplash && showOnboarding && <OnboardingScreen/>}
       <style>{`
         *{box-sizing:border-box;margin:0;padding:0;}
         ::-webkit-scrollbar{width:0;height:0;}
         input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;}
         @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
         @keyframes slideUp{from{transform:translateX(-50%) translateY(20px);opacity:0;}to{transform:translateX(-50%) translateY(0);opacity:1;}}
+        @keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+        @keyframes splashIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+        @keyframes splashFade{from{opacity:1;}to{opacity:0;}}
         @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
       `}</style>
       <div style={{maxWidth:430,margin:'0 auto',minHeight:'100vh',paddingBottom:80}}>
@@ -2087,6 +3395,18 @@ export default function App() {
         {modal==='leagues'&&<MiniLeaguesModal/>}
         {modal==='h2h'&&<H2HModal/>}
         {modal==='rewards'&&<RewardsModal/>}
+        {modal==='achievements'&&<AchievementsModal/>}
+        {modal==='commentary'&&<LiveCommentaryModal/>}
+        {modal==='cashback'&&<CashbackModal/>}
+        {modal==='help'&&<HelpModal/>}
+        {modal==='freeroll'&&<FreerollModal/>}
+        {modal==='notifications'&&<NotificationsModal/>}
+        {modal==='globalfeed'&&<GlobalFeedModal/>}
+        {modal==='share'&&<ShareBracketModal/>}
+        {modal==='vs'&&<BracketVsModal/>}
+        {modal==='whatif'&&<WhatIfModal/>}
+        {modal==='aibuilder'&&<AIBuilderModal/>}
+        {modal==='challenges'&&<DailyChallengesModal/>}
         {selectedBracket&&<BracketDetailsModal/>}
         {selPlayer&&<PlayerModal/>}
         {leaderboardBracket&&<LeaderboardModal/>}

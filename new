@@ -410,7 +410,19 @@ const MobaWordmark = ({ color = '#FFFFFF', fontSize = 18 }) => (
 
 // ─── MAIN APP ─────────────────────────────────────────────────────────────────
 export default function App() {
-  const [isDark, setIsDark] = useState(false);
+  // Auto-detect system theme, allow manual override
+  const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const [isDark, setIsDark] = useState(systemDark);
+  const [themeMode, setThemeMode] = useState('system'); // 'system' | 'light' | 'dark'
+
+  // Listen for system theme changes
+  React.useEffect(() => {
+    if (themeMode !== 'system') return;
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const handler = (e) => setIsDark(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, [themeMode]);
 
   const C = isDark ? themeA_dark : themeA_light;
 
@@ -551,6 +563,16 @@ export default function App() {
       { name:'Platinum', minRake:750, rate:0.15, color:'#1D4ED8' },
     ],
   });
+
+  // ── HAPTIC FEEDBACK (Feature 15) ────────────────────────────────────────────
+  const haptic = {
+    light:   () => { try { window.navigator.vibrate && window.navigator.vibrate(10); } catch(e){} },
+    medium:  () => { try { window.navigator.vibrate && window.navigator.vibrate(20); } catch(e){} },
+    heavy:   () => { try { window.navigator.vibrate && window.navigator.vibrate([30, 10, 30]); } catch(e){} },
+    success: () => { try { window.navigator.vibrate && window.navigator.vibrate([10, 50, 10]); } catch(e){} },
+    error:   () => { try { window.navigator.vibrate && window.navigator.vibrate([50, 30, 50, 30, 50]); } catch(e){} },
+    tick:    () => { try { window.navigator.vibrate && window.navigator.vibrate(5); } catch(e){} },
+  };
 
   const unreadCount = notifications.filter(n => !n.read).length;
   const markAllRead = () => setNotifications(prev => prev.map(n => ({...n, read:true})));
@@ -730,14 +752,31 @@ export default function App() {
           )}
         </div>
 
-        {/* CENTER: search bar or title */}
+        {/* CENTER: title / search / balance */}
         <div style={{flex:1}}>
           {title
             ? <span style={{fontSize:18,fontWeight:600,color:'#fff'}}>{title}</span>
-            : <div style={{background:'rgba(255,255,255,0.15)',borderRadius:20,padding:'8px 14px',display:'flex',alignItems:'center',gap:8}}>
-                <Search size={16} color="rgba(255,255,255,0.6)"/>
-                <span style={{fontSize:13,color:'rgba(255,255,255,0.6)'}}>Search</span>
-              </div>
+            : isLoggedIn
+              ? <div style={{display:'flex',alignItems:'center',gap:10}}>
+                  {/* Compact search icon */}
+                  <button style={{background:'rgba(255,255,255,0.15)',border:'none',borderRadius:20,width:36,height:36,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',flexShrink:0}}>
+                    <Search size={16} color="rgba(255,255,255,0.7)"/>
+                  </button>
+                  {/* Balance + deposit */}
+                  <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'flex-end',gap:8}}>
+                    <div style={{textAlign:'right'}}>
+                      <p style={{fontSize:9,color:'rgba(255,255,255,0.55)',margin:0,letterSpacing:0.3}}>BALANCE</p>
+                      <p style={{fontSize:15,fontWeight:700,color:'#fff',margin:0}}>${balance.toLocaleString('en-US')}</p>
+                    </div>
+                    <button onClick={()=>{setDepStep(1);setDepAmt('');setModal('deposit');}} style={{width:30,height:30,borderRadius:15,background:'rgba(255,255,255,0.2)',border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}}>
+                      <Plus size={16} color="#fff"/>
+                    </button>
+                  </div>
+                </div>
+              : <div style={{background:'rgba(255,255,255,0.15)',borderRadius:20,padding:'8px 14px',display:'flex',alignItems:'center',gap:8}}>
+                  <Search size={16} color="rgba(255,255,255,0.6)"/>
+                  <span style={{fontSize:13,color:'rgba(255,255,255,0.6)'}}>Search</span>
+                </div>
           }
         </div>
 
@@ -772,21 +811,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* Balance bar - shown when logged in */}
-      {isLoggedIn && !showBack && (
-        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginTop:12,paddingTop:12,borderTop:'1px solid rgba(255,255,255,0.1)'}}>
-          <span style={{fontSize:13,fontWeight:500,color:'#fff'}}>{user.name}</span>
-          <div style={{display:'flex',alignItems:'center',gap:12}}>
-            <div style={{textAlign:'right'}}>
-              <p style={{fontSize:10,color:'rgba(255,255,255,0.7)',margin:0}}>Balance</p>
-              <p style={{fontSize:15,fontWeight:600,color:'#fff',margin:0}}>${balance.toLocaleString('en-US')}</p>
-            </div>
-            <button onClick={()=>{setDepStep(1);setDepAmt('');setModal('deposit');}} style={{width:32,height:32,borderRadius:16,background:'rgba(255,255,255,0.2)',border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}}>
-              <Plus size={18} color="#fff"/>
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Balance shown inline in header when logged in */}
     </div>
   );
 
@@ -815,7 +840,7 @@ export default function App() {
           {items.map(item => {
             const active = view === item.id;
             return (
-              <button key={item.id} onClick={()=>setView(item.id)}
+              <button key={item.id} onClick={()=>{haptic.light();setView(item.id);}}
                 style={{
                   display:'flex', flexDirection:'column', alignItems:'center', gap:4,
                   padding: '0 8px',
@@ -1110,11 +1135,11 @@ export default function App() {
                 </div>
               ))}
             </div>
-            <div style={{position:'fixed',bottom:88,left:0,right:0,maxWidth:430,margin:'0 auto',padding:'12px 16px',background:C.card,borderTop:`1px solid ${C.border}`,boxShadow:'0 -4px 12px rgba(0,0,0,0.08)'}}>
+            <div style={{position:'fixed',bottom:0,left:0,right:0,maxWidth:430,margin:'0 auto',padding:'12px 16px',paddingBottom:'calc(12px + 68px)',background:C.card,borderTop:`1px solid ${C.border}`,boxShadow:'0 -4px 12px rgba(0,0,0,0.08)'}}>
               <div style={{display:'flex',gap:12}}>
                 {bracketRound>0&&<Btn onClick={()=>setBracketRound(bracketRound-1)} style={{flex:1}}><ChevronLeft size={18}/> Previous</Btn>}
                 {bracketRound<totalRounds-1
-                  ?<Btn primary onClick={()=>setBracketRound(bracketRound+1)} style={{flex:bracketRound>0?2:1}}>Next Round <ChevronRight size={18}/></Btn>
+                  ?<Btn primary onClick={()=>{haptic.medium();setBracketRound(bracketRound+1);}} style={{flex:bracketRound>0?2:1}}>Next Round <ChevronRight size={18}/></Btn>
                   :<Btn primary disabled={progress<100} onClick={()=>{setSubmitStep(1);setModal('submit');}} style={{flex:2}}><Check size={18}/> Submit (${activeTournament.entry})</Btn>
                 }
               </div>
@@ -1700,7 +1725,7 @@ export default function App() {
                   setMyBrackets([...myBrackets, newBracket]);
                   setBlackHorse(null);
                   setSubmitStep(3);
-                  // Simulate live ticker after 2s
+                  haptic.success();
                   setTimeout(() => triggerTicker(newBracket.id, champion?.name, 8, 'QF'), 2000);
                 }} style={{flex:2}}>
                 Pay ${fee}
@@ -1838,7 +1863,7 @@ export default function App() {
 
             return (
               <button key={stake.id}
-                onClick={() => canAfford && !maxed && setSelectedTier(stake)}
+                onClick={() => { if(canAfford && !maxed){ haptic.tick(); setSelectedTier(stake); }}}
                 style={{
                   width:'100%', display:'flex', alignItems:'center',
                   padding:'14px 16px', marginBottom:8,
@@ -1931,7 +1956,7 @@ export default function App() {
           </div>
           <div style={{maxHeight:380,overflowY:'auto'}}>
             {players.map(p=>(
-              <button key={p.id} onClick={()=>{setBlackHorse(p);setModal(null);}}
+              <button key={p.id} onClick={()=>{haptic.medium();setBlackHorse(p);setModal(null);}}
                 style={{width:'100%',display:'flex',alignItems:'center',padding:'12px 14px',marginBottom:8,borderRadius:10,border:blackHorse?.id===p.id?`2px solid ${C.orange}`:`1px solid ${C.border}`,background:blackHorse?.id===p.id?`${C.orange}10`:C.card,cursor:'pointer'}}>
                 <span style={{fontSize:22,marginRight:12}}>{p.flag}</span>
                 <div style={{flex:1,textAlign:'left'}}><p style={{fontSize:15,fontWeight:500,color:C.navy,margin:0}}>{p.name}</p><p style={{fontSize:12,color:C.textMuted,margin:'2px 0 0'}}>Seed [{p.seed||'-'}]</p></div>
@@ -3279,17 +3304,36 @@ Reply in JSON only:
           ))}
         </div>
 
-        {/* Appearance toggle */}
-        <div style={{background:C.bgLight,borderRadius:12,padding:16,marginBottom:16,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-          <div style={{display:'flex',alignItems:'center',gap:10}}>
-            {isDark?<Moon size={18} color={C.accentText}/>:<Sun size={18} color={C.orange}/>}
-            <div><p style={{fontSize:14,fontWeight:600,color:C.navy,margin:0}}>{isDark?'Dark Mode':'Light Mode'}</p><p style={{fontSize:11,color:C.textMuted,margin:'2px 0 0'}}>Toggle appearance</p></div>
+        {/* Appearance - 3-way: System / Light / Dark */}
+        <div style={{background:C.bgLight,borderRadius:12,padding:16,marginBottom:16}}>
+          <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
+            {isDark?<Moon size={16} color={C.accentText}/>:<Sun size={16} color={C.orange}/>}
+            <p style={{fontSize:14,fontWeight:600,color:C.navy,margin:0}}>Appearance</p>
           </div>
-          <button onClick={()=>setIsDark(!isDark)} style={{width:52,height:28,borderRadius:14,border:'none',cursor:'pointer',position:'relative',background:isDark?C.accent:C.border,transition:'background 0.25s'}}>
-            <div style={{position:'absolute',top:3,left:isDark?27:3,width:22,height:22,borderRadius:11,background:'#fff',transition:'left 0.25s',display:'flex',alignItems:'center',justifyContent:'center'}}>
-              {isDark?<Moon size={12} color={C.accentText}/>:<Sun size={12} color={C.orange}/>}
-            </div>
-          </button>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8}}>
+            {[
+              {id:'system', label:'System',  icon:<Activity size={16} color={themeMode==='system'?'#fff':C.textMuted}/>},
+              {id:'light',  label:'Light',   icon:<Sun size={16} color={themeMode==='light'?'#fff':C.textMuted}/>},
+              {id:'dark',   label:'Dark',    icon:<Moon size={16} color={themeMode==='dark'?'#fff':C.textMuted}/>},
+            ].map(opt => (
+              <button key={opt.id}
+                onClick={()=>{
+                  haptic.tick();
+                  setThemeMode(opt.id);
+                  if(opt.id==='light') setIsDark(false);
+                  else if(opt.id==='dark') setIsDark(true);
+                  else setIsDark(window.matchMedia('(prefers-color-scheme: dark)').matches);
+                }}
+                style={{
+                  display:'flex',flexDirection:'column',alignItems:'center',gap:5,
+                  padding:'10px 8px',borderRadius:10,border:`1.5px solid ${themeMode===opt.id?C.accent:C.border}`,
+                  background:themeMode===opt.id?C.accent:C.card,cursor:'pointer',
+                }}>
+                {opt.icon}
+                <span style={{fontSize:12,fontWeight:600,color:themeMode===opt.id?'#fff':C.textMuted}}>{opt.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
         <div style={{display:'flex',flexDirection:'column',gap:10}}>
@@ -3362,11 +3406,10 @@ Reply in JSON only:
 
   // ─── RENDER ──────────────────────────────────────────────────────────────────
   return (
-    <div style={{minHeight:'100vh',background:C.bg,fontFamily:'-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,sans-serif',transition:'background 0.3s,color 0.3s'}}>
-      {showSplash && <SplashScreen/>}
-      {!showSplash && showOnboarding && <OnboardingScreen/>}
+    <div style={{minHeight:'100vh',background:'#1E1B4B',fontFamily:'-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,sans-serif'}}>
       <style>{`
         *{box-sizing:border-box;margin:0;padding:0;}
+        html,body,#root{background:#1E1B4B !important;margin:0;padding:0;}
         ::-webkit-scrollbar{width:0;height:0;}
         input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;}
         @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
@@ -3376,7 +3419,9 @@ Reply in JSON only:
         @keyframes splashFade{from{opacity:1;}to{opacity:0;}}
         @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
       `}</style>
-      <div style={{maxWidth:430,margin:'0 auto',minHeight:'100vh',paddingBottom:80}}>
+      {showSplash && <SplashScreen/>}
+      {!showSplash && showOnboarding && <OnboardingScreen/>}
+      <div style={{maxWidth:430,margin:'0 auto',minHeight:'100vh',paddingBottom:80,background:C.bg,transition:'background 0.3s'}}>
         {view==='bracket'&&<BracketView/>}
         {view==='calendar'&&<CalendarView/>}
         {view==='live'&&<LiveView/>}

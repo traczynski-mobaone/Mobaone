@@ -385,9 +385,9 @@ const calcPrizePool = (entries, poolEntry) => entries * poolEntry;
 // ─── LOGO ─────────────────────────────────────────────────────────────────────
 const MobaLogo = ({ size = 28, color = '#FFFFFF' }) => (
   <svg
-    width={size * (130 / 85.4)}
+    width={size * (138 / 85.4)}
     height={size}
-    viewBox="0 0 130 85.4"
+    viewBox="0 0 138 85.4"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >

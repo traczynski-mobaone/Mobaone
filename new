@@ -28,9 +28,9 @@ const themeA_light = {
 };
 const themeA_dark = {
   gradientStart: '#1E1B4B', gradientMid: '#2D2686', gradientEnd: '#3730A3',
-  bg: '#1A1D22',           // dark bg  minimally lighter than card
-  bgLight: '#2B3139',      // elevated sections
-  card: '#222630',
+  bg: '#1C1C1E',           // iOS graphite dark
+  bgLight: '#2C2C2E',      // secondary graphite
+  card: '#2C2C2E',
   navy: '#EAECEF',         // primary text ~18:1 on bg ✅ AAA
   accent: '#3730A3',       // indigo-700  same as light mode for buttons ✅
   accentText: '#818CF8',   // indigo-400 for text/labels on dark bg ✅ AA
@@ -42,11 +42,11 @@ const themeA_dark = {
   redLight: '#3B0000',
   orange: '#FB923C',       // 6.16:1 on card ✅ AA
   decorativeOrange: '#FB923C',
-  border: '#2B3139',       // subtle dark border
+  border: '#3A3A3C',       // subtle graphite border
   headerBg: 'linear-gradient(135deg, #1E1B4B 0%, #2D2686 50%, #3730A3 100%)',
   navBg: 'none',           // bottom nav matches bg in dark mode
-  navBg2: '#2C2C2E',       // pill container
-  modalBg: '#222630', inputBg: '#1A1D22', sectionBg: '#2B3139',
+  navBg2: '#3A3A3C',
+  modalBg: '#2C2C2E', inputBg: '#1C1C1E', sectionBg: '#3A3A3C',
   logoColor: '#FFFFFF', wordmarkColor: '#FFFFFF',
 };
 
@@ -540,6 +540,7 @@ export default function App() {
     { id:10, user:'TopSpinWiz',    flag:'🇧🇷', action:'won',      detail:'$38,000 - Roland Garros $1000',   time:'2h ago',  pts:156 },
   ]);
   const [vsOpponent, setVsOpponent] = useState(null);
+  const [legalPage, setLegalPage] = useState(null);
   const [sharePopup, setSharePopup] = useState(null);
 
   // ── WAVE 4 STATE ────────────────────────────────────────────────────────────
@@ -752,60 +753,59 @@ export default function App() {
           )}
         </div>
 
-        {/* CENTER: title / search / balance */}
-        <div style={{flex:1}}>
+        {/* CENTER: search icon only (both states) */}
+        <div style={{flex:1,display:'flex',alignItems:'center',paddingLeft:8}}>
           {title
             ? <span style={{fontSize:18,fontWeight:600,color:'#fff'}}>{title}</span>
-            : isLoggedIn
-              ? <div style={{display:'flex',alignItems:'center',gap:10}}>
-                  {/* Compact search icon */}
-                  <button style={{background:'rgba(255,255,255,0.15)',border:'none',borderRadius:20,width:36,height:36,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',flexShrink:0}}>
-                    <Search size={16} color="rgba(255,255,255,0.7)"/>
-                  </button>
-                  {/* Balance + deposit */}
-                  <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'flex-end',gap:8}}>
-                    <div style={{textAlign:'right'}}>
-                      <p style={{fontSize:9,color:'rgba(255,255,255,0.55)',margin:0,letterSpacing:0.3}}>BALANCE</p>
-                      <p style={{fontSize:15,fontWeight:700,color:'#fff',margin:0}}>${balance.toLocaleString('en-US')}</p>
-                    </div>
-                    <button onClick={()=>{setDepStep(1);setDepAmt('');setModal('deposit');}} style={{width:30,height:30,borderRadius:15,background:'rgba(255,255,255,0.2)',border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}}>
-                      <Plus size={16} color="#fff"/>
-                    </button>
-                  </div>
-                </div>
-              : <div style={{background:'rgba(255,255,255,0.15)',borderRadius:20,padding:'8px 14px',display:'flex',alignItems:'center',gap:8}}>
-                  <Search size={16} color="rgba(255,255,255,0.6)"/>
-                  <span style={{fontSize:13,color:'rgba(255,255,255,0.6)'}}>Search</span>
-                </div>
+            : <button style={{background:'rgba(255,255,255,0.15)',border:'none',borderRadius:20,width:36,height:36,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}}>
+                <Search size={16} color="rgba(255,255,255,0.7)"/>
+              </button>
           }
         </div>
 
-        {/* RIGHT: help, chat, account */}
-        <div style={{display:'flex',alignItems:'center',gap:10}}>
-          <button onClick={()=>setModal('help')} style={{background:'none',border:'none',cursor:'pointer',padding:4}}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.5">
+        {/* RIGHT: ? | bell | + | balance | avatar */}
+        <div style={{display:'flex',alignItems:'center',gap:8}}>
+          {/* Help ? */}
+          <button onClick={()=>setModal('help')} style={{background:'none',border:'none',cursor:'pointer',padding:2}}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.5">
               <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
               <path d="M9 9a3 3 0 1 1 4 2.829 1.5 1.5 0 0 0-1 1.415V14"/>
               <circle cx="12" cy="17" r="1" fill="#fff"/>
             </svg>
           </button>
-          <button onClick={()=>setModal('notifications')} style={{background:'none',border:'none',cursor:'pointer',padding:4,position:'relative'}}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.5">
+          {/* Bell */}
+          <button onClick={()=>setModal('notifications')} style={{background:'none',border:'none',cursor:'pointer',padding:2,position:'relative'}}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.5">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
               <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
             </svg>
             {unreadCount > 0 && (
-              <div style={{position:'absolute',top:1,right:1,minWidth:16,height:16,borderRadius:8,background:'#EF4444',display:'flex',alignItems:'center',justifyContent:'center',padding:'0 3px'}}>
-                <span style={{fontSize:9,fontWeight:800,color:'#fff'}}>{unreadCount}</span>
+              <div style={{position:'absolute',top:0,right:0,minWidth:14,height:14,borderRadius:7,background:'#EF4444',display:'flex',alignItems:'center',justifyContent:'center',padding:'0 2px'}}>
+                <span style={{fontSize:8,fontWeight:800,color:'#fff'}}>{unreadCount}</span>
               </div>
             )}
           </button>
-          {!showBack && (
-            <button onClick={()=>setModal(isLoggedIn?'profile':'auth')} style={{background:'none',border:'none',cursor:'pointer',padding:4}}>
-              {isLoggedIn
-                ? <div style={{width:28,height:28,borderRadius:14,background:'rgba(255,255,255,0.2)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:600,color:'#fff'}}>{user.name[0]}</div>
-                : <User size={22} color="#fff" strokeWidth={1.5}/>
-              }
+          {isLoggedIn && !showBack && (
+            <>
+              {/* Deposit + */}
+              <button onClick={()=>{setDepStep(1);setDepAmt('');setModal('deposit');}} style={{width:28,height:28,borderRadius:14,background:'rgba(255,255,255,0.2)',border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}}>
+                <Plus size={14} color="#fff"/>
+              </button>
+              {/* Balance */}
+              <div style={{textAlign:'right'}}>
+                <p style={{fontSize:9,color:'rgba(255,255,255,0.55)',margin:0,letterSpacing:0.3}}>BALANCE</p>
+                <p style={{fontSize:14,fontWeight:700,color:'#fff',margin:0,lineHeight:1}}>${balance.toLocaleString('en-US')}</p>
+              </div>
+              {/* Avatar */}
+              <button onClick={()=>setModal('profile')} style={{background:'none',border:'none',cursor:'pointer',padding:0}}>
+                <div style={{width:28,height:28,borderRadius:14,background:'rgba(255,255,255,0.2)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:'#fff'}}>{user.name[0]}</div>
+              </button>
+            </>
+          )}
+          {/* Login button when logged out */}
+          {!isLoggedIn && !showBack && (
+            <button onClick={()=>setModal('auth')} style={{background:'rgba(255,255,255,0.15)',border:'none',borderRadius:8,padding:'5px 10px',cursor:'pointer'}}>
+              <span style={{fontSize:12,fontWeight:600,color:'#fff'}}>Log in</span>
             </button>
           )}
         </div>
@@ -831,10 +831,10 @@ export default function App() {
     return (
       <nav style={{
         position:'fixed', bottom:0, left:0, right:0,
-        background: C.bg,
+        background: C.card,
         maxWidth:430, margin:'0 auto',
         paddingBottom: 24, paddingTop: 10,
-        borderTop: `1px solid ${isDark ? '#2B3139' : '#E5E7EB'}`,
+        borderTop: `1px solid ${C.border}`,
       }}>
         <div style={{display:'flex', justifyContent:'space-around', alignItems:'center'}}>
           {items.map(item => {
@@ -1016,7 +1016,7 @@ export default function App() {
     const currentMatches = getMatchesForRound(bracketRound);
     const bhPlayers = getBlackHorse(getBracketSize(activeTournament));
     return (
-      <div style={{background:C.bg,minHeight:'100vh'}}>
+      <div style={{background:C.card,minHeight:'100vh'}}>
         <AppHeader/>
         <div style={{padding:'12px 16px'}}>
           <div style={{background:C.card,borderRadius:12,border:`1px solid ${C.border}`,overflow:'hidden'}}>
@@ -1108,7 +1108,7 @@ export default function App() {
                 </button>
               ))}
             </div>
-            <div style={{padding:16,paddingBottom:180}}>
+            <div style={{padding:16,paddingBottom:16,background:C.card}}>
               <p style={{fontSize:12,fontWeight:600,color:C.textMuted,margin:'0 0 12px'}}>SELECT WINNER FOR EACH MATCH</p>
               {currentMatches.map((match,idx)=>(
                 <div key={match.id} style={{background:C.card,borderRadius:12,marginBottom:12,border:`1px solid ${predictions[match.id]?C.accent:C.border}`,overflow:'hidden'}}>
@@ -1168,6 +1168,71 @@ export default function App() {
             ))}
           </div>
         )}
+
+        {/* ─── FOOTER ─────────────────────────────────────────────── */}
+        <div style={{background:C.card,borderTop:`1px solid ${C.border}`,marginTop:8}}>
+          {/* Payment methods */}
+          <div style={{padding:'24px 16px',borderBottom:`1px solid ${C.border}`}}>
+            <p style={{fontSize:10,fontWeight:700,color:C.textMuted,textAlign:'center',margin:'0 0 16px',letterSpacing:1}}>PAYMENT METHODS</p>
+            <div style={{display:'flex',flexWrap:'wrap',gap:8,justifyContent:'center'}}>
+              {['Visa','Mastercard','PayPal','Apple Pay','Skrill','Neteller','Bank Transfer','Crypto'].map(m=>(
+                <span key={m} style={{fontSize:11,fontWeight:600,color:C.textMid,background:C.bgLight,border:`1px solid ${C.border}`,borderRadius:6,padding:'4px 10px'}}>{m}</span>
+              ))}
+            </div>
+          </div>
+          {/* Social media */}
+          <div style={{padding:'24px 16px',borderBottom:`1px solid ${C.border}`,textAlign:'center'}}>
+            <p style={{fontSize:10,fontWeight:700,color:C.textMuted,margin:'0 0 16px',letterSpacing:1}}>JOIN US</p>
+            <div style={{display:'flex',justifyContent:'center',gap:16}}>
+              {[
+                {label:'Facebook', icon:<svg width="22" height="22" viewBox="0 0 24 24" fill={C.textMid}><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>},
+                {label:'Twitter/X', icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path stroke={C.textMid} strokeWidth="2" strokeLinecap="round" d="M4 4l7.5 9.5L4 20h3l5-6 5 6h3L13 11 20 4h-3l-4.5 5.5L8 4z"/></svg>},
+                {label:'Instagram', icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={C.textMid} strokeWidth="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.5" fill={C.textMid} stroke="none"/></svg>},
+                {label:'YouTube', icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={C.textMid} strokeWidth="1.5"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill={C.textMid} stroke="none"/></svg>},
+              ].map(s=>(
+                <button key={s.label} style={{width:44,height:44,borderRadius:22,background:C.bgLight,border:`1px solid ${C.border}`,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                  {s.icon}
+                </button>
+              ))}
+            </div>
+          </div>
+          {/* Legal links */}
+          <div style={{padding:'20px 16px',borderBottom:`1px solid ${C.border}`}}>
+            <p style={{fontSize:10,fontWeight:700,color:C.textMuted,margin:'0 0 14px',letterSpacing:1}}>INFORMATION</p>
+            <div style={{display:'flex',flexDirection:'column',gap:10}}>
+              {[
+                {id:'privacy',    label:'Privacy Policy'},
+                {id:'terms',      label:'Terms & Conditions'},
+                {id:'rules',      label:'Player Profile Rules'},
+                {id:'responsible',label:'Responsible Gaming'},
+                {id:'aml',        label:'Anti-Money Laundering Policy'},
+                {id:'cookies',    label:'Cookie Policy'},
+                {id:'dispute',    label:'Dispute Resolution'},
+              ].map(l=>(
+                <button key={l.id} onClick={()=>{setLegalPage(l.id);setModal('legal');}}
+                  style={{background:'none',border:'none',cursor:'pointer',textAlign:'left',padding:0,display:'flex',alignItems:'center',justifyContent:'space-between',width:'100%'}}>
+                  <span style={{fontSize:13,color:C.textMid}}>{l.label}</span>
+                  <ChevronRight size={14} color={C.textMuted}/>
+                </button>
+              ))}
+            </div>
+          </div>
+          {/* Company info */}
+          <div style={{padding:'20px 16px 40px'}}>
+            <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
+              <MobaLogo size={18} color={C.textMuted}/>
+              <MobaWordmark color={C.textMuted} fontSize={14}/>
+            </div>
+            <p style={{fontSize:11,color:C.textMuted,margin:'0 0 2px',lineHeight:1.5}}>mobaOne Sp. z o.o.</p>
+            <p style={{fontSize:11,color:C.textMuted,margin:'0 0 2px',lineHeight:1.5}}>ul. Roosevelta 18, 60-829 Poznan, Poland</p>
+            <p style={{fontSize:11,color:C.textMuted,margin:'0 0 12px',lineHeight:1.5}}>KRS: 0000123456 | NIP: 7811234567</p>
+            <p style={{fontSize:11,color:C.textMuted,margin:'0 0 12px',lineHeight:1.5}}>
+              mobaOne operates fantasy sports bracket contests. All prize pools are funded by entry fees. mobaOne does not constitute gambling under applicable law. Players must be 18+.
+            </p>
+            <p style={{fontSize:10,color:C.textLight,margin:0}}>2026 mobaOne Sp. z o.o. All rights reserved. Play responsibly.</p>
+          </div>
+        </div>
+        <div style={{height:100}}/>
       </div>
     );
   };
@@ -3290,6 +3355,247 @@ Reply in JSON only:
     );
   };
 
+  // ─── LEGAL PAGES MODAL ───────────────────────────────────────────────────────
+  const LEGAL_CONTENT = {
+    privacy: {
+      title: 'Privacy Policy',
+      lastUpdated: 'March 1, 2026',
+      sections: [
+        {
+          heading: '1. Data Controller',
+          text: 'mobaOne Sp. z o.o., ul. Roosevelta 18, 60-829 Poznan, Poland (KRS: 0000123456) is the controller of your personal data. Contact: privacy@mobaone.app',
+        },
+        {
+          heading: '2. Data We Collect',
+          text: 'We collect: (a) Account data - name, email, date of birth, country; (b) Financial data - payment method details, transaction history, wallet balance; (c) Usage data - bracket submissions, picks, session data, device information; (d) Communication data - support tickets, in-app messages.',
+        },
+        {
+          heading: '3. How We Use Your Data',
+          text: 'Your data is used to: provide and improve our services; process payments and payouts; verify your identity (KYC); comply with legal obligations; send service notifications and marketing (with consent); prevent fraud and ensure platform integrity.',
+        },
+        {
+          heading: '4. Data Sharing',
+          text: 'We do not sell your personal data. We share data only with: payment processors (Stripe, PayPal) for transactions; identity verification providers for KYC compliance; analytics providers (anonymised); legal authorities when required by law.',
+        },
+        {
+          heading: '5. Data Retention',
+          text: 'Account data is retained for the duration of your account plus 5 years for legal compliance. Financial records are retained for 7 years per accounting regulations. You may request deletion of non-legally-required data at any time.',
+        },
+        {
+          heading: '6. Your Rights (GDPR)',
+          text: 'You have the right to: access your data; correct inaccurate data; request deletion; object to processing; data portability; withdraw consent at any time. Submit requests to privacy@mobaone.app. We respond within 30 days.',
+        },
+        {
+          heading: '7. Cookies',
+          text: 'We use essential cookies for authentication and security, analytics cookies (with consent) to improve our service, and preference cookies to remember your settings. See our Cookie Policy for full details.',
+        },
+        {
+          heading: '8. Security',
+          text: 'We use industry-standard encryption (TLS 1.3), two-factor authentication options, and regular security audits to protect your data. In the event of a data breach, we will notify affected users and authorities within 72 hours.',
+        },
+      ],
+    },
+    terms: {
+      title: 'Terms & Conditions',
+      lastUpdated: 'March 1, 2026',
+      sections: [
+        {
+          heading: '1. Eligibility',
+          text: 'You must be at least 18 years old to use mobaOne. By creating an account you confirm that you are of legal age and that participation in fantasy sports contests is legal in your jurisdiction.',
+        },
+        {
+          heading: '2. Nature of Service',
+          text: 'mobaOne is a fantasy sports platform where players predict tennis tournament outcomes. This is a game of skill. Prize pools are funded entirely by player entry fees. mobaOne retains a service fee (rake) on paid entries.',
+        },
+        {
+          heading: '3. Account Rules',
+          text: 'One account per person. Accounts are non-transferable. You are responsible for maintaining the security of your login credentials. mobaOne reserves the right to suspend accounts found in violation of these terms.',
+        },
+        {
+          heading: '4. Deposits & Withdrawals',
+          text: 'Minimum deposit: $5. Minimum withdrawal: $20. Withdrawals are processed within 1-3 business days. We reserve the right to conduct identity verification before processing withdrawals. Bonus funds are subject to wagering requirements.',
+        },
+        {
+          heading: '5. Entry Fees & Prizes',
+          text: 'Entry fees are final once a bracket is submitted. Prize pool distributions are final as determined by the platform algorithm. mobaOne is not responsible for typographical errors in prize displays; the platform algorithm is authoritative.',
+        },
+        {
+          heading: '6. Bracket Rules',
+          text: 'Brackets lock when the tournament begins. Maximum 3 brackets per entry level per tournament. If a player withdraws after bracket lock, their slot is filled by a lucky loser or the match is awarded as a bye. No refunds for player withdrawals.',
+        },
+        {
+          heading: '7. Prohibited Activities',
+          text: 'Prohibited: collusion between players; use of automated tools or bots; creating multiple accounts; manipulating outcomes; money laundering. Violations result in immediate account termination and forfeiture of funds.',
+        },
+        {
+          heading: '8. Limitation of Liability',
+          text: 'mobaOne is not liable for losses arising from technical failures, internet outages, or circumstances beyond our control. Our total liability to you shall not exceed the amount of entry fees paid in the 12 months preceding a claim.',
+        },
+      ],
+    },
+    rules: {
+      title: 'Player Profile Rules',
+      lastUpdated: 'February 15, 2026',
+      sections: [
+        {
+          heading: '1. Username Policy',
+          text: 'Usernames must not contain offensive language, impersonate other players or public figures, include personal contact information, or violate trademarks. mobaOne reserves the right to change any username that violates this policy.',
+        },
+        {
+          heading: '2. Leaderboard Integrity',
+          text: 'All leaderboard positions are calculated automatically and transparently. Appeals regarding leaderboard positions must be submitted within 48 hours of tournament conclusion. mobaOne decisions on appeals are final.',
+        },
+        {
+          heading: '3. Achievement System',
+          text: 'Achievements are awarded automatically based on verified platform activity. Achievements obtained through exploitation of bugs or cheating will be revoked. Some achievements carry bonus point rewards that will be credited to your account.',
+        },
+        {
+          heading: '4. Profile Privacy',
+          text: 'By default, your username and bracket results are publicly visible on leaderboards. You may set your profile to private in Settings, which will hide your picks from other users but you will still appear anonymously on leaderboards.',
+        },
+        {
+          heading: '5. Player Conduct',
+          text: 'Players are expected to engage respectfully in all community features including comments and mini leagues. Harassment, hate speech, or abusive behaviour will result in a suspension. Repeat offenders will be permanently banned.',
+        },
+      ],
+    },
+    responsible: {
+      title: 'Responsible Gaming',
+      lastUpdated: 'March 1, 2026',
+      sections: [
+        {
+          heading: 'Our Commitment',
+          text: 'mobaOne is committed to providing a safe and responsible gaming environment. Fantasy sports should be fun. If at any point it stops being enjoyable, please use the tools below or contact our support team.',
+        },
+        {
+          heading: 'Deposit Limits',
+          text: 'You can set daily, weekly, or monthly deposit limits in your Profile > Settings. Limits take effect immediately when reduced. Increases to limits require a 24-hour cooling-off period.',
+        },
+        {
+          heading: 'Self-Exclusion',
+          text: 'You can self-exclude from mobaOne for periods of 1 month, 3 months, 6 months, 1 year, or permanently. During self-exclusion you will not be able to log in or receive marketing communications. Contact support@mobaone.app to activate.',
+        },
+        {
+          heading: 'Reality Checks',
+          text: 'Enable session reminders in Settings to receive notifications about time spent on the platform. We recommend setting a reminder if you play for extended periods.',
+        },
+        {
+          heading: 'Getting Help',
+          text: 'If you are concerned about your gaming habits, free confidential help is available from: GamCare (www.gamcare.org.uk), Gambling Therapy (www.gamblingtherapy.org), National Problem Gambling Helpline: 1-800-522-4700.',
+        },
+        {
+          heading: 'Underage Protection',
+          text: 'mobaOne prohibits use by anyone under 18. We conduct age verification checks. Parents can use parental control software such as Net Nanny or Gamban to block access to gaming sites.',
+        },
+      ],
+    },
+    aml: {
+      title: 'Anti-Money Laundering Policy',
+      lastUpdated: 'January 10, 2026',
+      sections: [
+        {
+          heading: '1. Legal Framework',
+          text: 'mobaOne complies with the EU Anti-Money Laundering Directive (AMLD6), Polish AML Act, and FATF recommendations. We have appointed a dedicated AML Compliance Officer.',
+        },
+        {
+          heading: '2. Know Your Customer (KYC)',
+          text: 'We verify the identity of all players before processing withdrawals over $100 or cumulative deposits over $2,000. Required documents: government-issued photo ID, proof of address (dated within 3 months), and source of funds declaration for larger amounts.',
+        },
+        {
+          heading: '3. Transaction Monitoring',
+          text: 'All financial transactions are monitored automatically. Unusual patterns - including rapid deposit-withdrawal cycles, large cash-equivalent transactions, or activity inconsistent with stated income - will trigger a manual review.',
+        },
+        {
+          heading: '4. Suspicious Activity Reporting',
+          text: 'We are legally required to report suspicious transactions to the Financial Intelligence Unit (FIU) without notifying the customer. We cooperate fully with law enforcement agencies in AML investigations.',
+        },
+        {
+          heading: '5. Player Responsibilities',
+          text: 'Players must not use mobaOne to launder funds or structure transactions to avoid reporting thresholds. Funds deposited must originate from legitimate sources owned by the account holder. Violations result in account freezing and reporting to authorities.',
+        },
+      ],
+    },
+    cookies: {
+      title: 'Cookie Policy',
+      lastUpdated: 'February 1, 2026',
+      sections: [
+        {
+          heading: 'What Are Cookies',
+          text: 'Cookies are small text files stored on your device when you visit mobaOne. They help us provide a better experience by remembering your preferences and understanding how you use our platform.',
+        },
+        {
+          heading: 'Essential Cookies',
+          text: 'These cookies are necessary for the platform to function. They include: authentication tokens (keep you logged in), security cookies (protect against CSRF attacks), and session cookies (maintain your bracket progress). These cannot be disabled.',
+        },
+        {
+          heading: 'Analytics Cookies',
+          text: 'With your consent, we use analytics cookies to understand which features are used most, identify technical issues, and improve the platform. We use anonymised data only. Provider: Mixpanel. You can opt out in Settings.',
+        },
+        {
+          heading: 'Preference Cookies',
+          text: 'These remember your settings such as dark/light mode, language preference, and notification preferences. Disabling them means you will need to re-enter preferences each visit.',
+        },
+        {
+          heading: 'Managing Cookies',
+          text: 'You can manage cookie preferences in Settings > Privacy. You can also control cookies through your browser settings, though disabling essential cookies will prevent the platform from working correctly.',
+        },
+      ],
+    },
+    dispute: {
+      title: 'Dispute Resolution',
+      lastUpdated: 'March 1, 2026',
+      sections: [
+        {
+          heading: '1. Internal Resolution',
+          text: 'If you have a complaint or dispute, first contact our support team at support@mobaone.app. We aim to resolve all complaints within 5 business days. Please include your username, the nature of the dispute, and any relevant transaction IDs.',
+        },
+        {
+          heading: '2. Escalation Process',
+          text: 'If you are not satisfied with our initial response, you may escalate to our Compliance Officer at compliance@mobaone.app. Escalated complaints are reviewed by senior management and resolved within 10 business days.',
+        },
+        {
+          heading: '3. Independent Arbitration',
+          text: "If internal resolution fails, disputes may be referred to the Court of Arbitration at the Polish Chamber of Commerce (Sadowy Trybunalny przy KIG), Warsaw. Arbitration proceedings will be conducted in English or Polish at the claimant's choice.",
+        },
+        {
+          heading: '4. Chargebacks',
+          text: 'We take chargebacks seriously. Initiating a chargeback without first contacting us may result in account suspension. We encourage all players to resolve disputes through our internal process first, which is faster and free of charge.',
+        },
+        {
+          heading: '5. Governing Law',
+          text: 'These terms and any disputes arising from them are governed by Polish law. However, if you are a consumer in the EU, you retain the rights granted to you by the mandatory consumer protection laws of your country of residence.',
+        },
+      ],
+    },
+  };
+
+  const LegalModal = () => {
+    const page = LEGAL_CONTENT[legalPage];
+    if (!page) return null;
+    return (
+      <ModalWrap title={page.title} onClose={()=>{ setLegalPage(null); setModal(null); }} full>
+        <div style={{padding:16}}>
+          {/* Last updated */}
+          <p style={{fontSize:11,color:C.textMuted,margin:'0 0 20px',textAlign:'right'}}>
+            Last updated: {page.lastUpdated}
+          </p>
+          {/* Sections */}
+          {page.sections.map((sec, i) => (
+            <div key={i} style={{marginBottom:20,paddingBottom:20,borderBottom:i<page.sections.length-1?`1px solid ${C.border}`:'none'}}>
+              <p style={{fontSize:14,fontWeight:700,color:C.navy,margin:'0 0 8px'}}>{sec.heading}</p>
+              <p style={{fontSize:13,color:C.textMid,margin:0,lineHeight:1.65}}>{sec.text}</p>
+            </div>
+          ))}
+          {/* Contact */}
+          <div style={{background:C.bgLight,borderRadius:12,padding:14,marginTop:8,textAlign:'center'}}>
+            <p style={{fontSize:12,color:C.textMuted,margin:'0 0 6px'}}>Questions about this policy?</p>
+            <p style={{fontSize:13,fontWeight:600,color:C.accentText,margin:0}}>legal@mobaone.app</p>
+          </div>
+        </div>
+      </ModalWrap>
+    );
+  };
+
   const ProfileModal = () => (
     <ModalWrap title="My Profile" onClose={()=>setModal(null)}>
       <div style={{padding:20}}>
@@ -3406,10 +3712,10 @@ Reply in JSON only:
 
   // ─── RENDER ──────────────────────────────────────────────────────────────────
   return (
-    <div style={{minHeight:'100vh',background:'#1E1B4B',fontFamily:'-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,sans-serif'}}>
+    <div style={{minHeight:'100vh',background:'linear-gradient(180deg, #1E1B4B 0px, #1E1B4B 120px, transparent 120px)',fontFamily:'-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,sans-serif'}}>
       <style>{`
         *{box-sizing:border-box;margin:0;padding:0;}
-        html,body,#root{background:#1E1B4B !important;margin:0;padding:0;}
+        html,body,#root{background:#1E1B4B;margin:0;padding:0;}
         ::-webkit-scrollbar{width:0;height:0;}
         input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;}
         @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
@@ -3443,6 +3749,7 @@ Reply in JSON only:
         {modal==='achievements'&&<AchievementsModal/>}
         {modal==='commentary'&&<LiveCommentaryModal/>}
         {modal==='cashback'&&<CashbackModal/>}
+        {modal==='legal'&&<LegalModal/>}
         {modal==='help'&&<HelpModal/>}
         {modal==='freeroll'&&<FreerollModal/>}
         {modal==='notifications'&&<NotificationsModal/>}

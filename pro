@@ -11,7 +11,7 @@ const themeA_light = {
   navBg:'transparent',navBg2:'#F2F2F7',modalBg:'#FFFFFF',inputBg:'#F5F5F7',sectionBg:'#F2F2F7',
 };
 const themeA_dark = {
-  bg:'#1C1C1E',bgLight:'#2C2C2E',card:'#2C2C2E',navy:'#EAECEF',
+  bg:'#1C1C1E',bgLight:'#3A3A3C',card:'#2C2C2E',navy:'#EAECEF',
   accent:'#3730A3',accentText:'#818CF8',accentLight:'#1E1B4B',
   textDark:'#EAECEF',textMid:'#C7C9CC',textMuted:'#848E9C',textLight:'#848E9C',
   green:'#34D399',greenLight:'#064E3B',red:'#F87171',redLight:'#3B0000',
@@ -198,7 +198,7 @@ const rankings=[
 ];
 
 const MobaLogo=({size=28,color='#FFFFFF'})=>(<svg width={size*(138/85.4)} height={size} viewBox="0 0 138 85.4" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill={color} d="M87.64,83.54c-22.45-6.81-25.43-36.17-38.34-51.65-.96-1.15-1.9-2.04-3.38-2.46l-30.93,50.86c-7.59,7.16-18.77.56-13.72-10.73C10.8,48.24,28.54,26.46,38.6,4.9c3.25-5.73,9.49-6.32,14.53-2.35l34.78,61.72c34.87,18.76,32.05-44.93,8.12-43.97-8.64.35-11.21,15.66-14.75,17.75-.72.43-1.88.25-2.74.09-4.15-11.77-11.38-13.67-2.08-25.38,12.7-15.98,32.96-10.84,44.49,3.47,22.59,28.03,7.3,79.62-33.31,67.31Z"/><path fill={color} d="M61.24,66.58c-5.62,7.21-7.62,21.1-19.09,18.44-15.76-3.64,5.37-27.39,7.83-34.74l2.45-1.04,8.81,17.34Z"/></svg>);
-const MobaWordmark=({color='#FFFFFF',fontSize=18})=>(<span style={{fontSize,fontWeight:700,color,letterSpacing:'-0.5px',fontFamily:'-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif'}}>mobaOne</span>);
+const MobaWordmark=({color='#FFFFFF',fontSize=18})=>(<span style={{fontSize,fontWeight:700,color,letterSpacing:'-0.5px',lineHeight:1,fontFamily:'-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif'}}>mobaOne</span>);
 
 export default function App() {
   const systemDark=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -210,6 +210,7 @@ export default function App() {
   const [balance,setBalance]=useState(3485);
   const [modal,setModal]=useState(null);
   const [selPlayer,setSelPlayer]=useState(null);
+  const [bracketPlayerStats,setBracketPlayerStats]=useState(null);
   const [liveTab,setLiveTab]=useState('live');
   const [calendarTab,setCalendarTab]=useState('all');
   const [bracketRound,setBracketRound]=useState(0);
@@ -252,7 +253,7 @@ export default function App() {
     'N. Djokovic':{recentForm:['W','L','W','W','W'],hardWin:76,clayWin:79,grassWin:85,rank:3,qfRate:85,titles:24},
     'A. Zverev':{recentForm:['W','W','W','W','L'],hardWin:72,clayWin:77,grassWin:65,rank:4,qfRate:72,titles:0},
   };
-  const getHistoricalAnalysis=(n,surface)=>{const f=playerFormData[n];if(!f)return null;const sw=surface==='Hard'?f.hardWin:surface==='Clay'?f.clayWin:f.grassWin;const form=f.recentForm||[];return{surfaceWinRate:sw||65,recentForm:form,recentWins:form.filter(r=>r==='W').length,qfRate:f.qfRate||50,titles:f.titles||0,rank:f.rank||50};};
+  const getHistoricalAnalysis=(n,surface)=>{const f=playerFormData[n];if(!f)return null;const sw=surface==='Hard'?f.hardWin:surface==='Clay'?f.clayWin:f.grassWin;const form=f.recentForm||[];return{surfaceWinRate:sw||65,hardWin:f.hardWin||65,clayWin:f.clayWin||60,grassWin:f.grassWin||55,recentForm:form,recentWins:form.filter(r=>r==='W').length,qfRate:f.qfRate||50,titles:f.titles||0,rank:f.rank||50};};
 
   const [aiSuggestion,setAiSuggestion]=useState(null);
   const [aiLoading,setAiLoading]=useState(false);
@@ -290,8 +291,12 @@ export default function App() {
     {id:5,user:'ServeAce',flag:'🇩🇪',text:'Prize pool almost at 90k 🔥 keep entering',time:'31m ago',likes:19,liked:false},
   ]);
   const [newComment,setNewComment]=useState('');
-  const poolLiveRef = React.useRef(85000);
-  const [poolLive,setPoolLive]=useState(85000);
+  // Real prize pool = entries * poolEntry, floored at guaranteed if set
+  const realPool = Math.max(
+    calcPrizePool(activeTournament.entries||0, activeTournament.poolEntry||activeTournament.entry||0),
+    activeTournament.guaranteed ? Math.round(activeTournament.guaranteed * 0.085) : 0
+  );
+  const poolLive = realPool;
   const REACTIONS=['🔥','💰','🎾','🐴','👑'];
   const [bracketReactions,setBracketReactions]=useState({});
   const [cashbackData]=useState({currentMonth:'March 2026',totalRakePaid:47,cashbackRate:0.05,cashbackEarned:2.35,cashbackPending:1.20,cashbackPaid:1.15,tier:'Bronze',nextTierAt:100,history:[{month:'Feb 2026',rakePaid:28,cashback:1.40,status:'paid'},{month:'Jan 2026',rakePaid:15,cashback:0.75,status:'paid'}],tiers:[{name:'Bronze',minRake:0,rate:0.05,color:'#92400E'},{name:'Silver',minRake:100,rate:0.07,color:'#6B7280'},{name:'Gold',minRake:300,rate:0.10,color:'#B45309'},{name:'Platinum',minRake:750,rate:0.15,color:'#1D4ED8'}]});
@@ -312,25 +317,25 @@ export default function App() {
   const getDefaultBracketName=tid=>{const ex=myBrackets.filter(b=>b.tournament.id===tid);return ex.length===0?'My Bracket':`Bracket ${ex.length+1}`;};
   const getBracketCount=tid=>myBrackets.filter(b=>b.tournament.id===tid).length;
   const [userTx,setUserTx]=useState([
-    {id:1,title:'Tournament Entry',desc:'Miami Open',amt:-15,date:'Today'},
-    {id:2,title:'Winnings - 3rd Place',desc:'Indian Wells',amt:1250,date:'Mar 15'},
-    {id:3,title:'Deposit',desc:'Visa ....4532',amt:200,date:'Mar 12'},
-    {id:4,title:'Winnings - 1st Place',desc:'Dubai Championship',amt:4200,date:'Mar 8'},
+    {id:1, title:'Tournament Entry',    desc:'Miami Open $20',          amt:-20,   date:'Today'},
+    {id:2, title:'Winnings - 3rd Place',desc:'Indian Wells $20 entry',  amt:1250,  date:'Mar 15'},
+    {id:3, title:'Tournament Entry',    desc:'Indian Wells $50',        amt:-50,   date:'Mar 14'},
+    {id:4, title:'Deposit',             desc:'Visa ....4532',           amt:200,   date:'Mar 12'},
+    {id:5, title:'Cashback',            desc:'February rake rebate',    amt:2,     date:'Mar 10'},
+    {id:6, title:'Winnings - 1st Place',desc:'Dubai Championship $100', amt:4200,  date:'Mar 8'},
+    {id:7, title:'Tournament Entry',    desc:'Dubai Championship $100', amt:-100,  date:'Mar 6'},
+    {id:8, title:'Tournament Entry',    desc:'Rotterdam $25',           amt:-25,   date:'Feb 28'},
+    {id:9, title:'Winnings - 8th Place',desc:'Rotterdam $25 entry',     amt:125,   date:'Feb 25'},
+    {id:10,title:'Deposit',             desc:'Mastercard ....8821',     amt:500,   date:'Feb 20'},
   ]);
+  const [txShowAll, setTxShowAll] = useState(false);
   const [isLoggedIn,setIsLoggedIn]=useState(false);
   const [showSplash,setShowSplash]=useState(true);
+  const [showPostRegOnboarding,setShowPostRegOnboarding]=useState(false);
+  const [postRegStep,setPostRegStep]=useState(0);
   const [showOnboarding,setShowOnboarding]=useState(false);
   const [onboardingStep,setOnboardingStep]=useState(0);
   React.useEffect(()=>{const t=setTimeout(()=>{setShowSplash(false);setShowOnboarding(true);},2200);return()=>clearTimeout(t);},[]);
-
-  // Prize pool live animation  -  slow enough not to disrupt scrolling
-  React.useEffect(()=>{
-    const interval=setInterval(()=>{
-      poolLiveRef.current = poolLiveRef.current + Math.floor(Math.random()*450)+50;
-      setPoolLive(poolLiveRef.current);
-    },8000);
-    return()=>clearInterval(interval);
-  },[]);
 
   // Win banner auto-dismiss after 4s
   React.useEffect(()=>{
@@ -381,8 +386,8 @@ export default function App() {
               <ChevronLeft size={22} color="#fff"/>
               <span style={{fontSize:16,fontWeight:600,color:'#fff'}}>{title||'Back'}</span>
             </button>
-          : <button onClick={()=>setView('bracket')} style={{background:'none',border:'none',cursor:'pointer',padding:0,display:'flex',alignItems:'center',gap:9,height:40}}>
-              <MobaLogo size={22} color="#fff"/>
+          : <button onClick={()=>setView('bracket')} style={{background:'none',border:'none',cursor:'pointer',padding:0,display:'flex',alignItems:'center',gap:8,height:40}}>
+              <MobaLogo size={17} color="#fff"/>
               <MobaWordmark color="#fff" fontSize={18}/>
             </button>
         }
@@ -420,7 +425,26 @@ export default function App() {
       </div>
     </div>
   );
-  const BottomNav=()=>{const items=[{id:'bracket',label:'Home',isLogo:true},{id:'calendar',icon:Calendar,label:'Calendar'},{id:'live',icon:Radio,label:'Live'},{id:'rankings',icon:BarChart2,label:'Rankings'},{id:'wallet',icon:Wallet,label:'Wallet'}];const iA=isDark?'#FFFFFF':C.accent,iI=isDark?'#636366':'#8E8E93';return(<nav style={{position:'fixed',bottom:0,left:0,right:0,background:C.card,maxWidth:430,margin:'0 auto',paddingBottom:24,paddingTop:10,borderTop:`1px solid ${C.border}`}}><div style={{display:'flex',justifyContent:'space-around',alignItems:'center'}}>{items.map(item=>{const active=view===item.id;return(<button key={item.id} onClick={()=>{haptic.light();setView(item.id);}} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:4,padding:'0 8px',background:'none',border:'none',cursor:'pointer',minWidth:56}}>{item.isLogo?<MobaLogo size={18} color={active?iA:iI}/>:<item.icon size={20} color={active?iA:iI} strokeWidth={active?2:1.5}/>}<span style={{fontSize:10,fontWeight:active?600:400,color:active?iA:iI,marginTop:2}}>{item.label}</span></button>);})}</div></nav>);};
+  const BottomNav=()=>{
+    const items=[{id:'bracket',label:'Home',isLogo:true},{id:'calendar',icon:Calendar,label:'Calendar'},{id:'live',icon:Radio,label:'Live'},{id:'rankings',icon:BarChart2,label:'Rankings'},{id:'wallet',icon:Wallet,label:'Wallet'}];
+    const iA=isDark?'#FFFFFF':C.accent, iI=isDark?'#636366':'#8E8E93';
+    return(
+      <nav style={{position:'fixed',bottom:0,left:0,right:0,background:C.card,maxWidth:430,margin:'0 auto',paddingBottom:24,paddingTop:8,borderTop:`1px solid ${C.border}`}}>
+        <div style={{display:'flex',justifyContent:'space-around',alignItems:'center'}}>
+          {items.map(item=>{
+            const active=view===item.id;
+            return(
+              <button key={item.id} onClick={()=>{haptic.light();setView(item.id);}}
+                style={{display:'flex',flexDirection:'column',alignItems:'center',gap:3,padding:'4px 12px',background:active?`${C.accent}15`:'none',borderRadius:active?12:0,border:'none',cursor:'pointer',minWidth:56,transition:'background 0.2s'}}>
+                {item.isLogo?<MobaLogo size={18} color={active?iA:iI}/>:<item.icon size={20} color={active?iA:iI} strokeWidth={active?2.2:1.5}/>}
+                <span style={{fontSize:10,fontWeight:active?700:400,color:active?iA:iI}}>{item.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
+    );
+  };
 
   const PlayerHistoryBadge=({playerName,surface})=>{const data=getHistoricalAnalysis(playerName,surface||activeTournament?.surface||'Hard');if(!data)return null;const color=data.surfaceWinRate>=75?C.green:data.surfaceWinRate>=60?C.orange:C.red;return(<div style={{display:'flex',alignItems:'center',gap:6,marginTop:3}}><span style={{fontSize:10,fontWeight:600,color,background:`${color}15`,padding:'1px 5px',borderRadius:4}}>{data.surfaceWinRate}% {surface||'Hard'}</span><div style={{display:'flex',gap:2}}>{data.recentForm.map((r,i)=><div key={i} style={{width:6,height:6,borderRadius:3,background:r==='W'?C.green:C.red}}/>)}</div>{data.titles>0&&<span style={{fontSize:10,color:C.orange}}>🏆{data.titles}</span>}</div>);};
   const LockTimerBadge=({tournament})=>{const timer=lockTimers[tournament.id];if(!timer)return null;if(timer.locked)return(<div style={{display:'flex',alignItems:'center',gap:4,padding:'4px 8px',borderRadius:6,background:C.redLight,border:`1px solid ${C.red}`}}><Lock size={10} color={C.red}/><span style={{fontSize:10,fontWeight:700,color:C.red}}>LOCKED</span></div>);const{hours,minutes,seconds}=timer,urgent=hours===0&&minutes<60;return(<div style={{display:'flex',alignItems:'center',gap:4,padding:'4px 8px',borderRadius:6,background:urgent?C.redLight:`${C.accent}12`,border:`1px solid ${urgent?C.red:C.accent}`}}><span style={{fontSize:11,fontWeight:700,color:urgent?C.red:C.accentText,fontVariantNumeric:'tabular-nums'}}>{hours>0?`${hours}h `:''}{String(minutes).padStart(2,'0')}:{String(seconds).padStart(2,'0')}</span></div>);};
@@ -436,6 +460,7 @@ export default function App() {
           <div style={{display:'flex',alignItems:'center',gap:8}}><span style={{fontSize:10,fontWeight:600,color:C.accentText,background:`${C.accent}18`,padding:'2px 6px',borderRadius:4}}>{activeTournament.type.toUpperCase().replace('ATP','ATP ')}</span><span style={{fontSize:10,fontWeight:600,color:activeTournament.status==='live'?C.red:C.green,background:activeTournament.status==='live'?C.redLight:C.greenLight,padding:'2px 6px',borderRadius:4}}>{activeTournament.status.toUpperCase()}</span></div>
           <h3 style={{fontSize:17,fontWeight:700,color:C.navy,margin:'6px 0 2px'}}>{activeTournament.name}</h3>
           <p style={{fontSize:11,color:C.textMuted,margin:0}}>{activeTournament.dates} {activeTournament.dateSuffix} . {activeTournament.surface}</p>
+              {activeTournament.status==='open'&&<div style={{display:'flex',alignItems:'center',gap:5,marginTop:4}}><Lock size={10} color={C.orange}/><span style={{fontSize:11,fontWeight:700,color:C.orange,fontVariantNumeric:'tabular-nums'}}>Locks in: </span><LockTimerBadge tournament={activeTournament}/></div>}
         </div></div>
         <div style={{padding:'10px 14px',background:C.bgLight}}>
           {/* Stats row */}
@@ -450,11 +475,11 @@ export default function App() {
               <span style={{fontSize:15,fontWeight:800,color:C.green,fontVariantNumeric:'tabular-nums'}}>${poolLive.toLocaleString('en-US')}</span>
             </div>
             <div style={{height:5,background:C.bgLight,borderRadius:3,overflow:'hidden'}}>
-              <div style={{height:'100%',width:`${Math.min(100,(poolLive/1000000)*100)}%`,background:`linear-gradient(90deg,#059669,#34D399)`,borderRadius:3,transition:'width 1.2s ease'}}/>
+              <div style={{height:'100%',width:`${Math.min(100,(poolLive/Math.max(activeTournament.guaranteed||poolLive,poolLive))*100)}%`,background:`linear-gradient(90deg,#059669,#34D399)`,borderRadius:3,transition:'width 1.2s ease'}}/>
             </div>
             <div style={{display:'flex',justifyContent:'space-between',marginTop:4}}>
               <span style={{fontSize:10,color:C.textMuted}}>Growing in real-time</span>
-              <span style={{fontSize:10,fontWeight:600,color:C.green}}>{Math.min(100,(poolLive/1000000)*100).toFixed(1)}% of $1M GTD</span>
+              <span style={{fontSize:10,fontWeight:600,color:C.green}}>{Math.min(100,(poolLive/Math.max(activeTournament.guaranteed||poolLive,poolLive))*100).toFixed(1)}% of GTD</span>
             </div>
           </div>
         </div>
@@ -479,8 +504,8 @@ export default function App() {
           <p style={{fontSize:12,fontWeight:600,color:C.textMuted,margin:'0 0 12px'}}>SELECT WINNER FOR EACH MATCH</p>
           {currentMatches.map((match,idx)=>(<div key={match.id} style={{background:C.card,borderRadius:12,marginBottom:12,border:`1px solid ${predictions[match.id]?C.accent:C.border}`,overflow:'hidden'}}>
             <div style={{padding:'8px 14px',background:C.bgLight,borderBottom:`1px solid ${C.border}`,display:'flex',justifyContent:'space-between',alignItems:'center'}}><span style={{fontSize:11,fontWeight:500,color:C.textMuted}}>Match {idx+1}</span>{predictions[match.id]&&<Check size={14} color={C.green}/>}</div>
-            {[match.p1,match.p2].map((player,pi)=>(<button key={pi} onClick={()=>player&&setPredictions(prev=>({...prev,[match.id]:player}))} disabled={!player} style={{width:'100%',display:'flex',alignItems:'center',padding:'12px 14px',border:'none',cursor:player?'pointer':'default',background:predictions[match.id]?.id===player?.id?`${C.accent}14`:'transparent',borderBottom:pi===0?`1px solid ${C.border}`:'none'}}>
-              {player?(<><span style={{fontSize:16,marginRight:8}}>{player.flag}</span><div style={{flex:1,textAlign:'left',minWidth:0}}><span style={{fontSize:14,fontWeight:500,color:C.navy,display:'block',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{player.name}</span><span style={{fontSize:10,color:C.textMuted}}>{getPickPopularity(player.name,match.id)}% picked</span><PlayerHistoryBadge playerName={player.name} surface={activeTournament?.surface}/></div>{player.seed&&<span style={{fontSize:11,color:C.textMuted,marginLeft:6,flexShrink:0}}>[{player.seed}]</span>}{predictions[match.id]?.id===player?.id&&<Check size={18} color={C.accentText} style={{marginLeft:8,flexShrink:0}}/>}</>):<span style={{fontSize:13,color:C.textMuted,fontStyle:'italic'}}>Winner of previous round</span>}
+            {[match.p1,match.p2].map((player,pi)=>(<button key={pi} onClick={()=>player&&setPredictions(prev=>({...prev,[match.id]:player}))} disabled={!player} style={{width:'100%',display:'flex',alignItems:'center',padding:'12px 14px',border:'none',cursor:player?'pointer':'default',background:predictions[match.id]?.id===player?.id?`${C.accent}22`:'transparent',borderBottom:pi===0?`1px solid ${C.border}`:'none',borderLeft:predictions[match.id]?.id===player?.id?`3px solid ${C.accent}`:'3px solid transparent'}}>
+              {player?(<><span style={{fontSize:16,marginRight:8}}>{player.flag}</span><div style={{flex:1,textAlign:'left',minWidth:0}}><div style={{display:'flex',alignItems:'center',gap:5}}><span style={{fontSize:14,fontWeight:predictions[match.id]?.id===player?.id?700:500,color:predictions[match.id]?.id===player?.id?C.accentText:C.navy,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{player.name}</span><button onClick={e=>{e.stopPropagation();setBracketPlayerStats(player);}} style={{background:'none',border:'none',cursor:'pointer',padding:0,flexShrink:0,lineHeight:1}}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.textMuted} strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></button></div><span style={{fontSize:10,color:C.textMuted}}>{getPickPopularity(player.name,match.id)}% picked</span><PlayerHistoryBadge playerName={player.name} surface={activeTournament?.surface}/></div>{player.seed&&<span style={{fontSize:11,color:C.textMuted,marginLeft:6,flexShrink:0}}>[{player.seed}]</span>}{predictions[match.id]?.id===player?.id&&<Check size={18} color={C.accentText} style={{marginLeft:8,flexShrink:0}}/>}</>):<span style={{fontSize:13,color:C.textMuted,fontStyle:'italic'}}>Winner of previous round</span>}
             </button>))}
           </div>))}
         </div>
@@ -498,7 +523,7 @@ export default function App() {
     </div>);
   };
 
-  const LiveView=()=>(<div style={{background:C.card,minHeight:'100vh'}}><AppHeader title="Live Scores" showBack/><button onClick={()=>setModal('globalfeed')} style={{width:'100%',background:`${C.accent}10`,border:'none',borderBottom:`1px solid ${C.accent}30`,padding:'10px 16px',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'space-between'}}><div style={{display:'flex',alignItems:'center',gap:8}}><div style={{width:7,height:7,borderRadius:4,background:C.red}}/><span style={{fontSize:13,fontWeight:600,color:C.accentText}}>Global Feed - live player activity</span></div><span style={{fontSize:12,color:C.accentText}}>View ></span></button><TabBar tabs={[{id:'live',label:'Live'},{id:'completed',label:'Completed'},{id:'upcoming',label:'Upcoming'}]} active={liveTab} onChange={setLiveTab}/><div style={{padding:16,background:C.card,minHeight:'60vh'}}>{liveTab==='live'&&liveMatches.map(m=>(<div key={m.id} style={{background:C.card,borderRadius:12,marginBottom:12,border:`1px solid ${C.border}`,overflow:'hidden'}}><div style={{padding:'12px 16px',background:C.bgLight,borderBottom:`1px solid ${C.border}`,display:'flex',justifyContent:'space-between',alignItems:'center'}}><div><span style={{fontSize:13,fontWeight:600,color:C.navy}}>{m.tournament}</span><span style={{fontSize:12,color:C.textMuted,marginLeft:8}}>{m.round}</span></div><div style={{display:'flex',alignItems:'center',gap:8}}><span style={{width:8,height:8,borderRadius:4,background:C.red,display:'block'}}/><span style={{fontSize:13,fontWeight:600,color:C.red}}>{m.time}</span></div></div><div style={{padding:16}}>{[m.p1,m.p2].map((p,pi)=>(<div key={pi} style={{display:'flex',alignItems:'center',marginBottom:pi===0?12:0}}><span style={{fontSize:20,marginRight:10}}>{p.flag}</span><div style={{flex:1}}><span style={{fontSize:15,fontWeight:pi===0?600:400,color:pi===0?C.navy:C.textMid}}>{p.name}</span><span style={{fontSize:12,color:C.textMuted,marginLeft:6}}>[{p.seed}]</span></div>{p.serving&&<div style={{width:8,height:8,borderRadius:4,background:C.green,marginRight:12}}/>}<div style={{display:'flex',gap:12}}>{p.sets.map((s,i)=><span key={i} style={{fontSize:18,fontWeight:pi===0?600:400,color:pi===0?C.navy:C.textMid,minWidth:20,textAlign:'center'}}>{s}</span>)}</div></div>))}</div><div style={{padding:'12px 16px',background:C.bgLight,borderTop:`1px solid ${C.border}`,display:'flex',justifyContent:'space-around'}}>{[['Aces',m.stats.aces],['Winners',m.stats.winners],['Errors',m.stats.errors]].map(([lbl,v])=>(<div key={lbl} style={{textAlign:'center'}}><p style={{fontSize:11,color:C.textMuted,margin:0}}>{lbl}</p><p style={{fontSize:13,fontWeight:600,color:C.navy,margin:'2px 0 0'}}>{v[0]} - {v[1]}</p></div>))}</div></div>))}{liveTab==='completed'&&completedMatches.map(m=>(<div key={m.id} style={{background:C.card,borderRadius:12,marginBottom:12,border:`1px solid ${C.border}`,padding:16}}><div style={{display:'flex',justifyContent:'space-between',marginBottom:12}}><span style={{fontSize:13,color:C.textMuted}}>{m.tournament} . {m.round}</span><span style={{fontSize:12,color:C.textMuted}}>{m.duration}</span></div>{[m.p1,m.p2].map((p,pi)=>(<div key={pi} style={{display:'flex',alignItems:'center',marginBottom:pi===0?10:0}}><span style={{fontSize:18,marginRight:10}}>{p.flag}</span><span style={{flex:1,fontSize:15,fontWeight:p.winner?600:400,color:p.winner?C.navy:C.textMid}}>{p.name}</span>{p.winner&&<Check size={18} color={C.green} style={{marginRight:12}}/>}<div style={{display:'flex',gap:10}}>{p.sets.map((s,i)=><span key={i} style={{fontSize:16,fontWeight:p.winner?600:400,color:p.winner?C.navy:C.textMid}}>{s}</span>)}</div></div>))}</div>))}{liveTab==='upcoming'&&upcomingMatches.map(m=>(<div key={m.id} style={{background:C.card,borderRadius:12,marginBottom:12,border:`1px solid ${C.border}`,padding:16}}><div style={{display:'flex',justifyContent:'space-between',marginBottom:12}}><span style={{fontSize:13,color:C.textMuted}}>{m.tournament} . {m.round}</span><span style={{fontSize:14,fontWeight:600,color:C.accentText}}>{m.time}</span></div>{[m.p1,m.p2].map((p,pi)=>(<div key={pi} style={{display:'flex',alignItems:'center',marginBottom:pi===0?10:0}}><span style={{fontSize:18,marginRight:10}}>{p.flag}</span><span style={{flex:1,fontSize:15,fontWeight:500,color:C.navy}}>{p.name}</span><span style={{fontSize:12,color:C.textMuted}}>[{p.seed}]</span></div>))}<p style={{fontSize:12,color:C.textMuted,marginTop:12}}>{m.court}</p></div>))}</div></div>);
+  const LiveView=()=>(<div style={{background:C.card,minHeight:'100vh'}}><AppHeader title="Live Scores" showBack/><button onClick={()=>setModal('globalfeed')} style={{width:'100%',background:`${C.accent}10`,border:'none',borderBottom:`1px solid ${C.accent}30`,padding:'10px 16px',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'space-between'}}><div style={{display:'flex',alignItems:'center',gap:8}}><div style={{width:7,height:7,borderRadius:4,background:C.red}}/><span style={{fontSize:13,fontWeight:600,color:C.accentText}}>Global Feed - live player activity</span></div><span style={{fontSize:12,color:C.accentText}}>View ></span></button><TabBar tabs={[{id:'live',label:'Live'},{id:'completed',label:'Completed'},{id:'upcoming',label:'Upcoming'}]} active={liveTab} onChange={setLiveTab}/><div style={{padding:16,background:C.card,minHeight:'60vh'}}>{liveTab==='live'&&liveMatches.map(m=>(<div key={m.id} style={{background:C.card,borderRadius:12,marginBottom:12,border:`1px solid ${C.border}`,overflow:'hidden'}}><div style={{padding:'12px 16px',background:C.bgLight,borderBottom:`1px solid ${C.border}`,display:'flex',justifyContent:'space-between',alignItems:'center'}}><div><span style={{fontSize:13,fontWeight:600,color:C.navy}}>{m.tournament}</span><span style={{fontSize:12,color:C.textMuted,marginLeft:8}}>{m.round}</span></div><div style={{display:'flex',alignItems:'center',gap:8}}><span style={{width:8,height:8,borderRadius:4,background:C.red,display:'block',animation:'pulse 1s ease infinite'}}/><span style={{fontSize:13,fontWeight:700,color:C.red,fontVariantNumeric:'tabular-nums'}}>{m.time}</span><span style={{fontSize:10,fontWeight:700,color:C.red,background:C.redLight,padding:'1px 5px',borderRadius:4,letterSpacing:0.5}}>LIVE</span></div></div><div style={{padding:16}}>{[m.p1,m.p2].map((p,pi)=>(<div key={pi} style={{display:'flex',alignItems:'center',marginBottom:pi===0?12:0}}><span style={{fontSize:20,marginRight:10}}>{p.flag}</span><div style={{flex:1}}><span style={{fontSize:15,fontWeight:pi===0?600:400,color:pi===0?C.navy:C.textMid}}>{p.name}</span><span style={{fontSize:12,color:C.textMuted,marginLeft:6}}>[{p.seed}]</span></div>{p.serving&&<div style={{width:8,height:8,borderRadius:4,background:C.green,marginRight:12}}/>}<div style={{display:'flex',gap:12}}>{p.sets.map((s,i)=><span key={i} style={{fontSize:18,fontWeight:pi===0?600:400,color:pi===0?C.navy:C.textMid,minWidth:20,textAlign:'center'}}>{s}</span>)}</div></div>))}</div><div style={{padding:'12px 16px',background:C.bgLight,borderTop:`1px solid ${C.border}`,display:'flex',justifyContent:'space-around'}}>{[['Aces',m.stats.aces],['Winners',m.stats.winners],['Errors',m.stats.errors]].map(([lbl,v])=>(<div key={lbl} style={{textAlign:'center'}}><p style={{fontSize:11,color:C.textMuted,margin:0}}>{lbl}</p><p style={{fontSize:13,fontWeight:600,color:C.navy,margin:'2px 0 0'}}>{v[0]} - {v[1]}</p></div>))}</div></div>))}{liveTab==='completed'&&completedMatches.map(m=>(<div key={m.id} style={{background:C.card,borderRadius:12,marginBottom:12,border:`1px solid ${C.border}`,padding:16}}><div style={{display:'flex',justifyContent:'space-between',marginBottom:12}}><span style={{fontSize:13,color:C.textMuted}}>{m.tournament} . {m.round}</span><span style={{fontSize:12,color:C.textMuted}}>{m.duration}</span></div>{[m.p1,m.p2].map((p,pi)=>(<div key={pi} style={{display:'flex',alignItems:'center',marginBottom:pi===0?10:0}}><span style={{fontSize:18,marginRight:10}}>{p.flag}</span><span style={{flex:1,fontSize:15,fontWeight:p.winner?600:400,color:p.winner?C.navy:C.textMid}}>{p.name}</span>{p.winner&&<Check size={18} color={C.green} style={{marginRight:12}}/>}<div style={{display:'flex',gap:10}}>{p.sets.map((s,i)=><span key={i} style={{fontSize:16,fontWeight:p.winner?600:400,color:p.winner?C.navy:C.textMid}}>{s}</span>)}</div></div>))}</div>))}{liveTab==='upcoming'&&upcomingMatches.map(m=>(<div key={m.id} style={{background:C.card,borderRadius:12,marginBottom:12,border:`1px solid ${C.border}`,padding:16}}><div style={{display:'flex',justifyContent:'space-between',marginBottom:12}}><span style={{fontSize:13,color:C.textMuted}}>{m.tournament} . {m.round}</span><span style={{fontSize:14,fontWeight:600,color:C.accentText}}>{m.time}</span></div>{[m.p1,m.p2].map((p,pi)=>(<div key={pi} style={{display:'flex',alignItems:'center',marginBottom:pi===0?10:0}}><span style={{fontSize:18,marginRight:10}}>{p.flag}</span><span style={{flex:1,fontSize:15,fontWeight:500,color:C.navy}}>{p.name}</span><span style={{fontSize:12,color:C.textMuted}}>[{p.seed}]</span></div>))}<p style={{fontSize:12,color:C.textMuted,marginTop:12}}>{m.court}</p></div>))}</div></div>);
 
   const CalendarView=()=>{const months=[...new Set(tournaments.map(t=>t.month))];return(<div style={{background:C.card,minHeight:'100vh'}}><AppHeader/><div style={{background:C.headerBg,padding:'0 16px 16px'}}><TabBar tabs={[{id:'all',label:'ATP Tour'},{id:'my',label:`My Brackets${myBrackets.length>0?` (${myBrackets.length})`:''}`}]} active={calendarTab} onChange={setCalendarTab} onGradient/></div>
     {calendarTab==='my'&&(<div style={{padding:16,paddingBottom:100,background:C.card,minHeight:'60vh'}}>{h2hOpponent&&<div style={{background:C.headerBg,borderRadius:12,padding:16,marginBottom:16}}><div style={{display:'flex',alignItems:'center',gap:10}}><span style={{fontSize:24}}>vs</span><div style={{flex:1}}><p style={{fontSize:14,fontWeight:700,color:'#fff',margin:0}}>H2H Challenge Active!</p><p style={{fontSize:12,color:'rgba(255,255,255,0.7)',margin:'2px 0 0'}}>vs {h2hOpponent.name}</p></div><button onClick={()=>setH2hOpponent(null)} style={{background:'rgba(255,255,255,0.15)',border:'none',borderRadius:8,padding:'6px 10px',cursor:'pointer'}}><span style={{fontSize:12,color:'#fff'}}>Cancel</span></button></div></div>}{myBrackets.length===0?(<div style={{background:C.card,borderRadius:12,padding:32,textAlign:'center',border:`1px solid ${C.border}`}}><div style={{width:64,height:64,borderRadius:32,background:C.accentLight,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px'}}><Target size={28} color={C.accent}/></div><h3 style={{fontSize:18,fontWeight:600,color:C.navy,margin:'0 0 8px'}}>No Brackets Yet</h3><p style={{fontSize:14,color:C.textMuted,margin:'0 0 20px'}}>Enter a tournament to create your first bracket!</p><Btn primary onClick={()=>setCalendarTab('all')}>Browse Tournaments</Btn></div>):myBrackets.map(bracket=>(<div key={bracket.id} style={{background:C.card,borderRadius:12,marginBottom:16,border:`1px solid ${C.border}`,overflow:'hidden'}}><div style={{padding:16,borderBottom:`1px solid ${C.border}`}}><div style={{display:'flex',justifyContent:'space-between',alignItems:'start',marginBottom:8}}><div><span style={{fontSize:11,fontWeight:600,color:C.textMuted}}>{bracket.tournament.type.toUpperCase()}</span><h3 style={{fontSize:17,fontWeight:600,color:C.navy,margin:'2px 0'}}>{bracket.tournament.name}</h3>{bracket.name&&bracket.name!=='My Bracket'&&<p style={{fontSize:12,color:C.accentText,margin:'2px 0 0',fontStyle:'italic'}}>"{bracket.name}"</p>}<p style={{fontSize:12,color:C.textMuted,margin:0}}>{bracket.tournament.dates} {bracket.tournament.dateSuffix}</p></div><span style={{fontSize:10,fontWeight:600,padding:'4px 10px',borderRadius:4,background:bracket.status==='active'?C.greenLight:C.bgLight,color:bracket.status==='active'?C.green:C.textMuted}}>{bracket.status==='active'?'ACTIVE':bracket.status.toUpperCase()}</span></div></div><div style={{padding:16,background:C.bgLight}}><div style={{display:'flex',gap:16}}><div style={{flex:1}}><p style={{fontSize:10,color:C.textMuted,margin:'0 0 6px'}}>CHAMPION</p><div style={{display:'flex',alignItems:'center',gap:8}}><span style={{fontSize:24}}>{bracket.champion?.flag}</span><div><p style={{fontSize:14,fontWeight:600,color:C.navy,margin:0}}>{bracket.champion?.name}</p><p style={{fontSize:11,color:C.textMuted,margin:0}}>[{bracket.champion?.seed}]</p></div></div></div>{bracket.blackHorse&&<div style={{flex:1}}><div style={{display:'flex',alignItems:'center',gap:4,marginBottom:6}}><Shield size={10} color={C.orange}/><p style={{fontSize:10,color:C.orange,margin:0}}>BLACK HORSE</p></div><div style={{display:'flex',alignItems:'center',gap:8}}><span style={{fontSize:24}}>{bracket.blackHorse.flag}</span><div><p style={{fontSize:14,fontWeight:600,color:C.navy,margin:0}}>{bracket.blackHorse.name}</p><p style={{fontSize:11,color:C.orange,margin:0}}>1.5x pts</p></div></div></div>}</div></div>{bracket.status==='active'&&bracket.tournament.status==='live'&&<div style={{padding:'0 16px 16px'}}><LiveRankingCard bracket={bracket}/><button onClick={()=>setModal('commentary')} style={{width:'100%',marginTop:8,padding:'8px 14px',borderRadius:8,background:`${C.red}10`,border:`1px solid ${C.red}30`,cursor:'pointer',display:'flex',alignItems:'center',gap:8}}><div style={{width:7,height:7,borderRadius:4,background:C.red}}/><span style={{fontSize:12,fontWeight:600,color:C.red}}>Live Commentary</span><span style={{fontSize:12,color:C.textMuted,marginLeft:'auto'}}>{liveCommentary.length} updates</span></button></div>}<div style={{padding:'12px 16px',display:'flex',gap:16,borderTop:`1px solid ${C.border}`}}>{[['Entry',`$${bracket.tournament.entry}`,C.navy],['Pool',`$${bracket.tournament.pool?.toLocaleString('en-US')}`,C.accent],['Points',bracket.points,C.green]].map(([l,v,col])=>(<div key={l}><p style={{fontSize:11,color:C.textMuted,margin:0}}>{l}</p><p style={{fontSize:14,fontWeight:600,color:col,margin:'2px 0 0'}}>{v}</p></div>))}<button onClick={()=>setModal('social')} style={{padding:'8px 12px',borderRadius:6,background:C.bgLight,border:`1px solid ${C.border}`,cursor:'pointer',display:'flex',alignItems:'center',gap:4}}>
@@ -506,12 +531,17 @@ export default function App() {
                   <span style={{fontSize:12,fontWeight:600,color:C.textMid}}>{comments.length}</span>
                 </button>
                 <button onClick={()=>setSelectedBracket(bracket)} style={{marginLeft:4,padding:'8px 14px',borderRadius:6,background:C.accentLight,border:'none',cursor:'pointer'}}><span style={{fontSize:12,fontWeight:600,color:C.accentText}}>View</span></button></div></div>))}</div>)}
-    {calendarTab==='all'&&(<><div style={{padding:16,background:C.card}}><div style={{display:'flex',alignItems:'center',gap:10,background:C.card,borderRadius:8,padding:'12px 16px',border:`1px solid ${C.border}`}}><Search size={18} color={C.textMuted}/><span style={{fontSize:14,color:C.textMuted}}>Search tournaments</span></div></div>{months.map(month=>(<div key={month}><div style={{background:C.sectionBg,padding:'10px 16px'}}><span style={{fontSize:15,fontWeight:600,color:C.navy}}>{month}</span></div><div style={{background:C.card}}>{tournaments.filter(t=>t.month===month).map(t=>{const entered=myBrackets.some(b=>b.tournament.id===t.id);return(<div key={t.id} style={{display:'flex',padding:16,borderBottom:`1px solid ${C.border}`}}><div style={{width:52,flexShrink:0,paddingRight:10,borderRight:`2px solid ${C.accent}`,marginRight:14}}><p style={{fontSize:12,fontWeight:600,color:C.textMid,margin:0,whiteSpace:'nowrap'}}>{t.dates}</p><p style={{fontSize:12,color:C.textMuted,margin:'2px 0 0',whiteSpace:'nowrap'}}>{t.dateSuffix}</p></div><div style={{flex:1}}><div style={{marginBottom:6}}>{t.type==='grandslam'?<span style={{fontStyle:'italic',fontWeight:800,fontSize:16,color:C.navy}}>GRAND SLAM</span>:<div style={{display:'flex',alignItems:'baseline'}}><span style={{fontStyle:'italic',fontWeight:800,fontSize:16,color:C.navy}}>ATP</span><span style={{fontWeight:800,fontSize:16,color:C.navy}}>{t.type.replace('atp','')}</span></div>}</div><h3 style={{fontSize:16,fontWeight:600,color:C.navy,margin:'0 0 2px'}}>{t.name}</h3><p style={{fontSize:13,color:C.textMuted,margin:0}}>{t.subtitle}</p><div style={{marginTop:8}}><div style={{display:'flex',alignItems:'center',gap:5,marginBottom:4}}>{t.status==='live'&&<span style={{fontSize:10,fontWeight:600,color:C.red,background:C.redLight,padding:'2px 6px',borderRadius:4}}>LIVE</span>}{t.status==='open'&&<span style={{fontSize:10,fontWeight:600,color:C.green,background:C.greenLight,padding:'2px 6px',borderRadius:4}}>OPEN</span>}{entered&&<span style={{fontSize:10,fontWeight:600,color:C.accentText,background:`${C.accent}18`,padding:'2px 6px',borderRadius:4}}>ENTERED</span>}<LockTimerBadge tournament={t}/></div><div style={{display:'flex',alignItems:'center',gap:5}}>{t.guaranteed?<span style={{fontSize:10,fontWeight:700,color:'#92400E',background:'#FEF3C7',padding:'2px 6px',borderRadius:4}}>${t.guaranteed>=1000000?(t.guaranteed/1000000).toFixed(t.guaranteed%1000000===0?0:1)+'M':(t.guaranteed/1000).toFixed(0)+'K'} GTD</span>:t.pool>0?<span style={{fontSize:10,fontWeight:600,color:C.accentText,background:`${C.accent}18`,padding:'2px 6px',borderRadius:4}}>${t.pool.toLocaleString('en-US')}</span>:null}{(t.status==='live'||t.status==='open')&&!entered&&<span style={{fontSize:10,color:C.textMuted,padding:'2px 6px',borderRadius:4,border:`1px solid ${C.border}`}}>$1 - $1,000</span>}</div></div></div><div style={{display:'flex',alignItems:'center',gap:10}}>{(t.status==='live'||t.status==='open')&&!entered&&<button onClick={()=>{setSelectedTier(null);setActiveTournament(t);setModal('tiers');}} style={{padding:'8px 14px',borderRadius:6,background:C.accent,border:'none',cursor:'pointer'}}><span style={{fontSize:12,fontWeight:600,color:'#fff'}}>Enter</span></button>}{entered&&<button onClick={()=>setCalendarTab('my')} style={{padding:'8px 14px',borderRadius:6,background:C.greenLight,border:'none',cursor:'pointer'}}><span style={{fontSize:12,fontWeight:600,color:C.green}}>View</span></button>}<Heart size={22} color={C.accentText} strokeWidth={1.5} style={{cursor:'pointer'}}/></div></div>);})}</div></div>))}<div style={{height:100}}/></>)}
+    {calendarTab==='all'&&(<><div style={{padding:16,background:C.card}}><div style={{display:'flex',alignItems:'center',gap:10,background:C.card,borderRadius:8,padding:'12px 16px',border:`1px solid ${C.border}`}}><Search size={18} color={C.textMuted}/><span style={{fontSize:14,color:C.textMuted}}>Search tournaments</span></div></div>{months.map(month=>(<div key={month}><div style={{background:C.sectionBg,padding:'10px 16px'}}><span style={{fontSize:15,fontWeight:600,color:C.navy}}>{month}</span></div><div style={{background:C.card}}>{tournaments.filter(t=>t.month===month).map(t=>{const entered=myBrackets.some(b=>b.tournament.id===t.id);return(<div key={t.id} style={{display:'flex',padding:16,borderBottom:`1px solid ${C.border}`}}><div style={{width:52,flexShrink:0,paddingRight:10,borderRight:`2px solid ${C.accent}`,marginRight:14}}><p style={{fontSize:12,fontWeight:600,color:C.textMid,margin:0,whiteSpace:'nowrap'}}>{t.dates}</p><p style={{fontSize:12,color:C.textMuted,margin:'2px 0 0',whiteSpace:'nowrap'}}>{t.dateSuffix}</p></div><div style={{flex:1}}><div style={{marginBottom:6}}>{t.type==='grandslam'?<span style={{fontStyle:'italic',fontWeight:800,fontSize:16,color:C.navy}}>GRAND SLAM</span>:<div style={{display:'flex',alignItems:'baseline'}}><span style={{fontStyle:'italic',fontWeight:800,fontSize:16,color:C.navy}}>ATP</span><span style={{fontWeight:800,fontSize:16,color:C.navy}}>{t.type.replace('atp','')}</span></div>}</div><h3 style={{fontSize:16,fontWeight:600,color:C.navy,margin:'0 0 2px'}}>{t.name}</h3><p style={{fontSize:13,color:C.textMuted,margin:0}}>{t.subtitle}</p><div style={{marginTop:8}}><div style={{display:'flex',alignItems:'center',gap:5,marginBottom:4}}>{t.status==='live'&&<span style={{fontSize:10,fontWeight:600,color:C.red,background:C.redLight,padding:'2px 6px',borderRadius:4}}>LIVE</span>}{t.status==='open'&&<span style={{fontSize:10,fontWeight:600,color:C.green,background:C.greenLight,padding:'2px 6px',borderRadius:4}}>OPEN</span>}{entered&&<span style={{fontSize:10,fontWeight:600,color:C.accentText,background:`${C.accent}18`,padding:'2px 6px',borderRadius:4}}>ENTERED</span>}<LockTimerBadge tournament={t}/></div><div style={{display:'flex',alignItems:'center',gap:5}}>{t.guaranteed?<span style={{fontSize:10,fontWeight:700,color:'#92400E',background:'#FEF3C7',padding:'2px 6px',borderRadius:4}}>${t.guaranteed>=1000000?(t.guaranteed/1000000).toFixed(t.guaranteed%1000000===0?0:1)+'M':(t.guaranteed/1000).toFixed(0)+'K'} GTD</span>:t.pool>0?<span style={{fontSize:10,fontWeight:600,color:C.accentText,background:`${C.accent}18`,padding:'2px 6px',borderRadius:4}}>${t.pool.toLocaleString('en-US')}</span>:null}{(t.status==='live'||t.status==='open')&&!entered&&<span style={{fontSize:10,color:C.textMuted,padding:'2px 6px',borderRadius:4,border:`1px solid ${C.border}`}}>$1 - $1,000</span>}</div></div></div><div style={{display:'flex',alignItems:'center',gap:10}}>{(t.status==='live'||t.status==='open')&&!entered&&<button onClick={()=>{setSelectedTier(null);setActiveTournament(t);setModal('tiers');}} style={{padding:'8px 14px',borderRadius:6,background:C.accent,border:'none',cursor:'pointer'}}><span style={{fontSize:12,fontWeight:600,color:'#fff'}}>Enter</span></button>}{t.status==='upcoming'&&!entered&&<button onClick={()=>{setSelectedTier(null);setActiveTournament(t);setModal('tiers');}} style={{padding:'8px 12px',borderRadius:6,background:'transparent',border:`1px solid ${C.accent}`,cursor:'pointer'}}><span style={{fontSize:11,fontWeight:600,color:C.accentText}}>Pre-reg</span></button>}{entered&&<button onClick={()=>setCalendarTab('my')} style={{padding:'8px 14px',borderRadius:6,background:C.greenLight,border:'none',cursor:'pointer'}}><span style={{fontSize:12,fontWeight:600,color:C.green}}>View</span></button>}<Heart size={22} color={C.accentText} strokeWidth={1.5} style={{cursor:'pointer'}}/></div></div>);})}</div></div>))}<div style={{height:100}}/></>)}
   </div>);};
 
   const RankingsView=()=>(<div style={{background:C.card,minHeight:'100vh'}}><AppHeader/><div style={{background:C.card,padding:'12px 16px',borderBottom:`1px solid ${C.border}`,display:'flex',alignItems:'center',justifyContent:'space-between'}}><span style={{fontSize:18,fontWeight:800,color:C.navy,letterSpacing:-0.3}}>Top 30 Rankings</span><span style={{fontSize:11,fontWeight:600,color:C.textMuted,background:C.bgLight,padding:'3px 10px',borderRadius:20}}>Season 2026</span></div><div style={{background:C.bgLight,padding:'10px 16px',display:'flex',borderBottom:`1px solid ${C.border}`}}><span style={{width:45,fontSize:11,fontWeight:600,color:C.textMuted}}>RANK</span><span style={{flex:1,fontSize:11,fontWeight:600,color:C.textMuted}}>PLAYER</span><span style={{width:55,fontSize:11,fontWeight:600,color:C.textMuted,textAlign:'right'}}>PTS</span><span style={{width:45,fontSize:11,fontWeight:600,color:C.textMuted,textAlign:'right'}}>WIN%</span></div><div style={{background:C.card,paddingBottom:100}}>{rankings.map(p=>(<div key={p.rank} onClick={()=>setSelPlayer(p)} style={{display:'flex',alignItems:'center',padding:'12px 16px',borderBottom:`1px solid ${C.border}`,cursor:'pointer'}}><span style={{width:45,fontSize:15,fontWeight:600,color:p.rank<=3?C.orange:C.navy}}>{p.rank<=3?['1st','2nd','3rd'][p.rank-1]:p.rank}</span><div style={{flex:1,display:'flex',alignItems:'center',gap:8}}><div style={{width:34,height:34,borderRadius:17,background:p.rank<=3?`${C.orange}20`:C.accentLight,display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:600,color:p.rank<=3?C.orange:C.accent}}>{p.name[0]}</div><span style={{fontSize:15}}>{p.flag}</span><div><p style={{fontSize:14,fontWeight:500,color:C.navy,margin:0}}>{p.name}</p><p style={{fontSize:11,color:C.textMuted,margin:'2px 0 0'}}>Played {p.played}</p></div></div><span style={{width:55,fontSize:14,fontWeight:600,color:C.navy,textAlign:'right'}}>{p.pts.toLocaleString('en-US')}</span><span style={{width:45,fontSize:13,fontWeight:500,color:C.green,textAlign:'right'}}>{p.winRate}%</span></div>))}</div></div>);
 
-  const WalletView=()=>(<div style={{background:C.headerBg,minHeight:'100vh'}}><div style={{background:C.headerBg,padding:20}}><div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20}}><MobaLogo size={24} color="#fff"/><MobaWordmark color="#fff" fontSize={20}/></div><p style={{fontSize:13,color:'rgba(255,255,255,0.7)',margin:'0 0 4px'}}>Available Balance</p><p style={{fontSize:36,fontWeight:700,color:'#fff',margin:0}}>${balance.toLocaleString('en-US')}.00</p><div style={{display:'flex',gap:12,marginTop:20}}><Btn primary onClick={()=>{setDepStep(1);setDepAmt('');setModal('deposit');}} style={{flex:1,background:'rgba(255,255,255,0.15)',border:'1px solid rgba(255,255,255,0.3)',color:'#fff'}}><Plus size={18}/> Add Funds</Btn><Btn onClick={()=>{setWithdrawStep(1);setWithdrawAmt('');setModal('withdraw');}} style={{flex:1,background:'rgba(255,255,255,0.1)',border:'1px solid rgba(255,255,255,0.2)',color:'#fff'}}><ArrowUp size={18}/> Withdraw</Btn></div></div><div style={{padding:16,paddingBottom:100,background:C.card,borderRadius:'16px 16px 0 0',marginTop:0}}><div style={{display:'flex',gap:12,marginBottom:20}}>{[['Total Earnings',`+$${user.earn.toLocaleString('en-US')}`,C.green,<TrendingUp size={18} color={C.green}/>],['Win Rate',`${user.win}%`,C.accent,<Trophy size={18} color={C.accentText}/>]].map(([lbl,val,col,icon])=>(<div key={lbl} style={{flex:1,background:C.card,borderRadius:12,padding:16,border:`1px solid ${C.border}`}}>{icon}<p style={{fontSize:11,color:C.textMuted,margin:'8px 0 4px'}}>{lbl}</p><p style={{fontSize:22,fontWeight:700,color:col,margin:0}}>{val}</p></div>))}</div><p style={{fontSize:14,fontWeight:600,color:C.navy,margin:'0 0 12px'}}>Recent Transactions</p><div style={{background:C.card,borderRadius:12,border:`1px solid ${C.border}`,overflow:'hidden'}}>{userTx.map((t,i)=>(<div key={t.id} style={{display:'flex',alignItems:'center',padding:16,borderBottom:i<userTx.length-1?`1px solid ${C.border}`:'none'}}><div style={{width:40,height:40,borderRadius:20,background:t.amt>0?C.greenLight:C.accentLight,display:'flex',alignItems:'center',justifyContent:'center',marginRight:12}}>{t.amt>0?<ArrowDown size={18} color={C.green}/>:<ArrowUp size={18} color={C.accentText}/>}</div><div style={{flex:1}}><p style={{fontSize:14,fontWeight:500,color:C.navy,margin:0}}>{t.title}</p><p style={{fontSize:12,color:C.textMuted,margin:'2px 0 0'}}>{t.desc}</p></div><div style={{textAlign:'right'}}><p style={{fontSize:15,fontWeight:600,color:t.amt>0?C.green:C.navy,margin:0}}>{t.amt>0?'+':'-'}${Math.abs(t.amt).toLocaleString('en-US')}</p><p style={{fontSize:11,color:C.textMuted,margin:'2px 0 0'}}>{t.date}</p></div></div>))}</div></div></div>);
+  const WalletView=()=>(<div style={{background:C.headerBg,minHeight:'100vh'}}><div style={{background:C.headerBg,padding:20}}><div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20}}><MobaLogo size={24} color="#fff"/><MobaWordmark color="#fff" fontSize={20}/></div><p style={{fontSize:13,color:'rgba(255,255,255,0.7)',margin:'0 0 4px'}}>Available Balance</p><p style={{fontSize:36,fontWeight:700,color:'#fff',margin:0}}>${balance.toLocaleString('en-US')}.00</p><div style={{display:'flex',gap:12,marginTop:20}}><Btn primary onClick={()=>{setDepStep(1);setDepAmt('');setModal('deposit');}} style={{flex:1,background:'rgba(255,255,255,0.15)',border:'1px solid rgba(255,255,255,0.3)',color:'#fff'}}><Plus size={18}/> Add Funds</Btn><Btn onClick={()=>{setWithdrawStep(1);setWithdrawAmt('');setModal('withdraw');}} style={{flex:1,background:'rgba(255,255,255,0.1)',border:'1px solid rgba(255,255,255,0.2)',color:'#fff'}}><ArrowUp size={18}/> Withdraw</Btn></div></div><div style={{padding:16,paddingBottom:100,background:C.card,borderRadius:'16px 16px 0 0',marginTop:0}}>
+      {!isLoggedIn||balance<50?<div style={{background:'linear-gradient(135deg,#065F46,#047857)',borderRadius:12,padding:14,marginBottom:16,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+        <div><p style={{fontSize:13,fontWeight:700,color:'#fff',margin:'0 0 2px'}}>100% Deposit Bonus</p><p style={{fontSize:11,color:'rgba(255,255,255,0.8)',margin:0}}>Matched up to $50 on your first deposit</p></div>
+        <button onClick={()=>{setDepStep(1);setDepAmt('50');setModal('deposit');}} style={{background:'#fff',border:'none',borderRadius:8,padding:'7px 12px',cursor:'pointer',flexShrink:0}}><span style={{fontSize:12,fontWeight:700,color:'#047857'}}>Claim</span></button>
+      </div>:null}
+      <div style={{display:'flex',gap:12,marginBottom:20}}>{[['Total Earnings',`+$${user.earn.toLocaleString('en-US')}`,C.green,<TrendingUp size={18} color={C.green}/>],['Win Rate',`${user.win}%`,C.accent,<Trophy size={18} color={C.accentText}/>]].map(([lbl,val,col,icon])=>(<div key={lbl} style={{flex:1,background:C.card,borderRadius:12,padding:16,border:`1px solid ${C.border}`}}>{icon}<p style={{fontSize:11,color:C.textMuted,margin:'8px 0 4px'}}>{lbl}</p><p style={{fontSize:22,fontWeight:700,color:col,margin:0}}>{val}</p></div>))}</div><div style={{display:'flex',justifyContent:'space-between',alignItems:'center',margin:'0 0 12px'}}><p style={{fontSize:14,fontWeight:600,color:C.navy,margin:0}}>Transactions</p><button onClick={()=>setTxShowAll(!txShowAll)} style={{background:'none',border:'none',cursor:'pointer',fontSize:12,fontWeight:600,color:C.accentText}}>{txShowAll?'Show less':'Show all'}</button></div><div style={{background:C.card,borderRadius:12,border:`1px solid ${C.border}`,overflow:'hidden'}}>{(txShowAll?userTx:userTx.slice(0,4)).map((t,i,arr)=>(<div key={t.id} style={{display:'flex',alignItems:'center',padding:16,borderBottom:i<arr.length-1?`1px solid ${C.border}`:'none'}}><div style={{width:40,height:40,borderRadius:20,background:t.amt>0?C.greenLight:C.accentLight,display:'flex',alignItems:'center',justifyContent:'center',marginRight:12}}>{t.amt>0?<ArrowDown size={18} color={C.green}/>:<ArrowUp size={18} color={C.accentText}/>}</div><div style={{flex:1}}><p style={{fontSize:14,fontWeight:500,color:C.navy,margin:0}}>{t.title}</p><p style={{fontSize:12,color:C.textMuted,margin:'2px 0 0'}}>{t.desc}</p></div><div style={{textAlign:'right'}}><p style={{fontSize:15,fontWeight:600,color:t.amt>0?C.green:C.navy,margin:0}}>{t.amt>0?'+':'-'}${Math.abs(t.amt).toLocaleString('en-US')}</p><p style={{fontSize:11,color:C.textMuted,margin:'2px 0 0'}}>{t.date}</p></div></div>))}</div></div></div>);
 
   const DepositModal=()=>{if(depStep===3)return(<ModalWrap title="Success" onClose={()=>setModal(null)}><div style={{padding:32,textAlign:'center'}}><div style={{width:72,height:72,borderRadius:36,background:C.greenLight,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 20px'}}><CheckCircle size={36} color={C.green}/></div><p style={{fontSize:15,color:C.textMid}}>Successfully deposited</p><p style={{fontSize:36,fontWeight:700,color:C.green,margin:'8px 0'}}>+${depAmt}</p><Btn primary full onClick={()=>setModal(null)} style={{marginTop:24}}>Done</Btn></div></ModalWrap>);return(<ModalWrap title="Add Funds" onClose={()=>setModal(null)}><div style={{padding:16}}>{depStep===1?(<><p style={{fontSize:13,color:C.textMuted,margin:'0 0 10px'}}>Amount</p><div style={{position:'relative',marginBottom:20}}><span style={{position:'absolute',left:18,top:'50%',transform:'translateY(-50%)',fontSize:24,fontWeight:600,color:C.textMuted}}>$</span><input type="number" value={depAmt} onChange={e=>setDepAmt(e.target.value)} placeholder="0" style={{width:'100%',padding:'18px 18px 18px 45px',fontSize:28,fontWeight:700,background:C.inputBg,border:`2px solid ${depAmt?C.accent:C.border}`,borderRadius:12,color:C.navy,outline:'none'}}/></div><div style={{display:'flex',gap:8,marginBottom:24}}>{[50,100,200,500].map(v=>(<button key={v} onClick={()=>setDepAmt(v.toString())} style={{flex:1,padding:12,borderRadius:8,fontSize:14,fontWeight:600,cursor:'pointer',background:depAmt===v.toString()?C.accentLight:C.bgLight,border:`1px solid ${depAmt===v.toString()?C.accent:C.border}`,color:depAmt===v.toString()?C.accent:C.textMid}}>${v}</button>))}</div><Btn primary full disabled={!depAmt||parseFloat(depAmt)<10} onClick={()=>setDepStep(2)}>Continue</Btn></>):(<><div style={{background:C.bgLight,borderRadius:12,padding:16,marginBottom:20}}>{[['Amount',`$${depAmt}`],['Fee','$0.00'],['Total',`$${depAmt}`]].map(([k,v],i)=>(<div key={k}>{i===2&&<div style={{height:1,background:C.border,margin:'12px 0'}}/>}<div style={{display:'flex',justifyContent:'space-between',marginBottom:i<2?12:0}}><span style={{color:C.textMuted}}>{k}</span><span style={{fontWeight:i===2?700:600,fontSize:i===2?20:14,color:i===1?C.green:i===2?C.accentText:C.navy}}>{v}</span></div></div>))}</div><div style={{display:'flex',gap:12}}><Btn onClick={()=>setDepStep(1)} style={{flex:1}}>Back</Btn><Btn primary onClick={()=>{setBalance(balance+parseFloat(depAmt));setDepStep(3);}} style={{flex:2}}>Confirm</Btn></div></>)}</div></ModalWrap>);};
 
@@ -535,15 +565,15 @@ export default function App() {
                 </div>
               </div>
               <div style={{height:6,background:C.border,borderRadius:3,overflow:'hidden'}}>
-                <div style={{height:'100%',width:`${Math.min(100,(poolLive/1000000)*100)}%`,background:`linear-gradient(90deg,${C.green},#34D399)`,borderRadius:3,transition:'width 1.2s ease'}}/>
+                <div style={{height:'100%',width:`${Math.min(100,(poolLive/Math.max(activeTournament.guaranteed||poolLive,poolLive))*100)}%`,background:`linear-gradient(90deg,${C.green},#34D399)`,borderRadius:3,transition:'width 1.2s ease'}}/>
               </div>
               <div style={{display:'flex',justifyContent:'space-between',marginTop:5}}>
                 <span style={{fontSize:10,color:C.textMuted}}>Growing live</span>
-                <span style={{fontSize:10,fontWeight:600,color:C.green}}>{Math.min(100,(poolLive/1000000)*100).toFixed(1)}% of $1M GTD</span>
+                <span style={{fontSize:10,fontWeight:600,color:C.green}}>{Math.min(100,(poolLive/Math.max(activeTournament.guaranteed||poolLive,poolLive))*100).toFixed(1)}% of GTD</span>
               </div>
             </div><div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:12,overflow:'hidden'}}><div style={{display:'flex',padding:'10px 14px',background:C.bgLight,borderBottom:`1px solid ${C.border}`}}><span style={{flex:1,fontSize:11,fontWeight:600,color:C.textMuted}}>PLACE</span><span style={{width:60,fontSize:11,fontWeight:600,color:C.textMuted,textAlign:'right'}}>%</span><span style={{width:90,fontSize:11,fontWeight:600,color:C.textMuted,textAlign:'right'}}>PRIZE</span></div>{(prizesShowAll?rows:rows.slice(0,5)).map((row,i)=>(<div key={i} style={{display:'flex',alignItems:'center',padding:'11px 14px',borderBottom:i<(prizesShowAll?rows.length:5)-1?`1px solid ${C.border}`:'none'}}><div style={{flex:1,display:'flex',alignItems:'center',gap:8}}>{row.medal&&<span style={{fontSize:12,fontWeight:700,color:C.orange,background:`${C.orange}15`,borderRadius:4,padding:'1px 6px',marginRight:2}}>{row.medal}</span>}<span style={{fontSize:13,fontWeight:row.medal?600:500,color:C.navy}}>{row.place}</span></div><span style={{width:60,fontSize:12,color:C.textMuted,textAlign:'right'}}>{row.pct}</span><span style={{width:90,fontSize:13,fontWeight:600,color:row.medal?C.green:C.navy,textAlign:'right'}}>${row.amt.toLocaleString('en-US')}</span></div>))}</div><button onClick={()=>setPrizesShowAll(!prizesShowAll)} style={{width:'100%',padding:12,marginTop:12,background:'none',border:`1px solid ${C.border}`,borderRadius:8,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:6}}><span style={{fontSize:13,fontWeight:500,color:C.accentText}}>{prizesShowAll?'Show Less':'Show All Places'}</span><ChevronDown size={16} color={C.accentText} style={{transform:prizesShowAll?'rotate(180deg)':'none'}}/></button></div></ModalWrap>);};
 
-  const AuthModal=()=>(<ModalWrap title={authMode==='login'?'Sign In':'Create Account'} onClose={()=>{setAuthMode('login');setModal(null);}}><div style={{padding:20}}><div style={{textAlign:'center',marginBottom:24}}><div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,marginBottom:8}}><MobaLogo size={32} color={C.accentText}/><MobaWordmark color={C.navy} fontSize={22}/></div><p style={{fontSize:13,color:C.textMuted,margin:0}}>Bracket Battle</p></div>{authMode==='register'&&<div style={{marginBottom:16}}><label style={{fontSize:13,fontWeight:600,color:C.textMid,display:'block',marginBottom:6}}>Username</label><input type="text" value={authName} onChange={e=>setAuthName(e.target.value)} placeholder="Choose a username" style={{width:'100%',padding:14,fontSize:15,border:`1.5px solid ${C.border}`,borderRadius:10,outline:'none',color:C.navy,background:C.inputBg,boxSizing:'border-box'}}/></div>}<div style={{marginBottom:16}}><label style={{fontSize:13,fontWeight:600,color:C.textMid,display:'block',marginBottom:6}}>Email</label><input type="email" value={authEmail} onChange={e=>setAuthEmail(e.target.value)} placeholder="your@email.com" style={{width:'100%',padding:14,fontSize:15,border:`1.5px solid ${C.border}`,borderRadius:10,outline:'none',color:C.navy,background:C.inputBg,boxSizing:'border-box'}}/></div><div style={{marginBottom:20}}><label style={{fontSize:13,fontWeight:600,color:C.textMid,display:'block',marginBottom:6}}>Password</label><div style={{position:'relative'}}><input type={showPass?'text':'password'} value={authPassword} onChange={e=>setAuthPassword(e.target.value)} placeholder="Password" style={{width:'100%',padding:14,paddingRight:46,fontSize:15,border:`1.5px solid ${C.border}`,borderRadius:10,outline:'none',color:C.navy,background:C.inputBg,boxSizing:'border-box'}}/><button onClick={()=>setShowPass(!showPass)} style={{position:'absolute',right:12,top:'50%',transform:'translateY(-50%)',background:'none',border:'none',cursor:'pointer',display:'flex',alignItems:'center'}}>{showPass?<EyeOff size={18} color={C.textMuted}/>:<Eye size={18} color={C.textMuted}/>}</button></div></div><Btn primary full disabled={authMode==='login'?!authEmail||!authPassword:!authName||!authEmail||!authPassword} onClick={()=>{setIsLoggedIn(true);setModal(null);setAuthEmail('');setAuthPassword('');setAuthName('');}}>  {authMode==='login'?'Sign In':'Create Account'}</Btn><div style={{marginTop:20,paddingTop:20,borderTop:`1px solid ${C.border}`,textAlign:'center'}}>{authMode==='login'?<p style={{fontSize:14,color:C.textMid,margin:0}}>Don't have an account? <span onClick={()=>setAuthMode('register')} style={{color:C.accentText,fontWeight:600,cursor:'pointer'}}>Sign Up</span></p>:<p style={{fontSize:14,color:C.textMid,margin:0}}>Already have an account? <span onClick={()=>setAuthMode('login')} style={{color:C.accentText,fontWeight:600,cursor:'pointer'}}>Sign In</span></p>}</div></div></ModalWrap>);
+  const AuthModal=()=>(<ModalWrap title={authMode==='login'?'Sign In':'Create Account'} onClose={()=>{setAuthMode('login');setModal(null);}}><div style={{padding:20}}><div style={{textAlign:'center',marginBottom:24}}><div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,marginBottom:8}}><MobaLogo size={32} color={C.accentText}/><MobaWordmark color={C.navy} fontSize={22}/></div><p style={{fontSize:13,color:C.textMuted,margin:0}}>Bracket Battle</p></div>{authMode==='register'&&<div style={{marginBottom:16}}><label style={{fontSize:13,fontWeight:600,color:C.textMid,display:'block',marginBottom:6}}>Username</label><input type="text" value={authName} onChange={e=>setAuthName(e.target.value)} placeholder="Choose a username" style={{width:'100%',padding:14,fontSize:15,border:`1.5px solid ${C.border}`,borderRadius:10,outline:'none',color:C.navy,background:C.inputBg,boxSizing:'border-box'}}/></div>}<div style={{marginBottom:16}}><label style={{fontSize:13,fontWeight:600,color:C.textMid,display:'block',marginBottom:6}}>Email</label><input type="email" value={authEmail} onChange={e=>setAuthEmail(e.target.value)} placeholder="your@email.com" style={{width:'100%',padding:14,fontSize:15,border:`1.5px solid ${C.border}`,borderRadius:10,outline:'none',color:C.navy,background:C.inputBg,boxSizing:'border-box'}}/></div><div style={{marginBottom:20}}><label style={{fontSize:13,fontWeight:600,color:C.textMid,display:'block',marginBottom:6}}>Password</label><div style={{position:'relative'}}><input type={showPass?'text':'password'} value={authPassword} onChange={e=>setAuthPassword(e.target.value)} placeholder="Password" style={{width:'100%',padding:14,paddingRight:46,fontSize:15,border:`1.5px solid ${C.border}`,borderRadius:10,outline:'none',color:C.navy,background:C.inputBg,boxSizing:'border-box'}}/><button onClick={()=>setShowPass(!showPass)} style={{position:'absolute',right:12,top:'50%',transform:'translateY(-50%)',background:'none',border:'none',cursor:'pointer',display:'flex',alignItems:'center'}}>{showPass?<EyeOff size={18} color={C.textMuted}/>:<Eye size={18} color={C.textMuted}/>}</button></div></div><Btn primary full disabled={authMode==='login'?!authEmail||!authPassword:!authName||!authEmail||!authPassword} onClick={()=>{setIsLoggedIn(true);setModal(null);setAuthEmail('');setAuthPassword('');setAuthName('');if(authMode==='register'){setPostRegStep(0);setShowPostRegOnboarding(true);}}}>  {authMode==='login'?'Sign In':'Create Account'}</Btn><div style={{marginTop:20,paddingTop:20,borderTop:`1px solid ${C.border}`,textAlign:'center'}}>{authMode==='login'?<p style={{fontSize:14,color:C.textMid,margin:0}}>Don't have an account? <span onClick={()=>setAuthMode('register')} style={{color:C.accentText,fontWeight:600,cursor:'pointer'}}>Sign Up</span></p>:<p style={{fontSize:14,color:C.textMid,margin:0}}>Already have an account? <span onClick={()=>setAuthMode('login')} style={{color:C.accentText,fontWeight:600,cursor:'pointer'}}>Sign In</span></p>}</div></div></ModalWrap>);
 
   const SplashScreen=()=>(<div style={{position:'fixed',inset:0,zIndex:3000,background:'linear-gradient(160deg,#1E1B4B 0%,#2D2686 50%,#3730A3 100%)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',maxWidth:430,margin:'0 auto'}}><div style={{marginBottom:20}}><MobaLogo size={72} color="#fff"/></div><MobaWordmark color="#fff" fontSize={32}/><p style={{fontSize:14,color:'rgba(255,255,255,0.55)',margin:'12px 0 0',letterSpacing:1}}>Bracket Battle</p><div style={{display:'flex',gap:6,marginTop:48}}>{[0,1,2].map(i=><div key={i} style={{width:6,height:6,borderRadius:3,background:'rgba(255,255,255,0.4)',animation:`pulse 1.2s ease ${i*0.2}s infinite`}}/>)}</div></div>);
 
@@ -597,154 +627,189 @@ export default function App() {
   const WhatIfModal=()=>{const bracket=myBrackets[0];if(!bracket)return(<ModalWrap title="What If Simulator" onClose={()=>setModal(null)}><div style={{padding:32,textAlign:'center'}}><p style={{color:C.textMuted}}>Submit a bracket first.</p></div></ModalWrap>);const scenarios=[{label:'You picked Alcaraz',actual:'Sinner won',ptsYou:47,ptsBest:89,rankYou:127,rankBest:12,diff:-42},{label:'Fritz in QF (your pick)',actual:'Zverev advanced',ptsYou:47,ptsAlt:55,rankYou:127,rankAlt:68,diff:-8},{label:'Medvedev as BH',actual:'Best BH was Bublik',ptsYou:47,ptsAlt:62,rankYou:127,rankAlt:45,diff:-15}];return(<ModalWrap title="What If Simulator" onClose={()=>setModal(null)}><div style={{padding:16}}><div style={{background:C.headerBg,borderRadius:12,padding:16,marginBottom:20}}><p style={{fontSize:12,color:'rgba(255,255,255,0.7)',margin:'0 0 4px'}}>Your bracket: {bracket.name||'My Bracket'}</p><div style={{display:'flex',gap:20}}><div><p style={{fontSize:11,color:'rgba(255,255,255,0.6)',margin:'0 0 2px'}}>Score</p><p style={{fontSize:24,fontWeight:800,color:'#fff',margin:0}}>{bracket.points} pts</p></div><div><p style={{fontSize:11,color:'rgba(255,255,255,0.6)',margin:'0 0 2px'}}>Rank</p><p style={{fontSize:24,fontWeight:800,color:'#fff',margin:0}}>#{bracket.position||127}</p></div><div><p style={{fontSize:11,color:'rgba(255,255,255,0.6)',margin:'0 0 2px'}}>Max Possible</p><p style={{fontSize:24,fontWeight:800,color:'#FCD34D',margin:0}}>89 pts</p></div></div></div>{scenarios.map((sc,i)=>(<div key={i} style={{background:C.bgLight,borderRadius:12,padding:14,marginBottom:12,border:`1px solid ${C.border}`}}><div style={{display:'flex',justifyContent:'space-between',marginBottom:10}}><div style={{flex:1}}><p style={{fontSize:12,color:C.textMuted,margin:'0 0 3px'}}>Your pick</p><p style={{fontSize:14,fontWeight:600,color:C.navy,margin:0}}>{sc.label}</p></div><div style={{textAlign:'right'}}><p style={{fontSize:12,color:C.textMuted,margin:'0 0 3px'}}>What happened</p><p style={{fontSize:13,color:C.red,margin:0}}>{sc.actual}</p></div></div><div style={{display:'flex',gap:10}}><div style={{flex:1,background:C.card,borderRadius:8,padding:10,textAlign:'center',border:`1px solid ${C.border}`}}><p style={{fontSize:10,color:C.textMuted,margin:'0 0 3px'}}>Your Result</p><p style={{fontSize:16,fontWeight:700,color:C.navy,margin:'0 0 2px'}}>{sc.ptsYou} pts</p><p style={{fontSize:11,color:C.textMuted}}>Rank #{sc.rankYou}</p></div><div style={{display:'flex',alignItems:'center',paddingBottom:16}}><span style={{fontSize:18,color:C.red}}>-{Math.abs(sc.diff)}</span></div><div style={{flex:1,background:`${C.green}10`,borderRadius:8,padding:10,textAlign:'center',border:`1px solid ${C.green}40`}}><p style={{fontSize:10,color:C.textMuted,margin:'0 0 3px'}}>Best Pick</p><p style={{fontSize:16,fontWeight:700,color:C.green,margin:'0 0 2px'}}>{sc.ptsAlt||sc.ptsBest} pts</p><p style={{fontSize:11,color:C.textMuted}}>Rank #{sc.rankAlt||sc.rankBest}</p></div></div></div>))}</div></ModalWrap>);};
 
   const AIBuilderModal=()=>{
-    const [loading,setLoading]=React.useState(false);
-    const [result,setResult]=React.useState(null);
-    const surface=activeTournament?.surface||'Hard';
-    const tournament=activeTournament?.name||'Indian Wells';
+    const surface = activeTournament?.surface||'Hard';
+    const tName   = activeTournament?.name||'Indian Wells';
 
-    const strategies={
-      Hard:{
-        champions:[
-          {name:'J. Sinner',reason:'81% hard court win rate this season. Dominant baseline game and exceptional return stats. Currently world #2 and in peak form.'},
-          {name:'C. Alcaraz',reason:'78% hard court win rate. Explosive all-court game and elite mentality. Won this tournament before  -  knows how to go deep.'},
-          {name:'N. Djokovic',reason:'76% hard court rate but unmatched experience in big moments. When motivated, nearly unbeatable on hard courts.'},
-        ],
-        blackHorses:[
-          {name:'D. Medvedev',reason:'Hard court specialist with 79% win rate. Seed 11 means easier early draw. Capable of beating anyone on his day.'},
-          {name:'T. Fritz',reason:'63% hard court rate but dangerous home favourite energy. American crowd could push him deep into the draw.'},
-          {name:'A. de Minaur',reason:'74% hard court rate, incredible speed and retrieval. Can frustrate higher seeds and grind out unexpected wins.'},
-        ],
-        upsets:[
-          {match:'A. Zverev vs D. Medvedev',pick:'D. Medvedev',reason:'Medvedev hard court game is built for this surface. Zverev has historically struggled against his baseline game.'},
-          {match:'C. Ruud vs T. Fritz',pick:'T. Fritz',reason:'Fritz is a hard court natural. Ruud clay-heavy game can struggle when transition to faster surfaces is abrupt.'},
-        ],
-        tips:['Hard courts reward aggressive returning  -  back players with strong second-serve return stats.','Avoid picking clay specialists deep into hard court draws  -  surface transition is rarely seamless.','Look for players who peaked at recent indoor hard court events  -  momentum carries over.'],
-      },
-      Clay:{
-        champions:[
-          {name:'C. Alcaraz',reason:'82% clay win rate  -  arguably the best clay player currently not named Nadal. His topspin forehand is devastating on this surface.'},
-          {name:'N. Djokovic',reason:'79% clay rate with extraordinary clay court experience. Reads the high bounce better than anyone in the field.'},
-          {name:'A. Zverev',reason:'77% clay rate and has been in superb form on the dirt. His heavy groundstrokes and strong serve translate perfectly.'},
-        ],
-        blackHorses:[
-          {name:'C. Ruud',reason:'79% clay win rate  -  elite clay court player often overlooked. Has the game to go deep and cause major upsets.'},
-          {name:'J. Draper',reason:'Versatile game with a 61% clay rate that is rapidly improving. Aggressive style can work on clay when he finds rhythm.'},
-          {name:'T. Etcheverry',reason:'South American clay specialist who thrives on slow surfaces. Could be a banana peel for seeded opponents early on.'},
-        ],
-        upsets:[
-          {match:'D. Medvedev vs C. Ruud',pick:'C. Ruud',reason:'Medvedev notoriously struggles on clay at 61%  -  Ruud at 79% is in his element. Tactical mismatch favours Ruud.'},
-          {match:'T. Fritz vs J. Lehecka',pick:'J. Lehecka',reason:'Fritz hard court game does not fully translate to clay. Lehecka is more comfortable on the dirt with a strong serve.'},
-        ],
-        tips:['Clay rewards consistency  -  back players with high first-serve percentages and strong topspin.','Physical fitness matters more on clay  -  longer rallies favour conditioned athletes.','Watch for hard court specialists to exit earlier than their seedings suggest.'],
-      },
-      Grass:{
-        champions:[
-          {name:'N. Djokovic',reason:'85% grass win rate  -  the greatest grass court player of his generation. Flat ball, low bounce, aggressive net approach all suit him perfectly.'},
-          {name:'C. Alcaraz',reason:'71% grass rate and a Wimbledon champion. His serve-and-volley evolution makes him a genuine threat on fast surfaces.'},
-          {name:'T. Fritz',reason:'63% grass rate but serves huge and volleys well. Grass rewards the kind of aggressive game Fritz brings.'},
-        ],
-        blackHorses:[
-          {name:'J. Draper',reason:'69% grass win rate  -  grew up on British grass. Aggressive slice backhand is a genuine weapon on this surface.'},
-          {name:'L. Tien',reason:'Young serve-and-volleyer who has looked sharp on grass. Big serve could carry him past higher seeds.'},
-          {name:'B. Nakashima',reason:'Smooth, flat ball-striking suits the low bounce on grass. Could surprise players who struggle to generate topspin.'},
-        ],
-        upsets:[
-          {match:'C. Ruud vs J. Draper',pick:'J. Draper',reason:'Ruud 44% grass win rate is well below average. Draper at 69% is in his element on British grass.'},
-          {match:'A. Zverev vs T. Fritz',pick:'T. Fritz',reason:'Fritz flat, aggressive game is tailor-made for grass. Zverev sometimes struggles with the lower bounce.'},
-        ],
-        tips:['Grass rewards big servers  -  track players with 70%+ first serve points won.','Net approaches matter  -  back players who volley well and can shorten points.','First week on grass is always chaotic  -  clay specialists often exit in rounds 1-2.'],
-      },
+    const STRATS = {
+      Hard:[
+        {champion:{name:'J. Sinner',   seed:2, flag:'🇮🇹'}, bh:{name:'G. Dimitrov',   seed:null,flag:'🇧🇬'}, upset:'Bublik vs Dimitrov -> Dimitrov', tip:'Back players with strong return stats on hard - Sinner leads tour in break points converted.'},
+        {champion:{name:'C. Alcaraz',  seed:1, flag:'🇪🇸'}, bh:{name:'H. Hurkacz',    seed:null,flag:'🇵🇱'}, upset:'Norrie vs Hurkacz -> Hurkacz',   tip:'Aggressive baseliners thrive on hard courts - look for players with big first serve and flat groundstrokes.'},
+        {champion:{name:'N. Djokovic', seed:3, flag:'🇷🇸'}, bh:{name:'G. Mpetshi Perricard',seed:null,flag:'🇫🇷'}, upset:'Medvedev vs Mpetshi Perricard -> Mpetshi Perricard', tip:'Big servers can upset anyone on fast hard courts - Mpetshi Perricard has one of the biggest serves on tour.'},
+      ],
+      Clay:[
+        {champion:{name:'C. Alcaraz',  seed:1, flag:'🇪🇸'}, bh:{name:'S. Tsitsipas',  seed:null,flag:'🇬🇷'}, upset:'Medvedev vs Tsitsipas -> Tsitsipas', tip:'Topspin wins on clay - back players with heavy forehand and strong first-set records.'},
+        {champion:{name:'N. Djokovic', seed:3, flag:'🇷🇸'}, bh:{name:'H. Rune',        seed:null,flag:'🇩🇰'}, upset:'Zverev vs Rune -> Rune',             tip:'Clay rewards fitness - longer matches favour conditioned athletes. Rune has beaten top-5 players on clay.'},
+        {champion:{name:'A. Zverev',   seed:4, flag:'🇩🇪'}, bh:{name:'M. Berrettini',  seed:null,flag:'🇮🇹'}, upset:'Medvedev vs Berrettini -> Berrettini', tip:'Avoid hard-court specialists deep in clay draws - surface transition costs them dearly.'},
+      ],
+      Grass:[
+        {champion:{name:'N. Djokovic', seed:3, flag:'🇷🇸'}, bh:{name:'D. Shapovalov',  seed:null,flag:'🇨🇦'}, upset:'Ruud vs Shapovalov -> Shapovalov', tip:'Serve and flat ball dominate on grass - track players with 70%+ first serve points won.'},
+        {champion:{name:'C. Alcaraz',  seed:1, flag:'🇪🇸'}, bh:{name:'G. Dimitrov',    seed:null,flag:'🇧🇬'}, upset:'Ruud vs Dimitrov -> Dimitrov',     tip:'First week on grass is unpredictable - clay specialists often exit in rounds 1-2.'},
+      ],
     };
 
-    const generate=()=>{
+    const [loading, setLoading]   = React.useState(false);
+    const [pick,    setPick]      = React.useState(null); // {champion, bh, upset, tip}
+    const [applied, setApplied]   = React.useState(false);
+
+    const generate = () => {
       setLoading(true);
-      setResult(null);
-      // Simulate AI thinking time
-      setTimeout(()=>{
-        const s=strategies[surface]||strategies.Hard;
-        const champIdx=Math.floor(Math.random()*s.champions.length);
-        const bhIdx=Math.floor(Math.random()*s.blackHorses.length);
-        const upsetIdx=Math.floor(Math.random()*s.upsets.length);
-        const tipIdx=Math.floor(Math.random()*s.tips.length);
-        setResult({
-          champion:s.champions[champIdx],
-          blackHorse:s.blackHorses[bhIdx],
-          keyUpset:s.upsets[upsetIdx],
-          surfaceTip:s.tips[tipIdx],
-        });
+      setPick(null);
+      setApplied(false);
+      setTimeout(() => {
+        const pool = STRATS[surface] || STRATS.Hard;
+        setPick(pool[Math.floor(Math.random() * pool.length)]);
         setLoading(false);
-      },1800);
+      }, 1600);
     };
 
-    return(
-      <ModalWrap title="AI Bracket Builder" onClose={()=>setModal(null)}>
+    const applyStrategy = () => {
+      if (!pick) return;
+      // 1. Set Black Horse - find from draw by name
+      const bhPlayer = indianWellsDraw.find(p => p.name === pick.bh.name);
+      setBlackHorse({
+        id:   bhPlayer ? bhPlayer.pos : 99,
+        name: pick.bh.name,
+        seed: pick.bh.seed,
+        flag: pick.bh.flag,
+      });
+      // 2. Auto-fill ALL rounds: always pick the lower seed number (better seed = seeded player)
+      const newPredictions = {};
+      const bracketSize = getBracketSize(activeTournament);
+      const allRounds   = getRounds(activeTournament);
+
+      // For each round, auto-pick the better-seeded player
+      // We will fill round 0 from the draw, then propagate
+      const r128 = generateR128();
+      let prevRoundWinners = r128.map(m => m.p1.seed !== null ? m.p1 : m.p2); // pick seeded/p1
+
+      // Round 0
+      r128.forEach((m, i) => {
+        const winner = (m.p1.seed && !m.p2.seed) ? m.p1
+                     : (!m.p1.seed && m.p2.seed) ? m.p2
+                     : (m.p1.seed <= (m.p2.seed||999)) ? m.p1 : m.p2;
+        newPredictions[`r0-m${i}`] = winner;
+      });
+
+      // Rounds 1+
+      for (let ri = 1; ri < allRounds.length; ri++) {
+        const matchCount = allRounds[ri].matches;
+        for (let mi = 0; mi < matchCount; mi++) {
+          const p1 = newPredictions[`r${ri-1}-m${mi*2}`];
+          const p2 = newPredictions[`r${ri-1}-m${mi*2+1}`];
+          if (p1 && p2) {
+            // Champion override: if this is the final and we have a champion pick
+            if (ri === allRounds.length - 1) {
+              const champName = pick.champion.name;
+              const winner = p1.name === champName ? p1 : p2.name === champName ? p2
+                           : (p1.seed && p2.seed ? (p1.seed <= p2.seed ? p1 : p2)
+                           : p1.seed ? p1 : p2);
+              newPredictions[`r${ri}-m${mi}`] = winner;
+            } else {
+              const winner = (p1.seed && p2.seed) ? (p1.seed <= p2.seed ? p1 : p2)
+                           : p1.seed ? p1 : p2;
+              newPredictions[`r${ri}-m${mi}`] = winner;
+            }
+          }
+        }
+      }
+
+      setPredictions(newPredictions);
+      setApplied(true);
+      setTimeout(() => { setModal(null); setView('bracket'); }, 800);
+    };
+
+    return (
+      <ModalWrap title="AI Bracket Builder" onClose={() => setModal(null)}>
         <div style={{padding:16}}>
+          {/* Hero */}
           <div style={{background:C.headerBg,borderRadius:12,padding:16,marginBottom:16,textAlign:'center'}}>
             <div style={{marginBottom:8}}><Bot size={36} color="#fff"/></div>
             <p style={{fontSize:15,fontWeight:700,color:'#fff',margin:'0 0 2px'}}>AI Bracket Strategy</p>
-            <p style={{fontSize:12,color:'rgba(255,255,255,0.7)',margin:0}}>Powered by Claude . {tournament} . {surface}</p>
+            <p style={{fontSize:12,color:'rgba(255,255,255,0.7)',margin:0}}>{tName} . {surface} court</p>
           </div>
 
-          {!result&&!loading&&(
+          {/* Initial */}
+          {!pick && !loading && !applied && (
             <>
               <div style={{background:C.bgLight,borderRadius:12,padding:14,marginBottom:16}}>
                 <p style={{fontSize:13,color:C.textMid,margin:0,lineHeight:1.6}}>
-                  Analyzes current form, surface win rates, seedings and head-to-head records to recommend your champion, Black Horse, and a key upset pick.
+                  Recommends a champion, Black Horse, and key upset based on current form and surface win rates. Then auto-fills your entire bracket in one tap.
                 </p>
               </div>
               <Btn primary full onClick={generate}>Generate AI Strategy</Btn>
             </>
           )}
 
-          {loading&&(
+          {/* Loading */}
+          {loading && (
             <div style={{textAlign:'center',padding:48}}>
               <div style={{width:48,height:48,borderRadius:24,border:`3px solid ${C.accent}`,borderTopColor:'transparent',margin:'0 auto 16px',animation:'spin 0.8s linear infinite'}}/>
-              <p style={{fontSize:14,color:C.textMuted,margin:0}}>Analyzing {tournament} draw...</p>
+              <p style={{fontSize:14,color:C.textMuted,margin:0}}>Analyzing {tName} draw...</p>
             </div>
           )}
 
-          {result&&!loading&&(
+          {/* Applied success */}
+          {applied && (
+            <div style={{textAlign:'center',padding:32}}>
+              <CheckCircle size={48} color={C.green} style={{marginBottom:12}}/>
+              <p style={{fontSize:16,fontWeight:700,color:C.navy,margin:'0 0 4px'}}>Strategy Applied!</p>
+              <p style={{fontSize:13,color:C.textMuted}}>Bracket filled. Taking you there now...</p>
+            </div>
+          )}
+
+          {/* Results */}
+          {pick && !loading && !applied && (
             <div>
-              {result.champion&&(
-                <div style={{background:`${C.green}10`,border:`1px solid ${C.green}40`,borderRadius:12,padding:14,marginBottom:10}}>
-                  <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
-                    <Trophy size={18} color={C.green}/>
-                    <span style={{fontSize:11,fontWeight:700,color:C.green,textTransform:'uppercase',letterSpacing:0.5}}>Champion Pick</span>
+              {/* Champion */}
+              <div style={{background:`${C.green}10`,border:`1px solid ${C.green}40`,borderRadius:12,padding:14,marginBottom:10}}>
+                <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
+                  <Trophy size={16} color={C.green}/>
+                  <span style={{fontSize:11,fontWeight:700,color:C.green,textTransform:'uppercase',letterSpacing:0.5}}>Champion</span>
+                </div>
+                <div style={{display:'flex',alignItems:'center',gap:10}}>
+                  <span style={{fontSize:28}}>{pick.champion.flag}</span>
+                  <div>
+                    <p style={{fontSize:17,fontWeight:800,color:C.navy,margin:0}}>{pick.champion.name}</p>
+                    <p style={{fontSize:11,color:C.textMuted,margin:'2px 0 0'}}>Seed [{pick.champion.seed}]</p>
                   </div>
-                  <p style={{fontSize:18,fontWeight:800,color:C.navy,margin:'0 0 5px'}}>{result.champion.name}</p>
-                  <p style={{fontSize:12,color:C.textMid,margin:0,lineHeight:1.5}}>{result.champion.reason}</p>
                 </div>
-              )}
-              {result.blackHorse&&(
-                <div style={{background:`${C.orange}10`,border:`1px solid ${C.orange}40`,borderRadius:12,padding:14,marginBottom:10}}>
-                  <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
-                    <Shield size={18} color={C.orange}/>
-                    <span style={{fontSize:11,fontWeight:700,color:C.orange,textTransform:'uppercase',letterSpacing:0.5}}>Black Horse <span style={{fontSize:10,opacity:0.8}}>1.5x pts</span></span>
+              </div>
+
+              {/* Black Horse */}
+              <div style={{background:`${C.orange}10`,border:`1px solid ${C.orange}40`,borderRadius:12,padding:14,marginBottom:10}}>
+                <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
+                  <Shield size={16} color={C.orange}/>
+                  <span style={{fontSize:11,fontWeight:700,color:C.orange,textTransform:'uppercase',letterSpacing:0.5}}>Black Horse (1.5x)</span>
+                </div>
+                <div style={{display:'flex',alignItems:'center',gap:10}}>
+                  <span style={{fontSize:28}}>{pick.bh.flag}</span>
+                  <div>
+                    <p style={{fontSize:17,fontWeight:800,color:C.navy,margin:0}}>{pick.bh.name}</p>
+                    <p style={{fontSize:11,color:C.textMuted,margin:'2px 0 0'}}>Seed [{pick.bh.seed}]</p>
                   </div>
-                  <p style={{fontSize:18,fontWeight:800,color:C.navy,margin:'0 0 5px'}}>{result.blackHorse.name}</p>
-                  <p style={{fontSize:12,color:C.textMid,margin:0,lineHeight:1.5}}>{result.blackHorse.reason}</p>
                 </div>
-              )}
-              {result.keyUpset&&(
-                <div style={{background:`${C.accent}08`,border:`1px solid ${C.accent}30`,borderRadius:12,padding:14,marginBottom:10}}>
-                  <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
-                    <Zap size={18} color={C.accentText}/>
-                    <span style={{fontSize:11,fontWeight:700,color:C.accentText,textTransform:'uppercase',letterSpacing:0.5}}>Key Upset to Watch</span>
-                  </div>
-                  <p style={{fontSize:11,color:C.textMuted,margin:'0 0 3px'}}>{result.keyUpset.match}</p>
-                  <p style={{fontSize:16,fontWeight:700,color:C.navy,margin:'0 0 5px'}}>Pick: {result.keyUpset.pick}</p>
-                  <p style={{fontSize:12,color:C.textMid,margin:0,lineHeight:1.5}}>{result.keyUpset.reason}</p>
+              </div>
+
+              {/* Key upset */}
+              <div style={{background:`${C.accent}08`,border:`1px solid ${C.accent}30`,borderRadius:12,padding:14,marginBottom:10}}>
+                <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
+                  <Zap size={16} color={C.accentText}/>
+                  <span style={{fontSize:11,fontWeight:700,color:C.accentText,textTransform:'uppercase',letterSpacing:0.5}}>Key upset</span>
                 </div>
-              )}
-              {result.surfaceTip&&(
-                <div style={{background:C.bgLight,borderRadius:12,padding:14,marginBottom:16}}>
-                  <p style={{fontSize:11,fontWeight:700,color:C.textMuted,margin:'0 0 6px',textTransform:'uppercase',letterSpacing:0.5}}>{surface} Court Tip</p>
-                  <p style={{fontSize:13,color:C.textMid,margin:0,lineHeight:1.5}}>{result.surfaceTip}</p>
-                </div>
-              )}
+                <p style={{fontSize:13,color:C.navy,margin:0,fontWeight:500}}>{pick.upset}</p>
+              </div>
+
+              {/* Tip */}
+              <div style={{background:C.bgLight,borderRadius:12,padding:14,marginBottom:16}}>
+                <p style={{fontSize:11,fontWeight:700,color:C.textMuted,margin:'0 0 5px',textTransform:'uppercase',letterSpacing:0.4}}>{surface} Tip</p>
+                <p style={{fontSize:13,color:C.textMid,margin:0,lineHeight:1.5}}>{pick.tip}</p>
+              </div>
+
               <div style={{display:'flex',gap:10}}>
-                <Btn onClick={generate} style={{flex:1}}>Regenerate Regenerate</Btn>
-                <Btn primary onClick={()=>setModal(null)} style={{flex:2}}>Apply Strategy</Btn>
+                <Btn onClick={generate} style={{flex:1}}>Regenerate</Btn>
+                <Btn primary onClick={applyStrategy} style={{flex:2}}>
+                  <Check size={16}/> Apply & Fill Bracket
+                </Btn>
               </div>
             </div>
           )}
@@ -892,7 +957,102 @@ export default function App() {
 
   const BracketDetailsModal=()=>{if(!selectedBracket)return null;return(<ModalWrap title="Bracket Details" onClose={()=>setSelectedBracket(null)}><div style={{padding:16}}><div style={{background:C.headerBg,borderRadius:12,padding:16,marginBottom:16}}><h3 style={{fontSize:20,fontWeight:700,color:'#fff',margin:'0 0 4px'}}>{selectedBracket.tournament.name}</h3></div><div style={{background:C.bgLight,borderRadius:12,padding:16,marginBottom:16}}><p style={{fontSize:11,color:C.textMuted,margin:'0 0 10px'}}>YOUR CHAMPION</p><div style={{display:'flex',alignItems:'center',gap:12}}><span style={{fontSize:36}}>{selectedBracket.champion?.flag}</span><div><p style={{fontSize:18,fontWeight:700,color:C.navy,margin:0}}>{selectedBracket.champion?.name}</p></div></div></div><Btn full onClick={()=>setSelectedBracket(null)}>Close</Btn></div></ModalWrap>);};
 
+  // Bracket player stats popup
+  const BracketPlayerStatsModal=()=>{
+    if(!bracketPlayerStats) return null;
+    const p=bracketPlayerStats;
+    const form=getHistoricalAnalysis(p.name, activeTournament?.surface||'Hard');
+    return(
+      <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.5)',zIndex:1100,display:'flex',alignItems:'flex-end',justifyContent:'center'}} onClick={()=>setBracketPlayerStats(null)}>
+        <div onClick={e=>e.stopPropagation()} style={{width:'100%',maxWidth:430,background:C.modalBg,borderRadius:'16px 16px 0 0',padding:20,paddingBottom:40}}>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}>
+            <div style={{display:'flex',alignItems:'center',gap:12}}>
+              <span style={{fontSize:32}}>{p.flag}</span>
+              <div>
+                <p style={{fontSize:17,fontWeight:700,color:C.navy,margin:0}}>{p.name}</p>
+                <p style={{fontSize:12,color:C.textMuted,margin:'2px 0 0'}}>Seed [{p.seed||'Unseeded'}]</p>
+              </div>
+            </div>
+            <button onClick={()=>setBracketPlayerStats(null)} style={{background:C.bgLight,border:'none',borderRadius:20,width:32,height:32,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}}><X size={16} color={C.textMuted}/></button>
+          </div>
+          {form?(
+            <div>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10,marginBottom:14}}>
+                {[
+                  ['Hard',`${form.hardWin}%`,C.navy],
+                  ['Clay',`${form.clayWin}%`,C.orange],
+                  ['Grass',`${form.grassWin}%`,C.green],
+                ].map(([surface,val,col])=>(
+                  <div key={surface} style={{background:C.bgLight,borderRadius:10,padding:'10px 8px',textAlign:'center',border:activeTournament?.surface===surface?`2px solid ${C.accent}`:`1px solid ${C.border}`}}>
+                    <p style={{fontSize:10,color:C.textMuted,margin:'0 0 3px',textTransform:'uppercase'}}>{surface}</p>
+                    <p style={{fontSize:18,fontWeight:800,color:col,margin:0}}>{val}</p>
+                  </div>
+                ))}
+              </div>
+              <div style={{background:C.bgLight,borderRadius:10,padding:12,marginBottom:12}}>
+                <p style={{fontSize:11,fontWeight:700,color:C.textMuted,margin:'0 0 8px',textTransform:'uppercase',letterSpacing:0.4}}>Recent Form</p>
+                <div style={{display:'flex',gap:6}}>
+                  {form.recentForm.map((r,i)=>(
+                    <div key={i} style={{flex:1,height:32,borderRadius:6,background:r==='W'?C.green:C.red,display:'flex',alignItems:'center',justifyContent:'center'}}>
+                      <span style={{fontSize:12,fontWeight:700,color:'#fff'}}>{r}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+                <div style={{background:C.bgLight,borderRadius:10,padding:12,textAlign:'center'}}>
+                  <p style={{fontSize:10,color:C.textMuted,margin:'0 0 3px',textTransform:'uppercase'}}>QF Rate</p>
+                  <p style={{fontSize:20,fontWeight:800,color:C.accentText,margin:0}}>{form.qfRate||50}%</p>
+                </div>
+                <div style={{background:C.bgLight,borderRadius:10,padding:12,textAlign:'center'}}>
+                  <p style={{fontSize:10,color:C.textMuted,margin:'0 0 3px',textTransform:'uppercase'}}>Titles</p>
+                  <p style={{fontSize:20,fontWeight:800,color:C.orange,margin:0}}>{form.titles||0}</p>
+                </div>
+              </div>
+            </div>
+          ):(
+            <div style={{textAlign:'center',padding:20}}>
+              <p style={{color:C.textMuted,fontSize:13}}>No detailed stats available for this player.</p>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   const PlayerModal=()=>selPlayer&&(<ModalWrap title="Player Stats" onClose={()=>setSelPlayer(null)}><div style={{padding:16}}><div style={{textAlign:'center',marginBottom:24}}><div style={{width:80,height:80,borderRadius:40,background:C.accentLight,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px',fontSize:28,fontWeight:600,color:C.accentText}}>{selPlayer.name[0]}</div><h3 style={{fontSize:22,fontWeight:700,color:C.navy,margin:0}}>{selPlayer.name}</h3><p style={{fontSize:14,color:C.accentText,margin:'4px 0'}}>Rank #{selPlayer.rank}</p><p style={{fontSize:14,color:C.textMuted}}>{selPlayer.flag}</p></div><div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:12}}>{[['Points',selPlayer.pts.toLocaleString('en-US'),C.navy],['Win Rate',`${selPlayer.winRate}%`,C.green],['Earnings',`$${selPlayer.earnings?.toLocaleString('en-US')}`,C.accent],['Brackets',selPlayer.played,C.navy]].map(([l,v,col])=>(<div key={l} style={{background:C.bgLight,borderRadius:8,padding:16,textAlign:'center'}}><p style={{fontSize:11,color:C.textMuted,margin:'0 0 4px'}}>{l}</p><p style={{fontSize:20,fontWeight:700,color:col,margin:0}}>{v}</p></div>))}</div></div></ModalWrap>);
 
-  return(<div style={{minHeight:'100vh',background:'#3730A3',fontFamily:'-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,sans-serif'}}><style>{`*{box-sizing:border-box;margin:0;padding:0;}html,body,#root{background:#3730A3;margin:0;padding:0;}::-webkit-scrollbar{width:0;height:0;}@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}@keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}@keyframes slideDown{from{opacity:0;transform:translateX(-50%) translateY(-100%);}to{opacity:1;transform:translateX(-50%) translateY(0);}}html{scroll-behavior:auto;}*{-webkit-overflow-scrolling:touch;}`}</style>{showSplash&&<SplashScreen/>}{!showSplash&&showOnboarding&&<OnboardingScreen/>}<div style={{maxWidth:430,margin:'0 auto',minHeight:'100vh',paddingBottom:80,background:C.card,transition:'background 0.3s'}}>{view==='bracket'&&<BracketView/>}{view==='calendar'&&<CalendarView/>}{view==='live'&&<LiveView/>}{view==='rankings'&&<RankingsView/>}{view==='wallet'&&<WalletView/>}<BottomNav/>{modal==='deposit'&&<DepositModal/>}{modal==='withdraw'&&<WithdrawModal/>}{modal==='submit'&&<SubmitModal/>}{modal==='blackhorse'&&<BlackHorseModal/>}{modal==='auth'&&<AuthModal/>}{modal==='profile'&&<ProfileModal/>}{modal==='tiers'&&<TierSelectorModal tournament={activeTournament}/>}{modal==='prizes'&&<PrizesModal/>}{modal==='stats'&&<StatsModal/>}{modal==='leagues'&&<MiniLeaguesModal/>}{modal==='h2h'&&<H2HModal/>}{modal==='rewards'&&<RewardsModal/>}{modal==='achievements'&&<AchievementsModal/>}{modal==='commentary'&&<LiveCommentaryModal/>}{modal==='cashback'&&<CashbackModal/>}{modal==='legal'&&<LegalModal/>}{modal==='help'&&<HelpModal/>}{modal==='freeroll'&&<FreerollModal/>}{modal==='notifications'&&<NotificationsModal/>}{modal==='globalfeed'&&<GlobalFeedModal/>}{modal==='whatif'&&<WhatIfModal/>}{modal==='aibuilder'&&<AIBuilderModal/>}{modal==='challenges'&&<DailyChallengesModal/>}{selectedBracket&&<BracketDetailsModal/>}{selPlayer&&<PlayerModal/>}{leaderboardBracket&&<LeaderboardModal/>}{modal==='social'&&<SocialModal/>}{modal==='publicprofile'&&<PublicProfileModal/>}<WinBanner/><LiveTicker/></div></div>);
+
+  const PostRegOnboarding=()=>{
+    const steps=[
+      {icon:'💳', title:'Add Funds', sub:'Start with as little as $1', desc:'Deposit to enter tournaments and win real prize pools. 100% bonus matched up to $50 on your first deposit.', cta:'Add Funds', action:()=>{setShowPostRegOnboarding(false);setDepAmt('50');setDepStep(1);setModal('deposit');}},
+      {icon:'🎾', title:'Pick a Tournament', sub:'Indian Wells is live now', desc:'Choose any tournament from the Calendar. Each has 10 buy-in levels from $1 to $1,000  -  each with its own prize pool.', cta:'Browse Tournaments', action:()=>{setShowPostRegOnboarding(false);setView('calendar');}},
+      {icon:'🏆', title:'Build Your Bracket', sub:'Pick all 128 players', desc:'Select winners round by round from R128 to the Final. Add a Black Horse for 1.5x bonus points. Submit and compete!', cta:'Build Bracket', action:()=>{setShowPostRegOnboarding(false);setView('bracket');}},
+    ];
+    const step=steps[postRegStep];
+    return(
+      <div style={{position:'fixed',inset:0,zIndex:2500,background:'rgba(0,0,0,0.75)',display:'flex',alignItems:'flex-end',justifyContent:'center',maxWidth:430,margin:'0 auto'}}>
+        <div style={{width:'100%',background:C.modalBg,borderRadius:'20px 20px 0 0',padding:24,paddingBottom:40}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
+            <div style={{display:'flex',gap:6}}>
+              {steps.map((_,i)=><div key={i} style={{width:i===postRegStep?24:8,height:8,borderRadius:4,background:i<=postRegStep?C.accent:C.border,transition:'all 0.3s'}}/>)}
+            </div>
+            <button onClick={()=>setShowPostRegOnboarding(false)} style={{background:'none',border:'none',cursor:'pointer',fontSize:12,color:C.textMuted}}>Skip</button>
+          </div>
+          <div style={{textAlign:'center',marginBottom:24}}>
+            <div style={{fontSize:56,marginBottom:12}}>{step.icon}</div>
+            <h2 style={{fontSize:22,fontWeight:800,color:C.navy,margin:'0 0 4px'}}>{step.title}</h2>
+            <p style={{fontSize:14,fontWeight:600,color:C.accentText,margin:'0 0 12px'}}>{step.sub}</p>
+            <p style={{fontSize:14,color:C.textMid,margin:0,lineHeight:1.6}}>{step.desc}</p>
+          </div>
+          <div style={{display:'flex',gap:12}}>
+            {postRegStep>0&&<button onClick={()=>setPostRegStep(s=>s-1)} style={{flex:1,padding:14,borderRadius:12,border:`1px solid ${C.border}`,background:'none',cursor:'pointer',fontSize:14,fontWeight:600,color:C.textMid}}>Back</button>}
+            <button onClick={postRegStep===steps.length-1?step.action:()=>setPostRegStep(s=>s+1)} style={{flex:2,padding:14,borderRadius:12,border:'none',background:C.accent,cursor:'pointer',fontSize:15,fontWeight:700,color:'#fff'}}>{postRegStep===steps.length-1?step.cta:'Continue'}</button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  return(<div style={{minHeight:'100vh',background:'#3730A3',fontFamily:'-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,sans-serif'}}><style>{`*{box-sizing:border-box;margin:0;padding:0;}html,body,#root{background:#3730A3;margin:0;padding:0;}::-webkit-scrollbar{width:0;height:0;}@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}@keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}@keyframes slideDown{from{opacity:0;transform:translateX(-50%) translateY(-100%);}to{opacity:1;transform:translateX(-50%) translateY(0);}}html{scroll-behavior:auto;}*{-webkit-overflow-scrolling:touch;}`}</style>{showSplash&&<SplashScreen/>}{!showSplash&&showOnboarding&&<OnboardingScreen/>}{showPostRegOnboarding&&<PostRegOnboarding/>}<div style={{maxWidth:430,margin:'0 auto',minHeight:'100vh',paddingBottom:80,background:C.card,transition:'background 0.3s'}}>{view==='bracket'&&<BracketView/>}{view==='calendar'&&<CalendarView/>}{view==='live'&&<LiveView/>}{view==='rankings'&&<RankingsView/>}{view==='wallet'&&<WalletView/>}<BottomNav/>{modal==='deposit'&&<DepositModal/>}{modal==='withdraw'&&<WithdrawModal/>}{modal==='submit'&&<SubmitModal/>}{modal==='blackhorse'&&<BlackHorseModal/>}{modal==='auth'&&<AuthModal/>}{modal==='profile'&&<ProfileModal/>}{modal==='tiers'&&<TierSelectorModal tournament={activeTournament}/>}{modal==='prizes'&&<PrizesModal/>}{modal==='stats'&&<StatsModal/>}{modal==='leagues'&&<MiniLeaguesModal/>}{modal==='h2h'&&<H2HModal/>}{modal==='rewards'&&<RewardsModal/>}{modal==='achievements'&&<AchievementsModal/>}{modal==='commentary'&&<LiveCommentaryModal/>}{modal==='cashback'&&<CashbackModal/>}{modal==='legal'&&<LegalModal/>}{modal==='help'&&<HelpModal/>}{modal==='freeroll'&&<FreerollModal/>}{modal==='notifications'&&<NotificationsModal/>}{modal==='globalfeed'&&<GlobalFeedModal/>}{modal==='whatif'&&<WhatIfModal/>}{modal==='aibuilder'&&<AIBuilderModal/>}{modal==='challenges'&&<DailyChallengesModal/>}{selectedBracket&&<BracketDetailsModal/>}{selPlayer&&<PlayerModal/>}{bracketPlayerStats&&<BracketPlayerStatsModal/>}{leaderboardBracket&&<LeaderboardModal/>}{modal==='social'&&<SocialModal/>}{modal==='publicprofile'&&<PublicProfileModal/>}<WinBanner/><LiveTicker/></div></div>);
 }
